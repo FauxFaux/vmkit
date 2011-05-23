@@ -2,5 +2,6 @@ Makefile.common
 Makefile.config
 config.log
 config.status
+configure.out
 Release
 *~

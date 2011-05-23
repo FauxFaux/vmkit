@@ -8,6 +8,7 @@
 ##===----------------------------------------------------------------------===##
 LEVEL = ../../..
 
+include ../Classpath.config
 include $(LEVEL)/Makefile.config
 
 ifeq ($(WITH_LLVM_GCC), 1)
@@ -19,5 +20,5 @@ endif
 
 include $(LEVEL)/Makefile.common
 
-CXX.Flags += -I$(PROJ_OBJ_DIR)/../Classpath -I$(PROJ_OBJ_DIR)/../LLVMRuntime -I$(PROJ_SRC_DIR)/../Classpath $(CLASSPATH_FLAGS) -I$(PROJ_SRC_DIR)/../../../include/j3
+CXX.Flags += -I$(PROJ_OBJ_DIR)/../$(CLASSPATH) -I$(PROJ_OBJ_DIR)/../LLVMRuntime -I$(PROJ_SRC_DIR)/../Classpath $(CLASSPATH_FLAGS) -I$(PROJ_SRC_DIR)/../../../include/j3
 

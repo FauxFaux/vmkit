@@ -8,6 +8,7 @@
 ##===----------------------------------------------------------------------===##
 LEVEL = ../../..
 
+include ../Classpath.config
 include $(LEVEL)/Makefile.config
 
 ifeq ($(WITH_LLVM_GCC), 1)
@@ -21,5 +22,5 @@ EXTRA_DIST = ExceptionsCheck.inc ExceptionsDwarf.inc
 
 include $(LEVEL)/Makefile.common
 
-CXX.Flags += -I$(PROJ_OBJ_DIR)/../LLVMRuntime -I$(PROJ_SRC_DIR)/../Classpath $(CLASSPATH_FLAGS) -I$(PROJ_SRC_DIR)/../VMCore
+CXX.Flags += -I$(PROJ_OBJ_DIR)/../LLVMRuntime -I$(PROJ_SRC_DIR)/../$(CLASSPATH) $(CLASSPATH_FLAGS) -I$(PROJ_SRC_DIR)/../VMCore
 

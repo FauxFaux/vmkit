@@ -6,12 +6,4 @@
 # License. See LICENSE.TXT for details.
 # 
 ##===----------------------------------------------------------------------===##
-LEVEL = ../..
-
-include Classpath.config
-
-DIRS = LLVMRuntime VMCore $(CLASSPATH) Compiler
-
-include $(LEVEL)/Makefile.config
-include $(LEVEL)/Makefile.common
-
+CLASSPATH=Classpath-@classpathversion@

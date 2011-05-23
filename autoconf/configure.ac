@@ -313,7 +313,12 @@ dnl **************************************************************************
 dnl GNU CLASSPATH installation prefix
 dnl **************************************************************************
 
-classpathversion=0.97.2;
+AC_ARG_WITH(gnu-classpath-version,
+       [AS_HELP_STRING(--with-gnu-classpath-version=0.97.2,
+           [GNU CLASSPATH version (default is 0.97.2)])],
+       [[classpathversion=$withval]],
+       [[classpathversion=0.97.2]]
+)
 
 AC_ARG_WITH(gnu-classpath-libs,
        [AS_HELP_STRING(--with-gnu-classpath-libs=something,
@@ -609,7 +614,8 @@ AC_CONFIG_SRCDIR(["Makefile.common.in"])
 dnl Configure a common Makefile
 AC_CONFIG_FILES(Makefile.common)
 AC_CONFIG_FILES(Makefile.config)
-AC_CONFIG_FILES([lib/J3/Classpath/Classpath.h])
+AC_CONFIG_FILES([lib/J3/Classpath-$classpathversion/Classpath.h])
+AC_CONFIG_FILES([lib/J3/Classpath.config])
 AC_CONFIG_FILES([tools/llcj/LinkPaths.h])
 AC_CONFIG_FILES([mmtk/java/src/org/j3/config/Selected.java])
 AC_CONFIG_FILES([mmtk/java/build.xml])

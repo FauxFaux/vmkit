@@ -726,6 +726,7 @@ with_gc
 with_mmtk_plan
 with_exception_type
 with_runtime_exception_type
+with_gnu_classpath_version
 with_gnu_classpath_libs
 with_gnu_classpath_glibj
 with_j3
@@ -1373,6 +1374,8 @@ Optional Packages:
                           Exception type ('check' or 'dwarf')
   --with-runtime-exception-type=something
                           Runtime exception type ('setjmp' or 'dwarf')
+  --with-gnu-classpath-version=0.97.2
+                          GNU CLASSPATH version (default is 0.97.2)
   --with-gnu-classpath-libs=something
                           GNU CLASSPATH libraries (default is
                           /usr/lib/classpath)
@@ -3968,7 +3971,15 @@ fi
 
 
 
-classpathversion=0.97.2;
+
+# Check whether --with-gnu-classpath-version was given.
+if test "${with_gnu_classpath_version+set}" = set; then :
+  withval=$with_gnu_classpath_version; classpathversion=$withval
+else
+  classpathversion=0.97.2
+
+fi
+
 
 
 # Check whether --with-gnu-classpath-libs was given.
@@ -6111,7 +6122,9 @@ ac_config_files="$ac_config_files Makefile.common"
 
 ac_config_files="$ac_config_files Makefile.config"
 
-ac_config_files="$ac_config_files lib/J3/Classpath/Classpath.h"
+ac_config_files="$ac_config_files lib/J3/Classpath-$classpathversion/Classpath.h"
+
+ac_config_files="$ac_config_files lib/J3/Classpath.config"
 
 ac_config_files="$ac_config_files tools/llcj/LinkPaths.h"
 
@@ -6824,7 +6837,8 @@ do
     "include/mvm/Config/config.h") CONFIG_HEADERS="$CONFIG_HEADERS include/mvm/Config/config.h" ;;
     "Makefile.common") CONFIG_FILES="$CONFIG_FILES Makefile.common" ;;
     "Makefile.config") CONFIG_FILES="$CONFIG_FILES Makefile.config" ;;
-    "lib/J3/Classpath/Classpath.h") CONFIG_FILES="$CONFIG_FILES lib/J3/Classpath/Classpath.h" ;;
+    "lib/J3/Classpath-$classpathversion/Classpath.h") CONFIG_FILES="$CONFIG_FILES lib/J3/Classpath-$classpathversion/Classpath.h" ;;
+    "lib/J3/Classpath.config") CONFIG_FILES="$CONFIG_FILES lib/J3/Classpath.config" ;;
     "tools/llcj/LinkPaths.h") CONFIG_FILES="$CONFIG_FILES tools/llcj/LinkPaths.h" ;;
     "mmtk/java/src/org/j3/config/Selected.java") CONFIG_FILES="$CONFIG_FILES mmtk/java/src/org/j3/config/Selected.java" ;;
     "mmtk/java/build.xml") CONFIG_FILES="$CONFIG_FILES mmtk/java/build.xml" ;;
