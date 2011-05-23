@@ -101,7 +101,8 @@ FunctionMap::FunctionMap() {
   Dl_info info;
   while (decoder.hasNext()) {
     CamlFrame* frame = decoder.next();
-    int res = dladdr(frame->ReturnAddress, &info);
+    int res;
+		res = dladdr(frame->ReturnAddress, &info);
     assert(res != 0 && "No frame");
     StaticCamlMethodInfo* MI = new(*StaticAllocator, "StaticCamlMethodInfo")
         StaticCamlMethodInfo(frame, info.dli_sname);

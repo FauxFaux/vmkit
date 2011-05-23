@@ -319,7 +319,7 @@ bool LowerConstantCalls::runOnFunction(Function& F) {
           BasicBlock* NoDelegatee = BasicBlock::Create(*Context, "No delegatee", &F);
           BasicBlock* DelegateeOK = BasicBlock::Create(*Context, "Delegatee OK", &F);
           BranchInst::Create(NoDelegatee, DelegateeOK, cmp, CI);
-          PHINode* phi = PHINode::Create(intrinsics->JavaObjectType, "", DelegateeOK);
+          PHINode* phi = PHINode::Create(intrinsics->JavaObjectType, 2, "", DelegateeOK);
           phi->addIncoming(Del, CI->getParent());
           
           Instruction* Res = CallInst::Create(intrinsics->RuntimeDelegateeFunction,
@@ -358,7 +358,7 @@ bool LowerConstantCalls::runOnFunction(Function& F) {
           
           BasicBlock* trueCl = BasicBlock::Create(*Context, "Initialized", &F);
           BasicBlock* falseCl = BasicBlock::Create(*Context, "Uninitialized", &F);
-          PHINode* node = llvm::PHINode::Create(intrinsics->JavaClassType, "", trueCl);
+          PHINode* node = llvm::PHINode::Create(intrinsics->JavaClassType, 2, "", trueCl);
           node->addIncoming(Cl, CI->getParent());
           BranchInst::Create(trueCl, falseCl, test, CI);
   
@@ -431,7 +431,7 @@ bool LowerConstantCalls::runOnFunction(Function& F) {
  
           BasicBlock* trueCl = BasicBlock::Create(*Context, "Ctp OK", &F);
           BasicBlock* falseCl = BasicBlock::Create(*Context, "Ctp Not OK", &F);
-          PHINode* node = llvm::PHINode::Create(returnType, "", trueCl);
+          PHINode* node = llvm::PHINode::Create(returnType, 2, "", trueCl);
           node->addIncoming(arg1, CI->getParent());
           BranchInst::Create(falseCl, trueCl, test, CI);
   
@@ -500,7 +500,7 @@ bool LowerConstantCalls::runOnFunction(Function& F) {
 
             BasicBlock* OKBlock = BasicBlock::Create(*Context, "", &F);
             BasicBlock* NotOKBlock = BasicBlock::Create(*Context, "", &F);
-            PHINode* node = PHINode::Create(intrinsics->VTType, "",
+            PHINode* node = PHINode::Create(intrinsics->VTType, 2, "",
                                             OKBlock);
             node->addIncoming(LoadedGV, CI->getParent());
 
@@ -544,7 +544,7 @@ bool LowerConstantCalls::runOnFunction(Function& F) {
           
           BasicBlock* CurEndBlock = BasicBlock::Create(*Context, "", &F);
           BasicBlock* FailedBlock = BasicBlock::Create(*Context, "", &F);
-          PHINode* node = PHINode::Create(Type::getInt1Ty(*Context), "", CurEndBlock);
+          PHINode* node = PHINode::Create(Type::getInt1Ty(*Context), 2, "", CurEndBlock);
 
           ConstantInt* CC = ConstantInt::get(Type::getInt32Ty(*Context),
               JavaVirtualTable::getOffsetIndex());
@@ -600,7 +600,7 @@ bool LowerConstantCalls::runOnFunction(Function& F) {
           BasicBlock* BB9 = BasicBlock::Create(*Context, "BB9", &F);
           const Type* Ty = PointerType::getUnqual(intrinsics->VTType);
           
-          PHINode* resFwd = PHINode::Create(Type::getInt32Ty(*Context), "", BB7);
+          PHINode* resFwd = PHINode::Create(Type::getInt32Ty(*Context), 2, "", BB7);
    
           // This corresponds to:
           //    if (VT1.cache == VT2 || VT1 == VT2) goto end with true;
@@ -665,7 +665,6 @@ bool LowerConstantCalls::runOnFunction(Function& F) {
           // endLoopTest:
           //    if (i < size) goto test
           //    else goto end with false
-          resFwd->reserveOperandSpace(2);
           resFwd->addIncoming(intrinsics->constantZero, Preheader);
           resFwd->addIncoming(IndVar, BB6);
     
@@ -680,8 +679,7 @@ bool LowerConstantCalls::runOnFunction(Function& F) {
           BranchInst::Create(BB9, BB5);
 
           // Final block, that gets the result.
-          PHINode* node = PHINode::Create(Type::getInt1Ty(*Context), "", BB9);
-          node->reserveOperandSpace(3);
+          PHINode* node = PHINode::Create(Type::getInt1Ty(*Context), 3, "", BB9);
           node->addIncoming(ConstantInt::getTrue(*Context), CI->getParent());
           node->addIncoming(ConstantInt::getFalse(*Context), BB7);
           node->addIncoming(ConstantInt::getTrue(*Context), BB5);

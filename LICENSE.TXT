@@ -9,6 +9,8 @@ All rights reserved.
 
 Developed by:
 
+    REGAL/INRIA Team
+
     VVM Team
 
     University of Pierre et Marie Curie, Paris

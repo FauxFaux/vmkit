@@ -7,13 +7,24 @@
 using namespace mvm;
 
 #if 0
-#define dprintf(...) do { printf("[%p] ", (void*)mvm::Thread::get()); printf(__VA_ARGS__); } while(0)
+#define dprintf(...) do { printf("[%p] vmkit: ", (void*)mvm::Thread::get()); printf(__VA_ARGS__); } while(0)
 #else
 #define dprintf(...)
 #endif
 
 static SpinLock initedLock;
 static bool     inited = false;
+
+VMKit::VMKit(mvm::BumpPtrAllocator &Alloc) : allocator(Alloc) {
+	initialise();
+
+	vms          = 0;
+	vmsArraySize = 0;
+
+	numberOfRunningThreads = 0;
+	nonDaemonThreads = 0;
+	doExit = 0;
+}
 
 void VMKit::initialise(llvm::CodeGenOpt::Level level, llvm::Module* TheModule, llvm::TargetMachine* TheTarget) {
 	initedLock.lock();
@@ -23,13 +34,6 @@ void VMKit::initialise(llvm::CodeGenOpt::Level level, llvm::Module* TheModule, l
 		mvm::Collector::initialise();
 	}
 	initedLock.unlock();
-}
-
-VMKit::VMKit(mvm::BumpPtrAllocator &Alloc) : allocator(Alloc) {
-	initialise();
-
-	vms          = 0;
-	vmsArraySize = 0;
 }
 
 void VMKit::scanWeakReferencesQueue(uintptr_t closure) {
@@ -109,7 +113,7 @@ bool VMKit::startCollection() {
 	// should have freed some memory
   rendezvous.startRV();
 
-  if (mvm::Thread::get()->doYield) {
+  if (rendezvous.getInitiator() != NULL) {
     rendezvous.cancelRV();
     rendezvous.join();
     return 0;
@@ -165,7 +169,7 @@ void VMKit::endCollection() {
 }
 
 size_t VMKit::addVM(VirtualMachine* vm) {
-	dprintf("add vm: %p\n", vm);
+	dprintf("add vm: %p\n", (void*)vm);
 	vmkitLock();
 
 	for(size_t i=0; i<vmsArraySize; i++)
@@ -203,13 +207,13 @@ size_t VMKit::addVM(VirtualMachine* vm) {
 }
 
 void VMKit::removeVM(size_t id) {
-	dprintf("remove vm: %p\n", vm);
+	dprintf("remove vm: %d %p\n", id, (void*)vms[id]);
 	// I think that we only should call this function when all the thread data are released
 	vms[id] = 0;
 }
 
 void VMKit::registerPreparedThread(mvm::Thread* th) {
-	dprintf("Create thread: %p\n", th);
+	dprintf("Register prepared thread: %p\n", (void*)th);
 	vmkitLock();
 	th->appendTo(&preparedThreads);
 	th->reallocAllVmsData(0, vmsArraySize);
@@ -217,18 +221,21 @@ void VMKit::registerPreparedThread(mvm::Thread* th) {
 }
   
 void VMKit::unregisterPreparedThread(mvm::Thread* th) {
-	dprintf("Delete thread: %p\n", th);
+	dprintf("Unregister prepared thread: %p\n", (void*)th);
 	vmkitLock();
 	th->remove();
-	for(size_t i=0; i<vmsArraySize; i++)
+	size_t n = vmsArraySize;
+	vmkitUnlock();
+
+	for(size_t i=0; i<n; i++)
 		if(th->allVmsData[i])
 			delete th->allVmsData[i];
 	delete th->allVmsData;
-	vmkitUnlock();
+	th->allVmsData = 0;
 }
 
-void VMKit::registerRunningThread(mvm::Thread* th) {
-	dprintf("Register thread: %p\n", th);
+void VMKit::notifyThreadStart(mvm::Thread* th) {
+	dprintf("Register running thread: %p\n", (void*)th);
 	vmkitLock();
 	numberOfRunningThreads++;
 	th->remove();
@@ -236,8 +243,8 @@ void VMKit::registerRunningThread(mvm::Thread* th) {
 	vmkitUnlock();
 }
   
-void VMKit::unregisterRunningThread(mvm::Thread* th) {
-	dprintf("Unregister thread: %p\n", th);
+void VMKit::notifyThreadQuit(mvm::Thread* th) {
+	dprintf("Unregister running thread: %p\n", (void*)th);
 	vmkitLock();
 	numberOfRunningThreads--;
 	th->remove();
@@ -245,29 +252,55 @@ void VMKit::unregisterRunningThread(mvm::Thread* th) {
 	vmkitUnlock();
 }
 
-void VMKit::waitNonDaemonThreads() { 
-	nonDaemonThreadsManager.waitNonDaemonThreads();
+void VMKit::leaveNonDaemonMode(mvm::Thread* th) {
+	vmkitLock();
+	dprintf("Leave non daemon mode: %p\n", (void*)th);
+	--nonDaemonThreads;
+	if (nonDaemonThreads == 0) th->vmkit->exit();
+	vmkitUnlock();
 }
 
-void NonDaemonThreadManager::leaveNonDaemonMode() {
-  nonDaemonLock.lock();
-  --nonDaemonThreads;
-  if (nonDaemonThreads == 0) nonDaemonVar.signal();
-  nonDaemonLock.unlock();  
+void VMKit::enterNonDaemonMode(mvm::Thread* th) {
+	vmkitLock();
+	dprintf("Enter non daemon mode: %p\n", (void*)th);
+	++nonDaemonThreads;
+	vmkitUnlock();
 }
 
-void NonDaemonThreadManager::enterNonDaemonMode() {
-  nonDaemonLock.lock();
-  ++nonDaemonThreads;
-  nonDaemonLock.unlock();  
+#include <sys/mman.h>
+
+void VMKit::freeThread(mvm::Thread* th) {
+	vmkitLock();
+
+	while(exitingThread)
+		nonDaemonVar.wait(&_vmkitLock);
+
+	exitingThread = th;
+	nonDaemonVar.broadcast();
+	vmkitUnlock();
 }
 
-void NonDaemonThreadManager::waitNonDaemonThreads() {
-  nonDaemonLock.lock();
+void VMKit::waitNonDaemonThreads() {
+	vmkitLock();
 
-  while (nonDaemonThreads) {
-    nonDaemonVar.wait(&nonDaemonLock);
-  }
-  
-  nonDaemonLock.unlock();
+	while (!doExit) {
+		if (exitingThread == NULL) {
+			nonDaemonVar.wait(&_vmkitLock);
+		} else {
+			mvm::MutatorThread* th = (mvm::MutatorThread*)exitingThread;
+			exitingThread = NULL;
+			delete th;
+			nonDaemonVar.broadcast();
+		}
+	}
+
+	vmkitUnlock();
+}
+
+void VMKit::exit() {
+	dprintf("exit\n");
+	doExit = true;
+	vmkitLock();
+	nonDaemonVar.signal();
+	vmkitUnlock();
 }

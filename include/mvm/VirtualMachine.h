@@ -104,10 +104,6 @@ public:
   /// debugging purposes.
   ///
   virtual const char* getObjectTypeName(gc* object) { return "An object"; }
-
-//===----------------------------------------------------------------------===//
-// (4) Launch-related methods.
-//===----------------------------------------------------------------------===//
 };
 
 } // end namespace mvm

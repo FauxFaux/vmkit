@@ -36,7 +36,6 @@ extern "C" void Java_org_j3_mmtk_Collection_triggerCollection__I (MMTkObject* C,
   mvm::Thread* th = mvm::Thread::get();
 
   if (th->vmkit->startCollection()) {
-
     JnJVM_org_mmtk_plan_Plan_setCollectionTriggered__();
 
     // Record the starting time
@@ -91,12 +90,21 @@ extern "C" void Java_org_j3_mmtk_Collection_prepareCollector__Lorg_mmtk_plan_Col
 extern "C" void Java_org_j3_mmtk_Collection_prepareMutator__Lorg_mmtk_plan_MutatorContext_2 (MMTkObject* C, MMTkObject* MC) {
 }
 
+extern "C" int32_t Java_org_j3_mmtk_Collection_activeGCThreads__ (MMTkObject* C) { return 1; }
+extern "C" int32_t Java_org_j3_mmtk_Collection_activeGCThreadOrdinal__ (MMTkObject* C) { return 1; }
+
 
 extern "C" void Java_org_j3_mmtk_Collection_reportPhysicalAllocationFailed__ (MMTkObject* C) { UNIMPLEMENTED(); }
-extern "C" void Java_org_j3_mmtk_Collection_triggerAsyncCollection__I (MMTkObject* C, sint32 val) { UNIMPLEMENTED(); }
-extern "C" void Java_org_j3_mmtk_Collection_noThreadsInGC__ (MMTkObject* C) { UNIMPLEMENTED(); }
-extern "C" void Java_org_j3_mmtk_Collection_activeGCThreads__ (MMTkObject* C) { UNIMPLEMENTED(); }
-extern "C" void Java_org_j3_mmtk_Collection_activeGCThreadOrdinal__ (MMTkObject* C) { UNIMPLEMENTED(); }
+extern "C" void Java_org_j3_mmtk_Collection_triggerAsyncCollection__I (MMTkObject* C, sint32 val) {
+  mvm::Thread::get()->doYield = true;
+}
+
+extern "C" uint8_t Java_org_j3_mmtk_Collection_noThreadsInGC__ (MMTkObject* C) {
+  mvm::Thread* th = mvm::Thread::get();
+  bool threadInGC = th->doYield;
+  return !threadInGC;
+}
+
 extern "C" void Java_org_j3_mmtk_Collection_requestMutatorFlush__ (MMTkObject* C) { UNIMPLEMENTED(); }
 
 } // namespace mmtk

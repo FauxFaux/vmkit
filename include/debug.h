@@ -75,6 +75,8 @@
 #define ASSERT(cond) {  \
 		if (!cond) { fprintf(stderr, "fatal: assert("#cond")\n"); ABORT(); } } \
 
+#define fatal(msg...) do { fprintf(stderr, ##msg); fprintf(stderr, "\n"); abort(); } while(0)
+
 #undef ALWAYS_INLINE
 #define ALWAYS_INLINE __attribute__ ((always_inline))
 

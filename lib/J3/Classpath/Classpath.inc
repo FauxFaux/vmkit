@@ -332,11 +332,9 @@ JavaObject* update) {
   llvm_gcroot(expect, 0);
   llvm_gcroot(update, 0);
 
-  jobject *ptr; 
+  JavaObject** ptr = (JavaObject**) (((uint8 *) obj) + offset);
 
-  ptr = (jobject *) (((uint8 *) obj) + offset);
-
-  return __sync_bool_compare_and_swap(ptr, expect, update);
+  return mvm::Collector::objectReferenceTryCASBarrier((mvm::gc*)obj, (mvm::gc**)ptr, (mvm::gc*)expect, (mvm::gc*)update);
 }
 
 // Never throws.
@@ -349,11 +347,8 @@ JavaObject* unsafe, JavaObject* obj, jlong offset, JavaObject* value) {
   llvm_gcroot(obj, 0);
   llvm_gcroot(value, 0);
 
-  JavaObject** ptr; 
-
-  ptr = (JavaObject**) (((uint8 *) obj) + offset);
-
-  *ptr = value;
-
+  JavaObject** ptr = (JavaObject**) (((uint8 *) obj) + offset);
+  mvm::Collector::objectReferenceWriteBarrier((mvm::gc*)obj, (mvm::gc**)ptr, (mvm::gc*)value);
 }
+
 }

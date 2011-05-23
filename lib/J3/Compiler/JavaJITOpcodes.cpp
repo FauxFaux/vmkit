@@ -722,8 +722,15 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
         Value* obj = pop();
         Value* ptr = verifyAndComputePtr(obj, index,
                                          intrinsics->JavaArrayObjectType);
-
-        new StoreInst(val, ptr, false, currentBlock);
+        if (mvm::Collector::needsWriteBarrier()) {
+          ptr = new BitCastInst(ptr, intrinsics->ptrPtrType, "", currentBlock);
+          val = new BitCastInst(val, intrinsics->ptrType, "", currentBlock);
+          obj = new BitCastInst(obj, intrinsics->ptrType, "", currentBlock);
+          Value* args[3] = { obj, ptr, val };
+          CallInst::Create(intrinsics->ArrayWriteBarrierFunction, args, args + 3, "", currentBlock);
+        } else {
+          new StoreInst(val, ptr, false, currentBlock);
+        }
         break;
       }
 
@@ -1005,7 +1012,7 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
         BasicBlock* ifFalse = createBasicBlock("non -1 div");
         BasicBlock* ifTrue = createBasicBlock("-1 div");
         BasicBlock* endBlock = createBasicBlock("End division");
-        PHINode* node = PHINode::Create(val1->getType(), "", endBlock);
+        PHINode* node = PHINode::Create(val1->getType(), 2, "", endBlock);
         BranchInst::Create(ifTrue, ifFalse, cmp, currentBlock);
         currentBlock = ifTrue;
         node->addIncoming(BinaryOperator::CreateSub(intrinsics->constantZero,
@@ -1081,7 +1088,7 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
                                   intrinsics->constantMinusOne, "");
         BasicBlock* ifFalse = createBasicBlock("non -1 rem");
         BasicBlock* endBlock = createBasicBlock("end block");
-        PHINode* node = PHINode::Create(val1->getType(), "", endBlock);
+        PHINode* node = PHINode::Create(val1->getType(), 2, "", endBlock);
         node->addIncoming(intrinsics->constantZero, currentBlock);
         BranchInst::Create(endBlock, ifFalse, cmp, currentBlock);
         currentBlock = ifFalse;
@@ -1334,7 +1341,7 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
                                          val, val, "");
         
         BasicBlock* res = createBasicBlock("F2I");
-        PHINode* node = PHINode::Create(llvm::Type::getInt32Ty(*llvmContext), "", res);
+        PHINode* node = PHINode::Create(llvm::Type::getInt32Ty(*llvmContext), 4, "", res);
         node->addIncoming(intrinsics->constantZero, currentBlock);
         BasicBlock* cont = createBasicBlock("F2I");
 
@@ -1380,7 +1387,7 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
                                          val, val, "");
         
         BasicBlock* res = createBasicBlock("F2L");
-        PHINode* node = PHINode::Create(llvm::Type::getInt64Ty(*llvmContext), "", res);
+        PHINode* node = PHINode::Create(Type::getInt64Ty(*llvmContext), 4, "", res);
         node->addIncoming(intrinsics->constantLongZero, currentBlock);
         BasicBlock* cont = createBasicBlock("F2L");
 
@@ -1433,7 +1440,7 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
                                          val, val, "");
         
         BasicBlock* res = createBasicBlock("D2I");
-        PHINode* node = PHINode::Create(llvm::Type::getInt32Ty(*llvmContext), "", res);
+        PHINode* node = PHINode::Create(Type::getInt32Ty(*llvmContext), 4, "", res);
         node->addIncoming(intrinsics->constantZero, currentBlock);
         BasicBlock* cont = createBasicBlock("D2I");
 
@@ -1480,7 +1487,7 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
                                          val, val, "");
         
         BasicBlock* res = createBasicBlock("D2L");
-        PHINode* node = PHINode::Create(llvm::Type::getInt64Ty(*llvmContext), "", res);
+        PHINode* node = PHINode::Create(Type::getInt64Ty(*llvmContext), 4, "", res);
         node->addIncoming(intrinsics->constantLongZero, currentBlock);
         BasicBlock* cont = createBasicBlock("D2L");
 
@@ -1568,7 +1575,7 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
         
         BasicBlock* cont = createBasicBlock("LCMP");
         BasicBlock* res = createBasicBlock("LCMP");
-        PHINode* node = PHINode::Create(llvm::Type::getInt32Ty(*llvmContext), "", res);
+        PHINode* node = PHINode::Create(Type::getInt32Ty(*llvmContext), 2, "", res);
         node->addIncoming(intrinsics->constantZero, currentBlock);
         
         BranchInst::Create(res, cont, test, currentBlock);
@@ -2197,7 +2204,7 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
         Value* cmp = new ICmpInst(*currentBlock, ICmpInst::ICMP_EQ, obj,
                                   intrinsics->JavaObjectNullConstant, "");
         BasicBlock* endBlock = createBasicBlock("end type compare");
-        PHINode* node = PHINode::Create(Type::getInt1Ty(*llvmContext), "", endBlock);
+        PHINode* node = PHINode::Create(Type::getInt1Ty(*llvmContext), 2, "", endBlock);
         
         if (checkcast) {
           exceptionCheckcast = createBasicBlock("false checkcast");

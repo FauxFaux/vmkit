@@ -127,39 +127,6 @@ void JavaJIT::invokeVirtual(uint16 index) {
 
     BasicBlock* endBlock = 0;
     PHINode* node = 0;
-#if 0
-    // TODO: enable this only when inlining?
-    if (meth && !isAbstract(meth->access)) {
-      Value* cl = CallInst::Create(intrinsics->GetClassFunction, args[0], "",
-                                   currentBlock);
-      Value* cl2 = intrinsics->getNativeClass(meth->classDef);
-      if (cl2->getType() != intrinsics->JavaCommonClassType) {
-        cl2 = new BitCastInst(cl2, intrinsics->JavaCommonClassType, "", currentBlock);
-      }
-
-      Value* test = new ICmpInst(*currentBlock, ICmpInst::ICMP_EQ, cl, cl2, "");
-
-      BasicBlock* trueBlock = createBasicBlock("true virtual invoke");
-      BasicBlock* falseBlock = createBasicBlock("false virtual invoke");
-      endBlock = createBasicBlock("end virtual invoke");
-      BranchInst::Create(trueBlock, falseBlock, test, currentBlock);
-      currentBlock = trueBlock;
-      Value* res = 0;
-      if (canBeInlined(meth)) {
-        res = invokeInline(meth, args);
-      } else {
-        Function* func = intrinsics->getMethod(meth);
-        res = invoke(func, args, "", currentBlock);
-      }
-      BranchInst::Create(endBlock, currentBlock);
-      if (retType != Type::getVoidTy(*llvmContext)) {
-        node = PHINode::Create(virtualType->getReturnType(), "", endBlock);
-        node->addIncoming(res, currentBlock);
-      }
-      currentBlock = falseBlock;
-    }
-#endif
-
     Value* indexes2[2];
     indexes2[0] = intrinsics->constantZero;
 
@@ -177,7 +144,7 @@ void JavaJIT::invokeVirtual(uint16 index) {
     
       BasicBlock* resolveVirtual = createBasicBlock("resolveVirtual");
       BasicBlock* endResolveVirtual = createBasicBlock("endResolveVirtual");
-      PHINode* node = PHINode::Create(Type::getInt32Ty(*llvmContext), "",
+      PHINode* node = PHINode::Create(Type::getInt32Ty(*llvmContext), 2, "",
                                       endResolveVirtual);
 
       Value* load = new LoadInst(GV, "", false, currentBlock);
@@ -371,7 +338,7 @@ llvm::Function* JavaJIT::nativeCompile(intptr_t natPtr) {
   endBlock = createBasicBlock("end block");
   
   if (returnType != Type::getVoidTy(*llvmContext)) {
-    endNode = PHINode::Create(returnType, "", endBlock);
+    endNode = PHINode::Create(returnType, 0, "", endBlock);
   }
   
   // Allocate currentLocalIndexNumber pointer
@@ -409,7 +376,7 @@ llvm::Function* JavaJIT::nativeCompile(intptr_t natPtr) {
       BasicBlock* BB = createBasicBlock("");
       BasicBlock* NotZero = createBasicBlock("");
       const Type* Ty = PointerType::getUnqual(intrinsics->JavaObjectType);
-      PHINode* node = PHINode::Create(Ty, "", BB);
+      PHINode* node = PHINode::Create(Ty, 2, "", BB);
 
       Value* test = new ICmpInst(*currentBlock, ICmpInst::ICMP_EQ, i,
                                  intrinsics->JavaObjectNullConstant, "");
@@ -480,7 +447,7 @@ llvm::Function* JavaJIT::nativeCompile(intptr_t natPtr) {
     BasicBlock* endBlock = createBasicBlock("");
     Value* test = new LoadInst(nativeFunc, "", currentBlock);
     const llvm::Type* Ty = test->getType();
-    PHINode* node = PHINode::Create(Ty, "", endBlock);
+    PHINode* node = PHINode::Create(Ty, 2, "", endBlock);
     node->addIncoming(test, currentBlock);
     Value* cmp = new ICmpInst(*currentBlock, ICmpInst::ICMP_EQ, test,
                               Constant::getNullValue(Ty), "");
@@ -873,7 +840,7 @@ Instruction* JavaJIT::inlineCompile(BasicBlock*& curBB,
   exploreOpcodes(reader, codeLen);
 
   if (returnType != Type::getVoidTy(*llvmContext)) {
-    endNode = PHINode::Create(returnType, "", endBlock);
+    endNode = PHINode::Create(returnType, 0, "", endBlock);
   }
 
   reader.cursor = start;
@@ -1046,7 +1013,7 @@ llvm::Function* JavaJIT::javaCompile() {
   endBlock = createBasicBlock("end");
 
   if (returnType != Type::getVoidTy(*llvmContext)) {
-    endNode = llvm::PHINode::Create(returnType, "", endBlock);
+    endNode = llvm::PHINode::Create(returnType, 0, "", endBlock);
   }
   
   if (isSynchro(compilingMethod->access)) {
@@ -1858,8 +1825,15 @@ void JavaJIT::setStaticField(uint16 index) {
   if (type != val->getType()) { // int1, int8, int16
     convertValue(val, type, currentBlock, false);
   }
-
-  new StoreInst(val, ptr, false, currentBlock);
+  
+  if (mvm::Collector::needsNonHeapWriteBarrier() && type == intrinsics->JavaObjectType) {
+    ptr = new BitCastInst(ptr, intrinsics->ptrPtrType, "", currentBlock);
+    val = new BitCastInst(val, intrinsics->ptrType, "", currentBlock);
+    Value* args[2] = { ptr, val };
+    CallInst::Create(intrinsics->NonHeapWriteBarrierFunction, args, args + 2, "", currentBlock);
+  } else {
+    new StoreInst(val, ptr, false, currentBlock);
+  }
 }
 
 void JavaJIT::getStaticField(uint16 index) {
@@ -1956,8 +1930,17 @@ void JavaJIT::setVirtualField(uint16 index) {
   if (type != val->getType()) { // int1, int8, int16
     convertValue(val, type, currentBlock, false);
   }
-
-  new StoreInst(val, ptr, false, currentBlock);
+  
+  if (mvm::Collector::needsWriteBarrier() && type == intrinsics->JavaObjectType) {
+    ptr = new BitCastInst(ptr, intrinsics->ptrPtrType, "", currentBlock);
+    val = new BitCastInst(val, intrinsics->ptrType, "", currentBlock);
+    object = new LoadInst(object, "", currentBlock);
+    object = new BitCastInst(object, intrinsics->ptrType, "", currentBlock);
+    Value* args[3] = { object, ptr, val };
+    CallInst::Create(intrinsics->FieldWriteBarrierFunction, args, args + 3, "", currentBlock);
+  } else {
+    new StoreInst(val, ptr, false, currentBlock);
+  }
 }
 
 void JavaJIT::getVirtualField(uint16 index) {
@@ -2099,7 +2082,7 @@ void JavaJIT::invokeInterface(uint16 index) {
     
   // Block bb6 (label_bb6)
   currentBlock = label_bb6;
-  PHINode* ptr_table_0_lcssa = PHINode::Create(Ty, "table.0.lcssa",
+  PHINode* ptr_table_0_lcssa = PHINode::Create(Ty, 2, "table.0.lcssa",
                                                currentBlock);
   ptr_table_0_lcssa->reserveOperandSpace(2);
   ptr_table_0_lcssa->addIncoming(ptr_26, label_bb4);
@@ -2345,8 +2328,8 @@ void JavaJIT::lowerArraycopy(std::vector<Value*>& args) {
                                         currentBlock);
   BranchInst::Create(label_bb11, label_backward, cmp, currentBlock);
 
-  PHINode* phi_dst_ptr = PHINode::Create(ptr_44->getType(), "", label_bb11);
-  PHINode* phi_src_ptr = PHINode::Create(ptr_44->getType(), "", label_bb11);
+  PHINode* phi_dst_ptr = PHINode::Create(ptr_44->getType(), 3, "", label_bb11);
+  PHINode* phi_src_ptr = PHINode::Create(ptr_44->getType(), 3, "", label_bb11);
   phi_dst_ptr->addIncoming(ptr_44, currentBlock);
   phi_src_ptr->addIncoming(ptr_42, currentBlock);
  
@@ -2373,9 +2356,8 @@ void JavaJIT::lowerArraycopy(std::vector<Value*>& args) {
   // Block bb11 (label_bb11)
   currentBlock = label_bb11;
   Argument* fwdref_39 = new Argument(Type::getInt32Ty(*llvmContext));
-  PHINode* int32_i_016 = PHINode::Create(Type::getInt32Ty(*llvmContext),
+  PHINode* int32_i_016 = PHINode::Create(Type::getInt32Ty(*llvmContext), 2,
                                          "i.016", label_bb11);
-  int32_i_016->reserveOperandSpace(2);
   int32_i_016->addIncoming(fwdref_39, label_bb11);
   int32_i_016->addIncoming(intrinsics->constantZero, log_label_bb);
    

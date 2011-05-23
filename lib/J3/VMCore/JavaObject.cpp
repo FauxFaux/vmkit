@@ -34,7 +34,8 @@ uint32_t JavaObject::hashCode(JavaObject* self) {
   assert(mvm::HashBits != 0);
 
   uintptr_t header = self->header;
-  uintptr_t GCBits = header & mvm::GCBitMask;
+  uintptr_t GCBits;
+	GCBits = header & mvm::GCBitMask;
   uintptr_t val = header & HashMask;
   if (val != 0) {
     return val ^ (uintptr_t)getClass(self);

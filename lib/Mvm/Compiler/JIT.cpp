@@ -332,6 +332,10 @@ BaseIntrinsics::BaseIntrinsics(llvm::Module* module) {
   OffsetPendingExceptionInThreadConstant =  ConstantInt::get(Type::getInt32Ty(Context), 4);
 
 	OffsetThreadInMutatorThreadConstant =     ConstantInt::get(Type::getInt32Ty(Context), 0);
+
+  ArrayWriteBarrierFunction = module->getFunction("arrayWriteBarrier");
+  FieldWriteBarrierFunction = module->getFunction("fieldWriteBarrier");
+  NonHeapWriteBarrierFunction = module->getFunction("nonHeapWriteBarrier");
 }
 
 const llvm::TargetData* MvmModule::TheTargetData;

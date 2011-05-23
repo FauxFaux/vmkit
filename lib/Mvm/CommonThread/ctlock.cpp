@@ -131,7 +131,8 @@ void LockRecursive::lockAll(int count) {
 }
 
 Cond::Cond() {
-  int errorcode = pthread_cond_init((pthread_cond_t*)&internalCond, NULL);
+  int errorcode;
+	errorcode = pthread_cond_init((pthread_cond_t*)&internalCond, NULL);
   assert(errorcode == 0); 
 }
 
@@ -149,8 +150,7 @@ void Cond::wait(Lock* l) {
 
   Thread* th = Thread::get();
   th->enterUncooperativeCode();
-  int res = pthread_cond_wait((pthread_cond_t*)&internalCond,
-                              (pthread_mutex_t*)&(l->internalLock));
+	pthread_cond_wait((pthread_cond_t*)&internalCond, (pthread_mutex_t*)&(l->internalLock));
   th->leaveUncooperativeCode();
 
   assert(!res && "Error on wait");

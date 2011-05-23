@@ -353,7 +353,7 @@ Function* LLVMSignatureInfo::createFunctionCallBuf(bool virt) {
                                 arg, "");
       BasicBlock* endBlock = BasicBlock::Create(context, "end", res);
       BasicBlock* loadBlock = BasicBlock::Create(context, "load", res);
-      PHINode* node = PHINode::Create(Intrinsics.JavaObjectType, "",
+      PHINode* node = PHINode::Create(Intrinsics.JavaObjectType, 2, "",
                                       endBlock);
       node->addIncoming(Intrinsics.JavaObjectNullConstant, currentBlock);
       BranchInst::Create(endBlock, loadBlock, cmp, currentBlock);
@@ -437,7 +437,7 @@ Function* LLVMSignatureInfo::createFunctionCallAP(bool virt) {
                                 arg, "");
       BasicBlock* endBlock = BasicBlock::Create(context, "end", res);
       BasicBlock* loadBlock = BasicBlock::Create(context, "load", res);
-      PHINode* node = PHINode::Create(Intrinsics.JavaObjectType, "",
+      PHINode* node = PHINode::Create(Intrinsics.JavaObjectType, 2, "",
                                       endBlock);
       node->addIncoming(Intrinsics.JavaObjectNullConstant, currentBlock);
       BranchInst::Create(endBlock, loadBlock, cmp, currentBlock);
@@ -493,7 +493,7 @@ Function* LLVMSignatureInfo::createFunctionStub(bool special, bool virt) {
   BasicBlock* callBlock = BasicBlock::Create(context, "call", stub);
   PHINode* node = NULL;
   if (!signature->getReturnType()->isVoid()) {
-    node = PHINode::Create(stub->getReturnType(), "", endBlock);
+    node = PHINode::Create(stub->getReturnType(), 2, "", endBlock);
   }
     
 

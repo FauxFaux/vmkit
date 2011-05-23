@@ -177,17 +177,17 @@ public:
   /// pendingException - the pending exception
 	gc* pendingException;                                  // 4 - intrinsic
   
-	/// vmkit - a (shortcut) pointer to vmkit that contains information on all the vms
+	/// vmkit - a (shortcut) pointer to vmkit that contains information of all the vms
 	mvm::VMKit* vmkit;                                     // 5
 
   /// baseSP - The base stack pointer.
   void* baseSP;                                          // 6
 
   /// inRV - Flag to tell that the thread is being part of a rendezvous.
-  bool inRV;                                             // 7
+  char inRV;                                             // 7
 
   /// joinedRV - Flag to tell that the thread has joined a rendezvous.
-  bool joinedRV;                                         // 8
+  char joinedRV;                                         // 8
 
 private:
   /// lastSP - If the thread is running native code that can not be
@@ -217,6 +217,10 @@ private:
   Thread(VMKit* vmk);
 
 public:
+  void operator delete(void* th);
+
+  virtual ~Thread();
+
 
 	/// setDaemon - the thread is a daemon
 	void setDaemon();
@@ -250,7 +254,7 @@ public:
   uint64_t getThreadID() {
     return (uint64_t)this;
   }
- 
+
   /// get - Get the thread specific data of the current thread.
   ///
   static Thread* get() {
@@ -342,8 +346,6 @@ public:
   /// Thread. The thread object is inlined in the stack.
   ///
   void* operator new(size_t sz);
-  void operator delete(void* th);
-  virtual ~Thread();
 
   /// printBacktrace - Print the backtrace.
   ///

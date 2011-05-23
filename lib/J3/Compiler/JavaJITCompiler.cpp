@@ -365,7 +365,8 @@ void* JavaJITCompiler::materializeFunction(JavaMethod* meth) {
            I++, index++) {
         DebugLoc DL = I->Loc;
         uint32_t bytecodeIndex = DL.getLine();
-        uint32_t second = DL.getCol();
+        uint32_t second;
+				second = DL.getCol();
         assert(second == 0 && "Wrong column number");
         uintptr_t address =
             ((JIT*)executionEngine)->getCodeEmitter()->getLabelAddress(I->Label);

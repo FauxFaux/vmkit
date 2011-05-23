@@ -14,6 +14,7 @@
 #include "types.h"
 #include "gcalloc.h"
 #include "mvm/VirtualMachine.h"
+#include "mvm/VMKit.h"
 
 #define gc_allocator std::allocator
 
@@ -268,6 +269,30 @@ public:
   
   static gc* getForwardedFinalizable(gc* val, uintptr_t closure) {
     return val;
+  }
+  static void objectReferenceWriteBarrier(gc* ref, gc** slot, gc* value) {
+    *slot = value;
+  }
+  
+  static void objectReferenceArrayWriteBarrier(gc* ref, gc** slot, gc* value) {
+    *slot = value;
+  }
+
+  static void objectReferenceNonHeapWriteBarrier(gc** slot, gc* value) {
+    *slot = value;
+  }
+
+  static bool objectReferenceTryCASBarrier(gc*ref, gc** slot, gc* old, gc* value) {
+    gc* res = __sync_val_compare_and_swap(slot, old, value);
+    return (res == old);
+  }
+
+  static bool needsWriteBarrier() {
+    return false;
+  }
+
+  static bool needsNonHeapWriteBarrier() {
+    return false;
   }
 };
 

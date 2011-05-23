@@ -46,7 +46,8 @@ void ThinLock::overflowThinLock(gc* object, LockSystem& table) {
 void ThinLock::removeFatLock(FatLock* fatLock, LockSystem& table) {
   gc* object = fatLock->associatedObject;
   llvm_gcroot(object, 0);
-  uintptr_t ID = fatLock->getID();
+  uintptr_t ID;
+	ID = fatLock->getID();
   uintptr_t oldValue = 0;
   uintptr_t newValue = 0;
   uintptr_t yieldedValue = 0;

@@ -31,6 +31,12 @@
 
 using namespace mvm;
 
+#if 0
+#define dprintf(...) do { printf("[%p] cttthread: ", (void*)mvm::Thread::get()); printf(__VA_ARGS__); } while(0)
+#else
+#define dprintf(...)
+#endif
+
 Thread::Thread(VMKit* vmk) {
 #ifdef RUNTIME_DWARF_EXCEPTIONS
 	internalPendingException = 0;
@@ -47,13 +53,13 @@ Thread::Thread(VMKit* vmk) {
 
 void Thread::setDaemon() {
 	if((state & THREAD_RUNNING) && !(state & THREAD_DAEMON))
-		vmkit->nonDaemonThreadsManager.leaveNonDaemonMode();
+		vmkit->leaveNonDaemonMode(this);
 	state |= THREAD_DAEMON;
 }
 
 void Thread::setNonDaemon() {
 	if((state & THREAD_RUNNING) && (state & THREAD_DAEMON))
-		vmkit->nonDaemonThreadsManager.enterNonDaemonMode();
+		vmkit->enterNonDaemonMode(this);
 	state &= ~THREAD_DAEMON;
 }
 
@@ -483,10 +489,12 @@ void Thread::internalThreadStart(mvm::Thread* th) {
 
   th->vmkit->rendezvous.prepareForJoin();
   th->routine(th);
-	th->state &= ~THREAD_RUNNING;
 	if(!(th->state & THREAD_DAEMON))
-		th->vmkit->nonDaemonThreadsManager.leaveNonDaemonMode();
-  th->vmkit->unregisterRunningThread(th);
+		th->vmkit->leaveNonDaemonMode(th);
+	th->state &= ~THREAD_RUNNING;
+  th->vmkit->notifyThreadQuit(th);
+	th->vmkit->unregisterPreparedThread(th);
+	th->vmkit->freeThread(th);
 }
 
 /// start - Called by the creator of the thread to run the new thread.
@@ -494,15 +502,16 @@ void Thread::internalThreadStart(mvm::Thread* th) {
 /// its own way of waiting for created threads.
 int Thread::start(void (*fct)(mvm::Thread*)) {
   pthread_attr_t attributs;
+	const size_t page_size = getpagesize(); 
   pthread_attr_init(&attributs);
-  pthread_attr_setstack(&attributs, this, STACK_SIZE);
+  pthread_attr_setstack(&attributs, (char*)this+page_size, STACK_SIZE-page_size);
   routine = fct;
   // Make sure to add it in the list of threads before leaving this function:
   // the garbage collector wants to trace this thread.
 	state |= THREAD_RUNNING;
 	if(!(state & THREAD_DAEMON))
-		vmkit->nonDaemonThreadsManager.enterNonDaemonMode();
-  vmkit->registerRunningThread(this);
+		vmkit->enterNonDaemonMode(this);
+  vmkit->notifyThreadStart(this);
   int res = pthread_create((pthread_t*)(void*)(&internalThreadID), &attributs,
                            (void* (*)(void *))internalThreadStart, this);
   pthread_detach((pthread_t)internalThreadID);
@@ -516,17 +525,8 @@ int Thread::start(void (*fct)(mvm::Thread*)) {
 void* Thread::operator new(size_t sz) {
   assert(sz < (size_t)getpagesize() && "Thread local data too big");
   void* res = (void*)TheStackManager.allocate();
-  // Give it a second chance.
-  if (res == NULL) {
-    Collector::collect();
-    // Wait for the finalizer to have cleaned up the threads.
-    while (res == NULL) {
-      mvm::Thread::yield();
-      res = (void*)TheStackManager.allocate();
-    }
-  }
   // Make sure the thread information is cleared.
-  memset(res, 0, sz);
+  if (res != NULL) memset(res, 0, sz);
   return res;
 }
 
@@ -540,11 +540,11 @@ Thread::~Thread() {
   // It seems like the pthread implementation in Linux is clearing with NULL
   // the stack of the thread. So we have to get the thread id before
   // calling pthread_join.
+
   void* thread_id = internalThreadID;
   if (thread_id != NULL) {
     // Wait for the thread to die.
     pthread_join((pthread_t)thread_id, NULL);
   }
-	vmkit->unregisterPreparedThread(this);
 }
 

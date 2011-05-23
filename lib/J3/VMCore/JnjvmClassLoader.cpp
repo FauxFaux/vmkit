@@ -88,7 +88,7 @@ JnjvmClassLoader::JnjvmClassLoader(mvm::BumpPtrAllocator& Alloc,
   strings = new(allocator, "StringList") StringList();
 
   vmdata->JCL = this;
-  javaLoader = loader;
+  mvm::Collector::objectReferenceNonHeapWriteBarrier((mvm::gc**)&javaLoader, (mvm::gc*)loader);
 
   JavaMethod* meth = vm->upcalls->loadInClassLoader;
   loadClassMethod = 
@@ -480,7 +480,8 @@ UserClass* JnjvmClassLoader::constructClass(const UTF8* name,
       classes->lock.lock();
       assert(res->getDelegatee() == NULL);
       assert(res->getStaticInstance() == NULL);
-      bool success = classes->map.insert(std::make_pair(internalName, res)).second;
+      bool success;
+			success = classes->map.insert(std::make_pair(internalName, res)).second;
       classes->lock.unlock();
       assert(success && "Could not add class in map");
     } CATCH {

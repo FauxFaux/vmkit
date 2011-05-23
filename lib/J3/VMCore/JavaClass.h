@@ -1218,7 +1218,7 @@ public:
     assert(classDef->isResolved());                                         \
     void* ptr = (void*)((uint64)obj + ptrOffset);                           \
     return ((TYPE*)ptr)[0];                                                 \
-  }
+  }                                                                         \
 
   /// setInstance*Field - Set an instance field.
   ///
@@ -1253,8 +1253,8 @@ public:
     llvm_gcroot(val, 0);
     if (val != NULL) assert(val->getVirtualTable());
     assert(classDef->isResolved());
-    void* ptr = (void*)((uint64)classDef->getStaticInstance() + ptrOffset);
-    ((JavaObject**)ptr)[0] = val;
+    JavaObject** ptr = (JavaObject**)((uint64)classDef->getStaticInstance() + ptrOffset);
+    mvm::Collector::objectReferenceNonHeapWriteBarrier((mvm::gc**)ptr, (mvm::gc*)val);
   }
 
   JavaObject* getInstanceObjectField(JavaObject* obj) {
@@ -1269,13 +1269,45 @@ public:
     llvm_gcroot(val, 0);
     if (val != NULL) assert(val->getVirtualTable());
     assert(classDef->isResolved());
-    void* ptr = (void*)((uint64)obj + ptrOffset);
-    ((JavaObject**)ptr)[0] = val;
+    JavaObject** ptr = (JavaObject**)((uint64)obj + ptrOffset);
+    mvm::Collector::objectReferenceWriteBarrier((mvm::gc*)obj, (mvm::gc**)ptr, (mvm::gc*)val);
   }
   
   bool isReference() {
     uint16 val = type->elements[0];
     return (val == '[' || val == 'L');
+  }
+  
+  bool isDouble() {
+    return (type->elements[0] == 'D');
+  }
+
+  bool isLong() {
+    return (type->elements[0] == 'J');
+  }
+
+  bool isInt() {
+    return (type->elements[0] == 'I');
+  }
+
+  bool isFloat() {
+    return (type->elements[0] == 'F');
+  }
+
+  bool isShort() {
+    return (type->elements[0] == 'S');
+  }
+
+  bool isChar() {
+    return (type->elements[0] == 'C');
+  }
+
+  bool isByte() {
+    return (type->elements[0] == 'B');
+  }
+
+  bool isBoolean() {
+    return (type->elements[0] == 'Z');
   }
 
 };

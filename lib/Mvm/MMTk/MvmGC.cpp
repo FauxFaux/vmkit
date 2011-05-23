@@ -110,9 +110,47 @@ gc* Collector::getForwardedReferent(gc* val, uintptr_t closure) {
   return NULL;
 }
 
+extern "C" void arrayWriteBarrier(gc* ref, gc** ptr, gc* value) {
+  *ptr = value;
+}
+
+extern "C" void fieldWriteBarrier(gc* ref, gc** ptr, gc* value) {
+  *ptr = value;
+}
+
+extern "C" void nonHeapWriteBarrier(gc** ptr, gc* value) {
+  *ptr = value;
+}
+
+
+void Collector::objectReferenceWriteBarrier(gc* ref, gc** slot, gc* value) {
+  *slot = value;
+}
+
+void Collector::objectReferenceArrayWriteBarrier(gc* ref, gc** slot, gc* value) {
+  *slot = value;
+}
+
+void Collector::objectReferenceNonHeapWriteBarrier(gc** slot, gc* value) {
+  *slot = value;
+}
+
+bool Collector::objectReferenceTryCASBarrier(gc*ref, gc** slot, gc* old, gc* value) {
+  gc* res = __sync_val_compare_and_swap(slot, old, value);
+  return (old == res);
+}
+
 void Collector::collect() {
   // Do nothing.
 }
 
 void Collector::initialise() {
+}
+
+bool Collector::needsWriteBarrier() {
+  return false;
+}
+
+bool Collector::needsNonHeapWriteBarrier() {
+  return false;
 }

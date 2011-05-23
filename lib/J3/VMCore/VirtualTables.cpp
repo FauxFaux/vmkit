@@ -18,6 +18,9 @@
 //     referenced by classes.
 // (4) Tracing the roots of a program: the JVM and the threads.
 //
+// Additionnaly, all write of GC objets in J3 data structures must go through
+// a write barrier.
+//
 //===----------------------------------------------------------------------===//
 
 #include "ClasspathReflect.h"
@@ -276,20 +279,16 @@ void Jnjvm::tracer(uintptr_t closure) {
     mvm::Collector::markAndTraceRoot(key, closure);
   }
 
-	// (5) Trace the delegatees.
-#define TRACE_DELEGATEE(prim) \
-  prim->tracer(closure);
-
-  TRACE_DELEGATEE(upcalls->OfVoid);
-  TRACE_DELEGATEE(upcalls->OfBool);
-  TRACE_DELEGATEE(upcalls->OfByte);
-  TRACE_DELEGATEE(upcalls->OfChar);
-  TRACE_DELEGATEE(upcalls->OfShort);
-  TRACE_DELEGATEE(upcalls->OfInt);
-  TRACE_DELEGATEE(upcalls->OfFloat);
-  TRACE_DELEGATEE(upcalls->OfLong);
-  TRACE_DELEGATEE(upcalls->OfDouble);
-#undef TRACE_DELEGATEE
+  // (4) Trace the upcalls
+  upcalls->OfVoid->tracer(closure);
+  upcalls->OfBool->tracer(closure);
+  upcalls->OfByte->tracer(closure);
+  upcalls->OfChar->tracer(closure);
+  upcalls->OfShort->tracer(closure);
+  upcalls->OfInt->tracer(closure);
+  upcalls->OfFloat->tracer(closure);
+  upcalls->OfLong->tracer(closure);
+  upcalls->OfDouble->tracer(closure);
   
   // (6) Trace the locks and their associated object.
   uint32 i = 0;

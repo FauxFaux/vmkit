@@ -42,7 +42,7 @@ void Collector::do_collect() {
   unused_nodes->attrape(used_nodes);
 
   mvm::Thread* th = mvm::Thread::get();
-	if(th->startCollection()) {
+	if(th->vmkit->startCollection()) {
 
 		mvm::Thread* tcur = th;
 

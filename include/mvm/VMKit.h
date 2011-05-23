@@ -45,41 +45,6 @@ public:
   FunctionMap();
 };
 
-
-class NonDaemonThreadManager {
-	friend class Thread;
-public:
-	NonDaemonThreadManager() { nonDaemonThreads = 0; }
-
-private:
-  /// nonDaemonThreads - Number of threads in the system that are not daemon
-  /// threads.
-  //
-  uint16 nonDaemonThreads;
-
-  /// nonDaemonLock - Protection lock for the nonDaemonThreads variable.
-  ///
-  mvm::LockNormal nonDaemonLock;
-
-  /// nonDaemonVar - Condition variable to wake up the initial thread when it
-  /// waits for other non-daemon threads to end. The non-daemon thread that
-  /// decrements the nonDaemonThreads variable to zero wakes up the initial
-  /// thread.
-  ///
-  mvm::Cond nonDaemonVar;
-  
-  /// leave - A thread calls this function when it leaves the thread system.
-  ///
-  void leaveNonDaemonMode();
-
-  /// enter - A thread calls this function when it enters the thread system.
-  ///
-  void enterNonDaemonMode();
-
-public:
-	void waitNonDaemonThreads();
-};
-
 class VMKit : public mvm::PermanentObject {
 public:
   /// allocator - Bump pointer allocator to allocate permanent memory of VMKit
@@ -121,21 +86,51 @@ public:
   ///
 	CircularBase<Thread>         runningThreads;
 
-  /// numberOfRunningThreads - The number of threads that currently run under this VM.
-	///                          synchronized with vmkitLock
-	///
-  size_t                       numberOfRunningThreads;
+  /// doExit - Should the VM exit now?
+  bool doExit;
 
-	// nonDaemonThreadsManager - manager of the non daemon threads
-	NonDaemonThreadManager       nonDaemonThreadsManager;
+  /// exitingThread - Thread that is currently exiting. Used by the thread
+  /// manager to free the resources (stack) used by a thread.
+  mvm::Thread* exitingThread;
 
+  /// numberOfRunningThreads - Number of threads that are running in the system
+  /// threads.
+  //
+  uint32 numberOfRunningThreads;
+
+  /// nonDaemonThreads - Number of threads in the system that are not daemon
+  /// threads.
+  //
+  uint32 nonDaemonThreads;
+
+  /// nonDaemonVar - Condition variable to wake up the initial thread when it
+  /// waits for other non-daemon threads to end. The non-daemon thread that
+  /// decrements the nonDaemonThreads variable to zero wakes up the initial
+  /// thread.
+  ///
+  mvm::Cond nonDaemonVar;
+  
+  /// leave - A thread calls this function when it leaves the thread system.
+  ///
+  void leaveNonDaemonMode(mvm::Thread* th);
+
+  /// enter - A thread calls this function when it enters the thread system.
+  ///
+  void enterNonDaemonMode(mvm::Thread* th);
+
+public:
 	void registerPreparedThread(mvm::Thread* th);  
 	void unregisterPreparedThread(mvm::Thread* th);
 
-	void registerRunningThread(mvm::Thread* th);  
-	void unregisterRunningThread(mvm::Thread* th);
+	void notifyThreadStart(mvm::Thread* th);  
+	void notifyThreadQuit(mvm::Thread* th);
+
+	void freeThread(mvm::Thread* th);
 
 	void waitNonDaemonThreads();
+
+  /// exit - Exit this vmkit.
+  void exit();
 
 	/// ------------------------------------------------- ///
 	/// ---             memory managment              --- ///

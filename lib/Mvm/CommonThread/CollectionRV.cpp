@@ -16,6 +16,13 @@
 
 #include "debug.h"
 
+
+#if 0
+#define dprintf(...) do { printf("[%p] CollectionRV: ", (void*)mvm::Thread::get()); printf(__VA_ARGS__); } while(0)
+#else
+#define dprintf(...)
+#endif
+
 using namespace mvm;
 
 void CollectionRV::another_mark() {
@@ -23,6 +30,7 @@ void CollectionRV::another_mark() {
   assert(th->getLastSP() != NULL);
   assert(nbJoined < vmkit->NumberOfThreads);
   nbJoined++;
+	dprintf("another_mark: %d %d\n", nbJoined, vmkit->numberOfRunningThreads);
   if (nbJoined == vmkit->numberOfRunningThreads) {
     condInitiator.broadcast();
   }
@@ -47,12 +55,17 @@ void CollectionRV::waitRV() {
 }
 
 void CooperativeCollectionRV::synchronize() {
+	dprintf("synchronize\n");
   assert(nbJoined == 0);
   mvm::Thread* self = mvm::Thread::get();
+  // Lock thread lock, so that we can traverse the thread list safely. This will
+  // be released on finishRV.
 	mvm::VMKit* vmkit = self->vmkit;
 
+  assert(initiator == NULL);
+  initiator = self;
+
 	for(Thread* cur=vmkit->runningThreads.next(); cur!=&vmkit->runningThreads; cur=cur->next()) { 
-    assert(!cur->doYield);
     cur->doYield = true;
     assert(!cur->joinedRV);
   }
@@ -90,9 +103,12 @@ void UncooperativeCollectionRV::synchronize() {
 
   // Lock thread lock, so that we can traverse the thread list safely. This will
   // be released on finishRV.
+	printf("verify me, should maybe be removed");
+	abort();
 	for(Thread* cur=vmkit->runningThreads.next(); cur!=&vmkit->runningThreads; cur=cur->next()) { 
 		if(cur!=self) {
-			int res = cur->kill(SIGGC);
+			int res;
+			res = cur->kill(SIGGC);
 			assert(!res && "Error on kill");
 		}
 	}
@@ -188,8 +204,8 @@ extern "C" void conditionalSafePoint() {
 
 void CooperativeCollectionRV::finishRV() {
   lockRV();
-    
-  mvm::Thread* initiator = mvm::Thread::get();
+  
+  assert(mvm::Thread::get() == initiator);
 	mvm::VMKit* vmkit = initiator->vmkit;
 
   for(mvm::Thread* cur=vmkit->runningThreads.next(); cur!=&vmkit->runningThreads; cur=cur->next()) {
@@ -200,10 +216,13 @@ void CooperativeCollectionRV::finishRV() {
   }
 	
   assert(nbJoined == initiator->vmkit->NumberOfThreads && "Inconsistent state");
+
   nbJoined = 0;
+
   condEndRV.broadcast();
+  initiator = NULL;
   unlockRV();
-  initiator->inRV = false;
+  mvm::Thread::get()->inRV = false;
 }
 
 void CooperativeCollectionRV::prepareForJoin() {

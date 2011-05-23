@@ -12,7 +12,6 @@
 #define _GC_H_
 
 #include <stdint.h>
-#include "ObjectHeader.h"
 
 #ifdef WITH_LLVM_GCC
 extern "C" void __llvm_gcroot(void**, void*) __attribute__((nothrow));
@@ -73,6 +72,10 @@ namespace mvm {
 
 	class VirtualTable : public GCVirtualTable {};
 
+  // TODO(ngeoffray): Make these two constants easily configurable. For now they
+  // work for all our supported GCs.
+  static const uint32_t GCBits = 8;
+  static const bool MovesObject = true;
   static const uint32_t HashBits = 8;
   static const uint64_t GCBitMask = ((1 << GCBits) - 1);
 } // namespace mvm

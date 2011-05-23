@@ -294,6 +294,8 @@ public:
   Class* loadClassFromSelf(const char* name);
 
   friend class Class;
+  friend class CommonClass;
+  friend class StringList;
 };
 
 /// JnjvmBootstrapLoader - This class is for the bootstrap class loader, which
@@ -427,8 +429,11 @@ public:
       JCL->strings = next;
       return next->addString(JCL, obj);
     } else {
-      strings[length] = obj;
-      return &strings[length++];
+      JCL->lock.lock();
+      mvm::Collector::objectReferenceNonHeapWriteBarrier((mvm::gc**)&(strings[length]), (mvm::gc*)obj);
+      JavaString** res = &strings[length++];
+      JCL->lock.unlock();
+      return res;
     }
   }
 };
