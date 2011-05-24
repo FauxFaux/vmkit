@@ -25,9 +25,9 @@ using namespace j3;
 using namespace llvm;
 
 JavaLLVMCompiler::JavaLLVMCompiler(const std::string& str) :
-  TheModule(new llvm::Module(str, *(new LLVMContext()))),
-  DebugFactory(new DIBuilder(*TheModule)),
-  JavaIntrinsics(TheModule) {
+  theModule(new llvm::Module(str, *(new LLVMContext()))),
+  debugFactory(new DIBuilder(*theModule)),
+  javaIntrinsics(theModule) {
 
   enabledException = true;
 #ifdef WITH_LLVM_GCC
@@ -89,7 +89,7 @@ JavaMethod* JavaLLVMCompiler::getJavaMethod(const llvm::Function& F) {
 
 MDNode* JavaLLVMCompiler::GetDbgSubprogram(JavaMethod* meth) {
   if (getMethodInfo(meth)->getDbgSubprogram() == NULL) {
-    MDNode* node = DebugFactory->createFunction(DIDescriptor(), "",
+    MDNode* node = debugFactory->createFunction(DIDescriptor(), "",
                                                 "", DIFile(), 0,
                                                 DIType(), false,
                                                 false);
@@ -100,9 +100,9 @@ MDNode* JavaLLVMCompiler::GetDbgSubprogram(JavaMethod* meth) {
 }
 
 JavaLLVMCompiler::~JavaLLVMCompiler() {
-  LLVMContext* Context = &(TheModule->getContext());
-  delete TheModule;
-  delete DebugFactory;
+  LLVMContext* Context = &(theModule->getContext());
+  delete theModule;
+  delete debugFactory;
   delete JavaFunctionPasses;
   delete JavaNativeFunctionPasses;
   delete Context;
@@ -118,13 +118,13 @@ namespace j3 {
 }
 
 void JavaLLVMCompiler::addJavaPasses() {
-  JavaNativeFunctionPasses = new FunctionPassManager(TheModule);
-  JavaNativeFunctionPasses->add(new TargetData(TheModule));
+  JavaNativeFunctionPasses = new FunctionPassManager(theModule);
+  JavaNativeFunctionPasses->add(new TargetData(theModule));
   // Lower constant calls to lower things like getClass used
   // on synchronized methods.
   JavaNativeFunctionPasses->add(createLowerConstantCallsPass(this));
   
-  JavaFunctionPasses = new FunctionPassManager(TheModule);
+  JavaFunctionPasses = new FunctionPassManager(theModule);
   if (cooperativeGC)
     JavaFunctionPasses->add(vmkit::createLoopSafePointsPass());
   // Add other passes after the loop pass, because safepoints may move objects.

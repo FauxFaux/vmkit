@@ -22,10 +22,10 @@ namespace n3 {
 class N3ModuleProvider : public GVMaterializer {
 public:
   FunctionMap* functions;
-  Module* TheModule;
+  Module* theModule;
 
   N3ModuleProvider(Module *m, FunctionMap* f) {
-    TheModule = m;
+    theModule = m;
     m->setMaterializer(this);
     functions = f;
   }

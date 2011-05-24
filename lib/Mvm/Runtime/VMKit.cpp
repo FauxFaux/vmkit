@@ -26,11 +26,11 @@ VMKit::VMKit(vmkit::BumpPtrAllocator &Alloc) : allocator(Alloc) {
 	doExit = 0;
 }
 
-void VMKit::initialise(llvm::CodeGenOpt::Level level, llvm::Module* TheModule, llvm::TargetMachine* TheTarget) {
+void VMKit::initialise(llvm::CodeGenOpt::Level level, llvm::Module* theModule, llvm::TargetMachine* TheTarget) {
 	initedLock.lock();
 	if(!inited) {
 		inited = true;
-		vmkit::MvmModule::initialise(level, TheModule, TheTarget);
+		vmkit::MvmModule::initialise(level, theModule, TheTarget);
 		vmkit::Collector::initialise();
 	}
 	initedLock.unlock();

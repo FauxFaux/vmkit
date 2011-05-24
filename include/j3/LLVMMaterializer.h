@@ -57,7 +57,7 @@ class LLVMMaterializer : public llvm::GVMaterializer {
 public:
  
   JavaLLVMLazyJITCompiler* Comp;
-  llvm::Module* TheModule;
+  llvm::Module* theModule;
 
   LLVMMaterializer(llvm::Module* M, JavaLLVMLazyJITCompiler* C);
 

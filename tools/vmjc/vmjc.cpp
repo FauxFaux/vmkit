@@ -121,12 +121,12 @@ int main(int argc, char **argv) {
 
   // Disable cross-compiling for now.
   if (false) {
-    Module* TheModule = new Module("bootstrap module",
+    Module* theModule = new Module("bootstrap module",
                                    *(new llvm::LLVMContext()));
     if (!TargetTriple.empty())
-      TheModule->setTargetTriple(TargetTriple);
+      theModule->setTargetTriple(TargetTriple);
     else
-      TheModule->setTargetTriple(vmkit::MvmModule::getHostTriple());
+      theModule->setTargetTriple(vmkit::MvmModule::getHostTriple());
 
 #if 0
     // explicitly specified an architecture to compile for.
@@ -147,7 +147,7 @@ int main(int argc, char **argv) {
     } else {
       std::string Err;
       TheTarget =
-        TargetRegistry::getClosestStaticTargetForModule(*TheModule, Err);
+        TargetRegistry::getClosestStaticTargetForModule(*theModule, Err);
       if (TheTarget == 0) {
         errs() << argv[0] << ": error auto-selecting target for module '"
                << Err << "'.  Please use the -march option to explicitly "
@@ -158,17 +158,17 @@ int main(int argc, char **argv) {
 
     std::string FeaturesStr;
     std::auto_ptr<TargetMachine>
-      target(TheTarget->createTargetMachine(*TheModule, FeaturesStr));
+      target(TheTarget->createTargetMachine(*theModule, FeaturesStr));
     assert(target.get() && "Could not allocate target machine!");
     TargetMachine &Target = *target.get();
 
     // Install information about target datalayout stuff into the module for
     // optimizer use.
-    TheModule->setDataLayout(Target.getTargetData()->
+    theModule->setDataLayout(Target.getTargetData()->
                              getStringRepresentation());
 
 
-    vmkit::VMKit::initialise(CodeGenOpt::Default, TheModule, &Target);
+    vmkit::VMKit::initialise(CodeGenOpt::Default, theModule, &Target);
 #endif
   }
 

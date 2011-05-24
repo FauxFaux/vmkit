@@ -12,6 +12,10 @@ include $(LEVEL)/Makefile.config
 
 EXTRA_DIST = BoehmGC GCMmap2 MMTk
 
-DIRS = Allocator CommonThread $(GCLIB) Runtime Compiler StaticGCPass JITGCPass
+ifeq ($(GCLIB), GCMMap2)
+	DIR = Allocator
+endif
+
+DIRS += CommonThread $(GCLIB) Runtime Compiler StaticGCPass JITGCPass
 
 include $(LEVEL)/Makefile.common

@@ -52,7 +52,7 @@ public:
 
 	// initialise - initialise vmkit. If never called, will be called by the first constructor of vmkit
 	static void initialise(llvm::CodeGenOpt::Level = llvm::CodeGenOpt::Default,
-                         llvm::Module* TheModule = 0,
+                         llvm::Module* theModule = 0,
                          llvm::TargetMachine* TheTarget = 0);
 
   VMKit(vmkit::BumpPtrAllocator &Alloc);

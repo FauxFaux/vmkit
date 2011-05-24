@@ -96,7 +96,7 @@ ThreadSystem::ThreadSystem() {
 
 N3::N3(vmkit::BumpPtrAllocator &allocator, const char *name) : vmkit::VirtualMachine(allocator) {
   this->module =            0;
-  this->TheModuleProvider = 0;
+  this->theModuleProvider = 0;
 	this->name =              name;
 
   this->scanner =           new vmkit::UnpreciseStackScanner(); 
@@ -109,12 +109,12 @@ N3::N3(vmkit::BumpPtrAllocator &allocator, const char *name) : vmkit::VirtualMac
   this->functions =         new(allocator, "FunctionMap") FunctionMap();
   this->loadedAssemblies =  new(allocator, "AssemblyMap") AssemblyMap();
 
-  this->TheModuleProvider = new N3ModuleProvider(this->LLVMModule, this->functions);
+  this->theModuleProvider = new N3ModuleProvider(this->LLVMModule, this->functions);
 }
 
 N3::~N3() {
   delete module;
-  delete TheModuleProvider;
+  delete theModuleProvider;
 }
 
 void N3::error(const char* className, const char* fmt, va_list ap) {

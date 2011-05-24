@@ -22,8 +22,8 @@ JnjvmSharedLoader* JnjvmSharedLoader::sharedLoader;
 JnjvmSharedLoader* JnjvmSharedLoader::createSharedLoader() {
   
   JnjvmSharedLoader* JCL = gc_new(JnjvmSharedLoader)();
-  JCL->TheModule = new JnjvmModule("Bootstrap JnJVM");
-  JCL->TheModuleProvider = new JnjvmModuleProvider(JCL->TheModule);
+  JCL->theModule = new JnjvmModule("Bootstrap JnJVM");
+  JCL->theModuleProvider = new JnjvmModuleProvider(JCL->theModule);
   
   JCL->allocator = new JavaAllocator();
   

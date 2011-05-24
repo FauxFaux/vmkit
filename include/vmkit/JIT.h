@@ -202,7 +202,7 @@ public:
    static uint64 getTypeSize(const llvm::Type* type);
    static void runPasses(llvm::Function* func, llvm::FunctionPassManager*);
    static void initialise(llvm::CodeGenOpt::Level = llvm::CodeGenOpt::Default,
-                         llvm::Module* TheModule = 0,
+                         llvm::Module* theModule = 0,
                          llvm::TargetMachine* TheTarget = 0);
    static void loadBytecodeFile(const std::string& str);
 

@@ -1,4 +1,4 @@
-//===------------- J3Intrinsics.cpp - Intrinsics for J3 -------------------===//
+//===------------- JavaIntrinsics.cpp - Intrinsics for J3 -------------------===//
 //
 //                            The VMKit project
 //
@@ -19,7 +19,7 @@
 #include "JavaClass.h"
 #include "JavaTypes.h"
 
-#include "j3/J3Intrinsics.h"
+#include "j3/JavaIntrinsics.h"
 #include "j3/LLVMInfo.h"
 
 using namespace j3;
@@ -31,7 +31,7 @@ namespace j3 {
   }
 }
 
-J3Intrinsics::J3Intrinsics(llvm::Module* module) :
+JavaIntrinsics::JavaIntrinsics(llvm::Module* module) :
   BaseIntrinsics(module) {
   j3::llvm_runtime::makeLLVMModuleContents(module);
   
@@ -92,7 +92,7 @@ J3Intrinsics::J3Intrinsics(llvm::Module* module) :
     PointerType::getUnqual(module->getTypeByName("CodeLineInfo"));
   
   JavaObjectNullConstant =
-    Constant::getNullValue(J3Intrinsics::JavaObjectType);
+    Constant::getNullValue(JavaIntrinsics::JavaObjectType);
   MaxArraySizeConstant = ConstantInt::get(Type::getInt32Ty(Context),
                                           JavaArray::MaxArraySize);
   JavaArraySizeConstant = ConstantInt::get(Type::getInt32Ty(Context),

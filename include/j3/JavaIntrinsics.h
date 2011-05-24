@@ -1,4 +1,4 @@
-//===-------------- J3Intrinsics.h - Intrinsics of J3 ---------------------===//
+//===-------------- JavaIntrinsics.h - Intrinsics of J3 ---------------------===//
 //
 //                            The VMKit project
 //
@@ -14,7 +14,7 @@
 
 namespace j3 {
 
-class J3Intrinsics : public vmkit::BaseIntrinsics {
+class JavaIntrinsics : public vmkit::BaseIntrinsics {
 
 public:
   const llvm::Type* JavaArrayUInt8Type;
@@ -144,7 +144,7 @@ public:
   llvm::Function* ThrowExceptionFromJITFunction;
   
 
-  J3Intrinsics(llvm::Module*);
+  JavaIntrinsics(llvm::Module*);
   
   static void initialise();
 

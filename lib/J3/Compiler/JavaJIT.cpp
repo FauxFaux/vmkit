@@ -39,7 +39,7 @@
 #include "Reader.h"
 
 #include "j3/JavaLLVMCompiler.h"
-#include "j3/J3Intrinsics.h"
+#include "j3/JavaIntrinsics.h"
 
 using namespace j3;
 using namespace llvm;
@@ -661,7 +661,7 @@ static void removeUnusedLocals(std::vector<AllocaInst*>& locals) {
 }
   
 static void removeUnusedObjects(std::vector<AllocaInst*>& objects,
-                                J3Intrinsics* intrinsics, bool coop) {
+                                JavaIntrinsics* intrinsics, bool coop) {
   for (std::vector<AllocaInst*>::iterator i = objects.begin(),
        e = objects.end(); i != e; ++i) {
     AllocaInst* temp = *i;

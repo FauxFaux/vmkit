@@ -109,7 +109,7 @@ private:
   llvm::LLVMContext* llvmContext;
   
   /// intrinsics - The LLVM intrinsics where lives the compiling LLVM function.
-  J3Intrinsics* intrinsics;
+  JavaIntrinsics* intrinsics;
 
   /// TheCompiler - The LLVM Java compiler.
   ///

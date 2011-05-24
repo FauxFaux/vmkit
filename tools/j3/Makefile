@@ -13,9 +13,12 @@ include $(LEVEL)/Makefile.config
 TOOLNAME = j3
 
 ifeq ($(WITH_LLVM_GCC), 1)
+	ifeq ($(GCLIB), GCMmap2)
+		Allocator=Allocator.bc
+	endif
 
   MODULESNAME = j3
-  USEDMODULES = J3.bc Classpath.bc J3Compiler.bc Allocator.bc CommonThread.bc \
+  USEDMODULES = J3.bc Classpath.bc J3Compiler.bc $(Allocator) CommonThread.bc \
 		Mvm.bc MvmCompiler.bc
 
   ifeq ($(GC_MMTK), 1)
@@ -29,8 +32,12 @@ ifeq ($(WITH_LLVM_GCC), 1)
 
 else
 
-USEDLIBS = J3.a Classpath.a J3.a J3Compiler.a Allocator.a \
-	   Mvm.a MvmCompiler.a $(GCLIB).a Allocator.a CommonThread.a
+	ifeq ($(GCLIB), GCMmap2)
+		Allocator=Allocator.a
+	endif
+
+	USEDLIBS = J3.a Classpath.a J3.a J3Compiler.a $(Allocator) \
+	   Mvm.a MvmCompiler.a $(GCLIB).a $(Allocator) CommonThread.a
 
 endif
 

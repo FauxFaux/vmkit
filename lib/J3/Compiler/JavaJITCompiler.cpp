@@ -35,7 +35,7 @@
 #include "Jnjvm.h"
 
 #include "j3/JavaJITCompiler.h"
-#include "j3/J3Intrinsics.h"
+#include "j3/JavaIntrinsics.h"
 #include "j3/LLVMMaterializer.h"
 
 using namespace j3;
@@ -93,8 +93,8 @@ void JavaJITListener::NotifyFunctionEmitted(const Function &F,
 
 
 Constant* JavaJITCompiler::getNativeClass(CommonClass* classDef) {
-  const llvm::Type* Ty = classDef->isClass() ? JavaIntrinsics.JavaClassType :
-                                               JavaIntrinsics.JavaCommonClassType;
+  const llvm::Type* Ty = classDef->isClass() ? javaIntrinsics.JavaClassType :
+                                               javaIntrinsics.JavaCommonClassType;
   
   ConstantInt* CI = ConstantInt::get(Type::getInt64Ty(getLLVMContext()),
                                      uint64_t(classDef));
@@ -106,13 +106,13 @@ Constant* JavaJITCompiler::getConstantPool(JavaConstantPool* ctp) {
   assert(ptr && "No constant pool found");
   ConstantInt* CI = ConstantInt::get(Type::getInt64Ty(getLLVMContext()),
                                      uint64_t(ptr));
-  return ConstantExpr::getIntToPtr(CI, JavaIntrinsics.ConstantPoolType);
+  return ConstantExpr::getIntToPtr(CI, javaIntrinsics.ConstantPoolType);
 }
 
 Constant* JavaJITCompiler::getMethodInClass(JavaMethod* meth) {
   ConstantInt* CI = ConstantInt::get(Type::getInt64Ty(getLLVMContext()),
                                      (int64_t)meth);
-  return ConstantExpr::getIntToPtr(CI, JavaIntrinsics.JavaMethodType);
+  return ConstantExpr::getIntToPtr(CI, javaIntrinsics.JavaMethodType);
 }
 
 Constant* JavaJITCompiler::getString(JavaString* str) {
@@ -123,7 +123,7 @@ Constant* JavaJITCompiler::getString(JavaString* str) {
 
 Constant* JavaJITCompiler::getStringPtr(JavaString** str) {
   assert(str && "No string given");
-  const llvm::Type* Ty = PointerType::getUnqual(JavaIntrinsics.JavaObjectType);
+  const llvm::Type* Ty = PointerType::getUnqual(javaIntrinsics.JavaObjectType);
   ConstantInt* CI = ConstantInt::get(Type::getInt64Ty(getLLVMContext()),
                                      uint64(str));
   return ConstantExpr::getIntToPtr(CI, Ty);
@@ -139,7 +139,7 @@ Constant* JavaJITCompiler::getJavaClassPtr(CommonClass* cl) {
   assert(obj && "Delegatee not created");
   Constant* CI = ConstantInt::get(Type::getInt64Ty(getLLVMContext()),
                                   uint64(obj));
-  const Type* Ty = PointerType::getUnqual(JavaIntrinsics.JavaObjectType);
+  const Type* Ty = PointerType::getUnqual(javaIntrinsics.JavaObjectType);
   return ConstantExpr::getIntToPtr(CI, Ty);
 }
 
@@ -166,7 +166,7 @@ Constant* JavaJITCompiler::getStaticInstance(Class* classDef) {
   }
   Constant* CI = ConstantInt::get(Type::getInt64Ty(getLLVMContext()),
                                   (uint64_t(obj)));
-  return ConstantExpr::getIntToPtr(CI, JavaIntrinsics.ptrType);
+  return ConstantExpr::getIntToPtr(CI, javaIntrinsics.ptrType);
 }
 
 Constant* JavaJITCompiler::getVirtualTable(JavaVirtualTable* VT) {
@@ -177,7 +177,7 @@ Constant* JavaJITCompiler::getVirtualTable(JavaVirtualTable* VT) {
   
   ConstantInt* CI = ConstantInt::get(Type::getInt64Ty(getLLVMContext()),
                                      uint64_t(VT));
-  return ConstantExpr::getIntToPtr(CI, JavaIntrinsics.VTType);
+  return ConstantExpr::getIntToPtr(CI, javaIntrinsics.VTType);
 }
 
 Constant* JavaJITCompiler::getNativeFunction(JavaMethod* meth, void* ptr) {
@@ -197,7 +197,7 @@ JavaJITCompiler::JavaJITCompiler(const std::string &ModuleID) :
   EmitFunctionName = false;
   GCInfo = NULL;
 
-  executionEngine = ExecutionEngine::createJIT(TheModule, 0,
+  executionEngine = ExecutionEngine::createJIT(theModule, 0,
                                                0, llvm::CodeGenOpt::Default, false);
   executionEngine->RegisterJITEventListener(&listener);
 
@@ -205,7 +205,7 @@ JavaJITCompiler::JavaJITCompiler(const std::string &ModuleID) :
 }
 
 JavaJITCompiler::~JavaJITCompiler() {
-  executionEngine->removeModule(TheModule);
+  executionEngine->removeModule(theModule);
   delete executionEngine;
   // ~JavaLLVMCompiler will delete the module.
 }

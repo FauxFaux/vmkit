@@ -104,7 +104,7 @@ void UserCommonClass::resolveClass() {
             }
             def->status = prepared;
             status = prepared;
-            def->classLoader->TheModule->resolveVirtualClass(def);
+            def->classLoader->theModule->resolveVirtualClass(def);
             virtualSize = def->virtualSize;
             
             uint64 vtSize = def->virtualTableSize * sizeof(void*);

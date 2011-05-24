@@ -20,7 +20,7 @@
 #include "JavaTypes.h"
 #include "Jnjvm.h"
 
-#include "j3/J3Intrinsics.h"
+#include "j3/JavaIntrinsics.h"
 #include "j3/LLVMMaterializer.h"
 
 using namespace llvm;
@@ -29,7 +29,7 @@ using namespace j3;
 
 JavaLLVMLazyJITCompiler::JavaLLVMLazyJITCompiler(const std::string& ModuleID)
     : JavaJITCompiler(ModuleID) {
-  TheMaterializer = new LLVMMaterializer(TheModule, this);
+  TheMaterializer = new LLVMMaterializer(theModule, this);
   executionEngine->DisableLazyCompilation(false);   
 }
 
@@ -88,13 +88,13 @@ Value* JavaLLVMLazyJITCompiler::addCallback(Class* cl, uint16 index,
   for (sint32 i = 0; i < name->size; ++i)
     key[i] = name->elements[i];
   sprintf(key + name->size, "%d", index);
-  F = TheModule->getFunction(key);
+  F = theModule->getFunction(key);
   if (F) return F;
   
   const FunctionType* type = stat ? LSI->getStaticType() : 
                                     LSI->getVirtualType();
   
-  F = Function::Create(type, GlobalValue::ExternalWeakLinkage, key, TheModule);
+  F = Function::Create(type, GlobalValue::ExternalWeakLinkage, key, theModule);
   
   CallbackInfo A(cl, index, stat);
   callbacks.insert(std::make_pair(F, A));
@@ -179,6 +179,6 @@ bool LLVMMaterializer::isMaterializable(const llvm::GlobalValue* GV) const {
 LLVMMaterializer::LLVMMaterializer(
     llvm::Module* m, JavaLLVMLazyJITCompiler* C) {
   Comp = C;
-  TheModule = m;
+  theModule = m;
   m->setMaterializer(this);
 }

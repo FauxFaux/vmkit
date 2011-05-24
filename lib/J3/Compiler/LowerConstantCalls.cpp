@@ -18,7 +18,7 @@
 
 #include "JavaClass.h"
 #include "j3/JavaLLVMCompiler.h"
-#include "j3/J3Intrinsics.h"
+#include "j3/JavaIntrinsics.h"
 
 using namespace llvm;
 
@@ -42,7 +42,7 @@ namespace j3 {
 #endif
 
 
-static Value* getTCM(J3Intrinsics* intrinsics, Value* Arg, Instruction* CI) {
+static Value* getTCM(JavaIntrinsics* intrinsics, Value* Arg, Instruction* CI) {
   Value* GEP[2] = { intrinsics->constantZero,
                     intrinsics->OffsetTaskClassMirrorInClassConstant };
   Value* TCMArray = GetElementPtrInst::Create(Arg, GEP, GEP + 2, "", CI);
@@ -55,7 +55,7 @@ static Value* getTCM(J3Intrinsics* intrinsics, Value* Arg, Instruction* CI) {
 
 }
 
-static Value* getDelegatee(J3Intrinsics* intrinsics, Value* Arg, Instruction* CI) {
+static Value* getDelegatee(JavaIntrinsics* intrinsics, Value* Arg, Instruction* CI) {
   Value* GEP[2] = { intrinsics->constantZero,
                     intrinsics->constantZero };
   Value* TCMArray = GetElementPtrInst::Create(Arg, GEP, GEP + 2, "", CI);
@@ -71,7 +71,7 @@ static Value* getDelegatee(J3Intrinsics* intrinsics, Value* Arg, Instruction* CI
 bool LowerConstantCalls::runOnFunction(Function& F) {
   LLVMContext* Context = &F.getContext();
   bool Changed = false;
-  J3Intrinsics* intrinsics = TheCompiler->getIntrinsics();
+  JavaIntrinsics* intrinsics = TheCompiler->getIntrinsics();
   JavaMethod* meth = TheCompiler->getJavaMethod(F);
   assert(meth && "Method not registered");
   for (Function::iterator BI = F.begin(), BE = F.end(); BI != BE; BI++) { 

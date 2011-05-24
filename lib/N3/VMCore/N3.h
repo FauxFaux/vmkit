@@ -98,7 +98,7 @@ public:
 
   vmkit::BaseIntrinsics*     module;
   llvm::Module*            LLVMModule;
-  N3ModuleProvider*        TheModuleProvider;
+  N3ModuleProvider*        theModuleProvider;
 
 	// constructors / destructors
 	N3(vmkit::BumpPtrAllocator &allocator, const char *name);

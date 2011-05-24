@@ -34,7 +34,7 @@
 #include "Jnjvm.h"
 #include "Reader.h"
 
-#include "j3/J3Intrinsics.h"
+#include "j3/JavaIntrinsics.h"
 
 #if DEBUG > 0 && (JNJVM_COMPILE > 0 || JNJVM_EXECUTE > 0)
 #include "j3/OpcodeNames.def"

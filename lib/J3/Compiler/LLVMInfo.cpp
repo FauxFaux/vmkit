@@ -307,7 +307,7 @@ Function* LLVMSignatureInfo::createFunctionCallBuf(bool virt) {
   std::vector<Value*> Args;
 
   LLVMContext& context = Compiler->getLLVMModule()->getContext();
-  J3Intrinsics& Intrinsics = *Compiler->getIntrinsics();
+  JavaIntrinsics& Intrinsics = *Compiler->getIntrinsics();
   Function* res = 0;
   if (Compiler->isStaticCompiling()) {
     vmkit::ThreadAllocator allocator;
@@ -397,7 +397,7 @@ Function* LLVMSignatureInfo::createFunctionCallAP(bool virt) {
   
   std::vector<Value*> Args;
   
-  J3Intrinsics& Intrinsics = *Compiler->getIntrinsics();
+  JavaIntrinsics& Intrinsics = *Compiler->getIntrinsics();
   std::string name;
   if (Compiler->isStaticCompiling()) {
     name += UTF8Buffer(signature->keyName).cString();
@@ -473,7 +473,7 @@ Function* LLVMSignatureInfo::createFunctionStub(bool special, bool virt) {
   std::vector<Value*> FunctionArgs;
   std::vector<Value*> TempArgs;
   
-  J3Intrinsics& Intrinsics = *Compiler->getIntrinsics();
+  JavaIntrinsics& Intrinsics = *Compiler->getIntrinsics();
   std::string name;
   if (Compiler->isStaticCompiling()) {
     name += UTF8Buffer(signature->keyName).cString();
@@ -750,7 +750,7 @@ void JavaLLVMCompiler::initialiseAssessorInfo() {
     PointerType::getUnqual(Type::getDoubleTy(getLLVMContext()));
   AssessorInfo[I_DOUBLE].logSizeInBytesConstant = 3;
   
-  AssessorInfo[I_TAB].llvmType = JavaIntrinsics.JavaObjectType;
+  AssessorInfo[I_TAB].llvmType = javaIntrinsics.JavaObjectType;
   AssessorInfo[I_TAB].llvmTypePtr =
     PointerType::getUnqual(AssessorInfo[I_TAB].llvmType);
   AssessorInfo[I_TAB].logSizeInBytesConstant = sizeof(JavaObject*) == 8 ? 3 : 2;
