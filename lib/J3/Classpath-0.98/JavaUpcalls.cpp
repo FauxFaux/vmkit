@@ -56,10 +56,7 @@ void Classpath::CreateJavaThread(Jnjvm* vm, JavaThread* myth,
   vmth = (JavaObjectVMThread*)newVMThread->doNew();
   name = vm->asciizToStr(thName);
   
-  threadName->setInstanceObjectField(th, name);
-  priority->setInstanceInt32Field(th, (uint32)1);
-  daemon->setInstanceInt8Field(th, (uint32)0);
-  vmThread->setInstanceObjectField(th, vmth);
+  initThread->invokeIntSpecial(newThread, th, &vmth, &name, 1, 0);
   assocThread->setInstanceObjectField(vmth, th);
   running->setInstanceInt8Field(vmth, (uint32)1);
   JavaObjectVMThread::setVmdata(vmth, myth);
@@ -810,7 +807,11 @@ void Classpath::postInitialiseClasspath(JnjvmClassLoader* loader) {
 
   newThread = 
     UPCALL_CLASS(loader, "java/lang/Thread");
-  
+
+  initThread = 
+    UPCALL_METHOD(loader, "java/lang/Thread", "<init>",
+                  "(Ljava/lang/VMThread;Ljava/lang/String;IZ)V", ACC_VIRTUAL);
+
   newVMThread = 
     UPCALL_CLASS(loader, "java/lang/VMThread");
   

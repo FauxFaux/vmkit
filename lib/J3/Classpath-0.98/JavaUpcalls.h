@@ -140,6 +140,7 @@ public:
   
   UserClass* newThread;
   UserClass* newVMThread;
+  JavaMethod* initThread;
   JavaField* assocThread;
   JavaField* vmdataVMThread;
   JavaMethod* finaliseCreateInitialThread;
