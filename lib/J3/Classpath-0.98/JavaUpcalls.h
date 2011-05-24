@@ -86,10 +86,12 @@ public:
   JavaMethod* setProperty;
   JavaMethod* initString;
   JavaMethod* getCallingClassLoader;
-  JavaMethod* initConstructor;
   UserClassArray* constructorArrayClass;
   UserClassArray* constructorArrayAnnotation;
   UserClass*      newConstructor;
+  JavaMethod* initConstructor;
+  UserClass*  newVMConstructor;
+  JavaMethod* initVMConstructor;
   JavaField*  constructorSlot;
   JavaMethod* initMethod;
   JavaMethod* initField;

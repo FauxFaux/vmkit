@@ -564,12 +564,19 @@ void Classpath::postInitialiseClasspath(JnjvmClassLoader* loader) {
   initString =
     UPCALL_METHOD(loader, "java/lang/String", "<init>", "([CIIZ)V", ACC_VIRTUAL);
   
-  initConstructor =
-    UPCALL_METHOD(loader, "java/lang/reflect/Constructor", "<init>",
+  newVMConstructor =
+    UPCALL_CLASS(loader, "java/lang/reflect/VMConstructor");
+
+  initVMConstructor =
+    UPCALL_METHOD(loader, "java/lang/reflect/VMConstructor", "<init>",
                   "(Ljava/lang/Class;I)V", ACC_VIRTUAL);
 
   newConstructor =
     UPCALL_CLASS(loader, "java/lang/reflect/Constructor");
+
+  initConstructor =
+    UPCALL_METHOD(loader, "java/lang/reflect/Constructor", "<init>",
+                  "(Ljava/lang/reflect/VMConstructor;)V", ACC_VIRTUAL);
 
   constructorArrayClass =
     UPCALL_ARRAY_CLASS(loader, "java/lang/reflect/Constructor", 1);

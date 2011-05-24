@@ -87,9 +87,11 @@ jboolean publicOnly) {
 
   ArrayObject* ret = 0;
   JavaObject* tmp = 0;
+  JavaObject* tmp1 = 0;
   llvm_gcroot(Cl, 0);
   llvm_gcroot(ret, 0);
   llvm_gcroot(tmp, 0);
+  llvm_gcroot(tmp1, 0);
 
   BEGIN_NATIVE_EXCEPTION(0)
 
@@ -121,7 +123,10 @@ jboolean publicOnly) {
           (!publicOnly || pub)) {
         UserClass* Cons = vm->upcalls->newConstructor;
         tmp = Cons->doNew();
-        vm->upcalls->initConstructor->invokeIntSpecial(Cons, tmp, &Cl, i);
+	UserClass* Cons1 = vm->upcalls->newVMConstructor;
+        tmp1 = Cons1->doNew();
+        vm->upcalls->initConstructor->invokeIntSpecial(Cons, tmp, &tmp1);
+        vm->upcalls->initVMConstructor->invokeIntSpecial(Cons1, tmp1, &Cl, i);
         ArrayObject::setElement(ret, tmp, index);
         index++;
       }
