@@ -13,8 +13,8 @@
 #include "vmkit/Allocator.h"
 #include "vmkit/GC.h"
 #include "vmkit/UTF8.h"
-#include "vmkit/Threads/Locks.h"
-#include "vmkit/Threads/Thread.h"
+#include "vmkit/Locks.h"
+#include "vmkit/Thread.h"
 
 #include "types.h"
 

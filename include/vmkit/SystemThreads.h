@@ -4,8 +4,8 @@
 #include <string.h>
 
 #include "MutatorThread.h"
-#include "vmkit/Threads/Locks.h"
-#include "vmkit/Threads/Cond.h"
+#include "vmkit/Locks.h"
+#include "vmkit/Cond.h"
 
 // Same values than JikesRVM
 #define INITIAL_QUEUE_SIZE 256

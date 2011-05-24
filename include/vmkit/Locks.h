@@ -14,7 +14,7 @@
 #include <cassert>
 #include <cstdio>
 
-#include "vmkit/Threads/Thread.h"
+#include "vmkit/Thread.h"
 
 namespace vmkit {
 

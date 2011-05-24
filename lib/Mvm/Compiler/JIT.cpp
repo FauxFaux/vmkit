@@ -39,8 +39,8 @@
 #include <../lib/ExecutionEngine/JIT/JIT.h>
 
 #include "vmkit/JIT.h"
-#include "vmkit/Threads/Locks.h"
-#include "vmkit/Threads/Thread.h"
+#include "vmkit/Locks.h"
+#include "vmkit/Thread.h"
 #include "vmkit/VirtualMachine.h"
 #include "MutatorThread.h"
 #include "vmkit/GC.h"

@@ -11,8 +11,8 @@
 
 #include "vmkit/JIT.h"
 #include "vmkit/PrintBuffer.h"
-#include "vmkit/Threads/Locks.h"
-#include "vmkit/Threads/Thread.h"
+#include "vmkit/Locks.h"
+#include "vmkit/Thread.h"
 
 #include "Assembly.h"
 #include "CLIJit.h"

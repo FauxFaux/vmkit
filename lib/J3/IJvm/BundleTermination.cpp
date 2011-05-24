@@ -9,8 +9,8 @@
 #include "JavaJIT.h"
 #include "Jnjvm.h"
 #include "vmkit/VirtualMachine.h"
-#include "vmkit/Threads/Cond.h"
-#include "vmkit/Threads/Locks.h"
+#include "vmkit/Cond.h"
+#include "vmkit/Locks.h"
 #include "vmkit/JIT.h"
 
 #include "signal.h"

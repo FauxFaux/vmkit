@@ -14,7 +14,7 @@
 
 #include "vmkit/GC.h"
 #include "vmkit/PrintBuffer.h"
-#include "vmkit/Threads/Thread.h"
+#include "vmkit/Thread.h"
 #include "vmkit/Sigsegv.h"
 
 class Toto : public vmkit::Object {

@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "vmkit/Threads/Thread.h"
+#include "vmkit/Thread.h"
 #include "vmkit/GC.h"
 
 using namespace vmkit;

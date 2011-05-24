@@ -9,7 +9,7 @@
 
 
 #include "vmkit/VirtualMachine.h"
-#include "vmkit/Threads/Thread.h"
+#include "vmkit/Thread.h"
 
 #include <csignal>
 #include <cstdio>

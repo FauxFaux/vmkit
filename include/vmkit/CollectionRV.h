@@ -10,9 +10,9 @@
 #ifndef _MVM_COLLECTIONRV_H_
 #define _MVM_COLLECTIONRV_H_
 
-#include "vmkit/Threads/Cond.h"
-#include "vmkit/Threads/Locks.h"
-#include "vmkit/Threads/Thread.h"
+#include "vmkit/Cond.h"
+#include "vmkit/Locks.h"
+#include "vmkit/Thread.h"
 
 namespace vmkit {
 

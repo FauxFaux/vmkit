@@ -15,7 +15,7 @@
 
 #include "CommandLine.h"
 #include "vmkit/GC.h"
-#include "vmkit/Threads/Thread.h"
+#include "vmkit/Thread.h"
 
 using namespace vmkit;
 

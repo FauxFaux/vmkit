@@ -9,10 +9,10 @@
 
 #include <cassert>
 
-#include "vmkit/Threads/Cond.h"
-#include "vmkit/Threads/Locks.h"
-#include "vmkit/Threads/ObjectLocks.h"
-#include "vmkit/Threads/Thread.h"
+#include "vmkit/Cond.h"
+#include "vmkit/Locks.h"
+#include "vmkit/ObjectLocks.h"
+#include "vmkit/Thread.h"
 #include "vmkit/VirtualMachine.h"
 #include "vmkit/GC.h"
 #include "cterror.h"

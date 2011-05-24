@@ -20,8 +20,8 @@
 #include "vmkit/JIT.h"
 #include "vmkit/Object.h"
 #include "vmkit/PrintBuffer.h"
-#include "vmkit/Threads/Cond.h"
-#include "vmkit/Threads/Locks.h"
+#include "vmkit/Cond.h"
+#include "vmkit/Locks.h"
 
 #include "types.h"
 

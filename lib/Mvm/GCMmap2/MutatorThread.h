@@ -11,7 +11,7 @@
 #ifndef MVM_MUTATOR_THREAD_H
 #define MVM_MUTATOR_THREAD_H
 
-#include "vmkit/Threads/Thread.h"
+#include "vmkit/Thread.h"
 
 namespace vmkit {
 

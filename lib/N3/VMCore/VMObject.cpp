@@ -9,7 +9,7 @@
 
 #include <vector>
 
-#include "vmkit/Threads/Locks.h"
+#include "vmkit/Locks.h"
 
 #include "VMClass.h"
 #include "VMObject.h"

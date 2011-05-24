@@ -10,7 +10,7 @@
 #include <cassert>
 #include <signal.h>
 #include "vmkit/VirtualMachine.h"
-#include "vmkit/Threads/CollectionRV.h"
+#include "vmkit/CollectionRV.h"
 #include "vmkit/VMKit.h"
 #include "vmkit/GC.h"
 

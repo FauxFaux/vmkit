@@ -12,7 +12,7 @@
 #define MVM_MUTATOR_THREAD_H
 
 #include "vmkit/Allocator.h"
-#include "vmkit/Threads/Thread.h"
+#include "vmkit/Thread.h"
 
 namespace vmkit {
 

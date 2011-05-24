@@ -10,10 +10,10 @@
 #ifndef JNJVM_JAVA_THREAD_H
 #define JNJVM_JAVA_THREAD_H
 
-#include "vmkit/Threads/Cond.h"
-#include "vmkit/Threads/Locks.h"
-#include "vmkit/Threads/ObjectLocks.h"
-#include "vmkit/Threads/Thread.h"
+#include "vmkit/Cond.h"
+#include "vmkit/Locks.h"
+#include "vmkit/ObjectLocks.h"
+#include "vmkit/Thread.h"
 
 #include "MutatorThread.h"
 

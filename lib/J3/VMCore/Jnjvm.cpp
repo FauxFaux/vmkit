@@ -18,7 +18,7 @@
 #include <string>
 #include "debug.h"
 
-#include "vmkit/Threads/Thread.h"
+#include "vmkit/Thread.h"
 #include "vmkit/VMKit.h"
 #include "vmkit/GC.h"
 

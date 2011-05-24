@@ -17,7 +17,7 @@
 
 #include "vmkit/Object.h"
 #include "vmkit/PrintBuffer.h"
-#include "vmkit/Threads/Locks.h"
+#include "vmkit/Locks.h"
 
 #include "types.h"
 

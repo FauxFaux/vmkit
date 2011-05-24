@@ -12,9 +12,9 @@
 #include "vmkit/GC.h"
 #include "vmkit/MethodInfo.h"
 #include "vmkit/VirtualMachine.h"
-#include "vmkit/Threads/Cond.h"
-#include "vmkit/Threads/Locks.h"
-#include "vmkit/Threads/Thread.h"
+#include "vmkit/Cond.h"
+#include "vmkit/Locks.h"
+#include "vmkit/Thread.h"
 #include "vmkit/VMKit.h"
 
 #include <cassert>

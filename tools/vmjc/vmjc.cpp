@@ -40,7 +40,7 @@
 #include "vmkit/JIT.h"
 #include "vmkit/VMKit.h"
 #include "vmkit/VirtualMachine.h"
-#include "vmkit/Threads/Thread.h"
+#include "vmkit/Thread.h"
 
 #include "j3/JavaAOTCompiler.h"
 

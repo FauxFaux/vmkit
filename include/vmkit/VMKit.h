@@ -2,7 +2,7 @@
 #define _VMKIT_H_
 
 #include "vmkit/Allocator.h"
-#include "vmkit/Threads/CollectionRV.h"
+#include "vmkit/CollectionRV.h"
 #include "vmkit/VirtualMachine.h"
 
 #include "llvm/Target/TargetMachine.h"

@@ -11,7 +11,7 @@
 #include "vmkit/JIT.h"
 #include "vmkit/Object.h"
 #include "vmkit/VirtualMachine.h"
-#include "vmkit/Threads/Thread.h"
+#include "vmkit/Thread.h"
 
 #include "llvm/Support/ManagedStatic.h"
 

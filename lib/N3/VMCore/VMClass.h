@@ -13,8 +13,8 @@
 #include "types.h"
 
 #include "vmkit/Object.h"
-#include "vmkit/Threads/Locks.h"
-#include "vmkit/Threads/Cond.h"
+#include "vmkit/Locks.h"
+#include "vmkit/Cond.h"
 
 #include "llvm/Constants.h"
 #include "llvm/ExecutionEngine/GenericValue.h"

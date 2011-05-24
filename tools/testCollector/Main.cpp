@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "vmkit/GC.h"
-#include "vmkit/Threads/Thread.h"
+#include "vmkit/Thread.h"
 #include <stdio.h>
 
 void destr(gc *me, size_t sz) {

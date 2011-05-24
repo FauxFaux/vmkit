@@ -11,8 +11,8 @@
 #define MVM_VIRTUALMACHINE_H
 
 #include "vmkit/Allocator.h"
-#include "vmkit/Threads/CollectionRV.h"
-#include "vmkit/Threads/Locks.h"
+#include "vmkit/CollectionRV.h"
+#include "vmkit/Locks.h"
 
 #include <cassert>
 #include <map>

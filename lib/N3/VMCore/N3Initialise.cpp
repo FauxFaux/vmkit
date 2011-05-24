@@ -14,7 +14,7 @@
 
 #include "vmkit/CompilationUnit.h"
 #include "vmkit/JIT.h"
-#include "vmkit/Threads/Locks.h"
+#include "vmkit/Locks.h"
 
 #include "Assembly.h"
 #include "CLIString.h"

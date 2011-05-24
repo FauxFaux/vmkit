@@ -15,8 +15,8 @@
 #include "llvm/PassManager.h"
 
 #include "vmkit/Object.h"
-#include "vmkit/Threads/Cond.h"
-#include "vmkit/Threads/Locks.h"
+#include "vmkit/Cond.h"
+#include "vmkit/Locks.h"
 #include "MutatorThread.h"
 
 namespace n3 {

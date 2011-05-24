@@ -19,7 +19,7 @@
 #include "llvm/ExecutionEngine/GenericValue.h"
 
 #include "vmkit/Object.h"
-#include "vmkit/Threads/Locks.h"
+#include "vmkit/Locks.h"
 
 #include "vmkit/GC/GC.h"
 

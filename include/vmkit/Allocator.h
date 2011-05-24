@@ -16,7 +16,7 @@
 
 #include "llvm/Support/Allocator.h"
 
-#include "vmkit/Threads/Locks.h"
+#include "vmkit/Locks.h"
 
 #define declare_gcroot(type, name) type name; llvm_gcroot(name, 0); name
 
