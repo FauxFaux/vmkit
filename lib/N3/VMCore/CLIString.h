@@ -13,7 +13,7 @@
 #include "llvm/GlobalVariable.h"
 
 #include "types.h"
-#include "mvm/PrintBuffer.h"
+#include "vmkit/PrintBuffer.h"
 
 #include "VMObject.h"
 

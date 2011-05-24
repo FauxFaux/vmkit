@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mvm/GC.h"
-#include "mvm/Threads/Thread.h"
+#include "vmkit/GC.h"
+#include "vmkit/Threads/Thread.h"
 #include <stdio.h>
 
 void destr(gc *me, size_t sz) {

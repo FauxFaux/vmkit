@@ -1,9 +1,9 @@
 #ifndef _VMKIT_H_
 #define _VMKIT_H_
 
-#include "mvm/Allocator.h"
-#include "mvm/Threads/CollectionRV.h"
-#include "mvm/VirtualMachine.h"
+#include "vmkit/Allocator.h"
+#include "vmkit/Threads/CollectionRV.h"
+#include "vmkit/VirtualMachine.h"
 
 #include "llvm/Target/TargetMachine.h"
 

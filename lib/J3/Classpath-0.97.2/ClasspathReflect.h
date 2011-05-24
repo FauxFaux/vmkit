@@ -10,7 +10,7 @@
 #ifndef JNJVM_CLASSPATH_REFLECT_H
 #define JNJVM_CLASSPATH_REFLECT_H
 
-#include "mvm/GC.h"
+#include "vmkit/GC.h"
 
 #include "JavaClass.h"
 #include "JavaObject.h"

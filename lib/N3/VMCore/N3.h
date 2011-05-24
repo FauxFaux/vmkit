@@ -17,11 +17,11 @@
 
 #include "llvm/Function.h"
 
-#include "mvm/JIT.h"
-#include "mvm/Object.h"
-#include "mvm/PrintBuffer.h"
-#include "mvm/Threads/Cond.h"
-#include "mvm/Threads/Locks.h"
+#include "vmkit/JIT.h"
+#include "vmkit/Object.h"
+#include "vmkit/PrintBuffer.h"
+#include "vmkit/Threads/Cond.h"
+#include "vmkit/Threads/Locks.h"
 
 #include "types.h"
 

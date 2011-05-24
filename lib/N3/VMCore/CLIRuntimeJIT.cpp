@@ -14,10 +14,10 @@
 #include "llvm/Instructions.h"
 #include "llvm/ExecutionEngine/ExecutionEngine.h"
 
-#include "mvm/JIT.h"
-#include "mvm/Object.h"
-#include "mvm/PrintBuffer.h"
-#include "mvm/Threads/Locks.h"
+#include "vmkit/JIT.h"
+#include "vmkit/Object.h"
+#include "vmkit/PrintBuffer.h"
+#include "vmkit/Threads/Locks.h"
 
 #include "CLIString.h"
 #include "MSCorlib.h"
@@ -29,7 +29,7 @@
 #include "VMThread.h"
 #include "Assembly.h"
 
-#include "mvm/GC/GC.h"
+#include "vmkit/GC/GC.h"
 
 #include <cstdarg>
 

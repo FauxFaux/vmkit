@@ -18,12 +18,12 @@
 #include "llvm/Target/TargetData.h"
 
 
-#include "mvm/GC.h"
-#include "mvm/Config/config.h"
-#include "mvm/JIT.h"
-#include "mvm/VMKit.h"
-#include "mvm/VirtualMachine.h"
-#include "mvm/Threads/Thread.h"
+#include "vmkit/GC.h"
+#include "vmkit/Config/config.h"
+#include "vmkit/JIT.h"
+#include "vmkit/VMKit.h"
+#include "vmkit/VirtualMachine.h"
+#include "vmkit/Threads/Thread.h"
 
 #include "j3/JavaJITCompiler.h"
 #include "../../lib/J3/VMCore/JnjvmClassLoader.h"

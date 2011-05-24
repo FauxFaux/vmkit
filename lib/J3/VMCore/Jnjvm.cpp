@@ -18,9 +18,9 @@
 #include <string>
 #include "debug.h"
 
-#include "mvm/Threads/Thread.h"
-#include "mvm/VMKit.h"
-#include "mvm/GC.h"
+#include "vmkit/Threads/Thread.h"
+#include "vmkit/VMKit.h"
+#include "vmkit/GC.h"
 
 #include "ClasspathReflect.h"
 #include "JavaArray.h"

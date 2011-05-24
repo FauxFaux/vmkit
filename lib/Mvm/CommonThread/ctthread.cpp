@@ -9,13 +9,13 @@
 
 #include "debug.h"
 
-#include "mvm/GC.h"
-#include "mvm/MethodInfo.h"
-#include "mvm/VirtualMachine.h"
-#include "mvm/Threads/Cond.h"
-#include "mvm/Threads/Locks.h"
-#include "mvm/Threads/Thread.h"
-#include "mvm/VMKit.h"
+#include "vmkit/GC.h"
+#include "vmkit/MethodInfo.h"
+#include "vmkit/VirtualMachine.h"
+#include "vmkit/Threads/Cond.h"
+#include "vmkit/Threads/Locks.h"
+#include "vmkit/Threads/Thread.h"
+#include "vmkit/VMKit.h"
 
 #include <cassert>
 #include <csetjmp>

@@ -14,7 +14,7 @@
 #include <cstring> // memcpy
 
 #include "types.h"
-#include "mvm/UTF8.h"
+#include "vmkit/UTF8.h"
 
 namespace vmkit {
 

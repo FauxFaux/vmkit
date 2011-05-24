@@ -11,7 +11,7 @@
 #include "llvm/GlobalVariable.h"
 #include "llvm/LLVMContext.h"
 
-#include "mvm/JIT.h"
+#include "vmkit/JIT.h"
 
 #include "CLIString.h"
 #include "MSCorlib.h"

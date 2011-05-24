@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mvm/Threads/Thread.h"
-#include "mvm/GC.h"
+#include "vmkit/Threads/Thread.h"
+#include "vmkit/GC.h"
 
 using namespace vmkit;
 

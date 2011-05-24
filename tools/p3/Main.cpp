@@ -1,4 +1,4 @@
-#include "mvm/VMKit.h"
+#include "vmkit/VMKit.h"
 #include "../../lib/p3/VMCore/P3.h"
 
 using namespace p3;

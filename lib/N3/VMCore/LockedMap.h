@@ -15,9 +15,9 @@
 
 #include <string.h>
 
-#include "mvm/Object.h"
-#include "mvm/PrintBuffer.h"
-#include "mvm/Threads/Locks.h"
+#include "vmkit/Object.h"
+#include "vmkit/PrintBuffer.h"
+#include "vmkit/Threads/Locks.h"
 
 #include "types.h"
 

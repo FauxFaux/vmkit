@@ -14,11 +14,11 @@
 
 #include "types.h"
 
-#include "mvm/Allocator.h"
-#include "mvm/VirtualMachine.h"
-#include "mvm/Threads/Cond.h"
-#include "mvm/Threads/Locks.h"
-#include "mvm/Threads/ObjectLocks.h"
+#include "vmkit/Allocator.h"
+#include "vmkit/VirtualMachine.h"
+#include "vmkit/Threads/Cond.h"
+#include "vmkit/Threads/Locks.h"
+#include "vmkit/Threads/ObjectLocks.h"
 
 #include "JnjvmConfig.h"
 #include "JNIReferences.h"

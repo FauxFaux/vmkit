@@ -9,10 +9,10 @@
 
 #include "llvm/Target/TargetData.h"
 
-#include "mvm/JIT.h"
-#include "mvm/PrintBuffer.h"
-#include "mvm/Threads/Locks.h"
-#include "mvm/Threads/Thread.h"
+#include "vmkit/JIT.h"
+#include "vmkit/PrintBuffer.h"
+#include "vmkit/Threads/Locks.h"
+#include "vmkit/Threads/Thread.h"
 
 #include "Assembly.h"
 #include "CLIJit.h"

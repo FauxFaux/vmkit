@@ -1,5 +1,5 @@
-#include "mvm/VirtualMachine.h"
-#include "mvm/VMKit.h"
+#include "vmkit/VirtualMachine.h"
+#include "vmkit/VMKit.h"
 #include "MutatorThread.h"
 
 using namespace vmkit;

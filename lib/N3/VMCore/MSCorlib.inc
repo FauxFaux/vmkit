@@ -12,7 +12,7 @@
 #include <dlfcn.h>
 #include <stdio.h>
 
-#include "mvm/JIT.h"
+#include "vmkit/JIT.h"
 
 #include "Assembly.h"
 #include "CLIAccess.h"

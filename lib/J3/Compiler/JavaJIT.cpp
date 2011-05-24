@@ -23,7 +23,7 @@
 #include <llvm/Analysis/DebugInfo.h>
 #include <llvm/Support/CFG.h>
 
-#include "mvm/JIT.h"
+#include "vmkit/JIT.h"
 
 #include "debug.h"
 #include "JavaArray.h"

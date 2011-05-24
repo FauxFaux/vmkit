@@ -1,7 +1,7 @@
 #ifndef _P3_H_
 #define _P3_H_
 
-#include "mvm/VirtualMachine.h"
+#include "vmkit/VirtualMachine.h"
 
 namespace p3 {
 

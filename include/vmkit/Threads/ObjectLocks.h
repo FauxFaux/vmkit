@@ -10,11 +10,11 @@
 #ifndef MVM_OBJECT_LOCKS_H
 #define MVM_OBJECT_LOCKS_H
 
-#include "mvm/Allocator.h"
-#include "mvm/GC.h"
-#include "mvm/Threads/Cond.h"
-#include "mvm/Threads/Locks.h"
-#include "mvm/Threads/Thread.h"
+#include "vmkit/Allocator.h"
+#include "vmkit/GC.h"
+#include "vmkit/Threads/Cond.h"
+#include "vmkit/Threads/Locks.h"
+#include "vmkit/Threads/Thread.h"
 
 namespace vmkit {
 

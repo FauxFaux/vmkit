@@ -10,8 +10,8 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "mvm/GC.h"
-#include "mvm/PrintBuffer.h"
+#include "vmkit/GC.h"
+#include "vmkit/PrintBuffer.h"
 
 using namespace vmkit;
 

@@ -25,7 +25,7 @@
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/Target/TargetOptions.h>
 
-#include "mvm/JIT.h"
+#include "vmkit/JIT.h"
 
 #include "Assembly.h"
 #include "CLIJit.h"

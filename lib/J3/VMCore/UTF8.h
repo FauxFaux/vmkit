@@ -12,8 +12,8 @@
 
 #include "types.h"
 
-#include "mvm/UTF8.h"
-#include "mvm/PrintBuffer.h"
+#include "vmkit/UTF8.h"
+#include "vmkit/PrintBuffer.h"
 
 namespace j3 {
 	using vmkit::UTF8;

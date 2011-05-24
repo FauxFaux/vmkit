@@ -12,9 +12,9 @@
 
 #include "llvm/LLVMContext.h"
 
-#include "mvm/CompilationUnit.h"
-#include "mvm/JIT.h"
-#include "mvm/Threads/Locks.h"
+#include "vmkit/CompilationUnit.h"
+#include "vmkit/JIT.h"
+#include "vmkit/Threads/Locks.h"
 
 #include "Assembly.h"
 #include "CLIString.h"

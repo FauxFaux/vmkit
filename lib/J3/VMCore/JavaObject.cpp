@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mvm/Threads/Locks.h"
+#include "vmkit/Threads/Locks.h"
 
 #include "JavaClass.h"
 #include "JavaObject.h"

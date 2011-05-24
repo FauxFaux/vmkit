@@ -1,7 +1,7 @@
 #ifndef _P3_READER_H_
 #define _P3_READER_H_
 
-#include "mvm/Allocator.h"
+#include "vmkit/Allocator.h"
 
 namespace p3 {
 

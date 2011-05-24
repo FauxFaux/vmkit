@@ -9,12 +9,12 @@
 
 #include <cassert>
 
-#include "mvm/Threads/Cond.h"
-#include "mvm/Threads/Locks.h"
-#include "mvm/Threads/ObjectLocks.h"
-#include "mvm/Threads/Thread.h"
-#include "mvm/VirtualMachine.h"
-#include "mvm/GC.h"
+#include "vmkit/Threads/Cond.h"
+#include "vmkit/Threads/Locks.h"
+#include "vmkit/Threads/ObjectLocks.h"
+#include "vmkit/Threads/Thread.h"
+#include "vmkit/VirtualMachine.h"
+#include "vmkit/GC.h"
 #include "cterror.h"
 #include <cerrno>
 #include <sys/time.h>

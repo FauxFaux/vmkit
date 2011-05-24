@@ -10,7 +10,7 @@
 #ifndef N3_VM_ARRAY_H
 #define N3_VM_ARRAY_H
 
-#include "mvm/PrintBuffer.h"
+#include "vmkit/PrintBuffer.h"
 
 #include "llvm/Constants.h"
 #include "llvm/Type.h"

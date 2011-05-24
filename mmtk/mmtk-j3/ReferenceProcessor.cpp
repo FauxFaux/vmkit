@@ -9,9 +9,9 @@
 //===----------------------------------------------------------------------===//
 
 #include "debug.h"
-#include "mvm/VirtualMachine.h"
-#include "mvm/VMKit.h"
-#include "mvm/SystemThreads.h"
+#include "vmkit/VirtualMachine.h"
+#include "vmkit/VMKit.h"
+#include "vmkit/SystemThreads.h"
 #include "MMTkObject.h"
 
 namespace mmtk {

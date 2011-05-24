@@ -15,9 +15,9 @@
 
 #include "types.h"
 
-#include "mvm/Object.h"
-#include "mvm/Threads/Locks.h"
-#include "mvm/Threads/Cond.h"
+#include "vmkit/Object.h"
+#include "vmkit/Threads/Locks.h"
+#include "vmkit/Threads/Cond.h"
 
 #include "llvm/DerivedTypes.h"
 #include "llvm/Type.h"

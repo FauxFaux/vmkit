@@ -8,10 +8,10 @@
 //===----------------------------------------------------------------------===//
 
 #include "debug.h"
-#include "mvm/VirtualMachine.h"
+#include "vmkit/VirtualMachine.h"
 #include "MMTkObject.h"
-#include "mvm/GC.h"
-#include "mvm/VMKit.h"
+#include "vmkit/GC.h"
+#include "vmkit/VMKit.h"
 
 namespace mmtk {
 

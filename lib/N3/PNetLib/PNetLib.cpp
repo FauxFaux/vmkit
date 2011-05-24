@@ -30,7 +30,7 @@
 #include <dlfcn.h>
 #include <stdio.h>
 
-#include "mvm/JIT.h"
+#include "vmkit/JIT.h"
 
 #include "Assembly.h"
 #include "CLIAccess.h"
@@ -89,7 +89,7 @@ extern uint32 ILUnicodeStringToLower(void*, void*, uint32);
 extern sint32 ILUnicodeStringCompareIgnoreCase(void*, void*, sint32);
 extern sint32 ILUnicodeStringCompareNoIgnoreCase(void*, void*, sint32);
 
-#include "mvm/Config/config.h"
+#include "vmkit/Config/config.h"
 // PNET wants this
 void *GC_run_thread(void *(*thread_func)(void *), void *arg){ return 0; }
 #if not(USE_GC_BOEHM)

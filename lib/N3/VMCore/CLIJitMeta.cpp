@@ -15,7 +15,7 @@
 
 #include "types.h"
 
-#include "mvm/JIT.h"
+#include "vmkit/JIT.h"
 
 #include "CLIAccess.h"
 #include "CLIJit.h"

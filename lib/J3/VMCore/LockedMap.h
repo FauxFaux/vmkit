@@ -22,8 +22,8 @@
 
 #include "types.h"
 
-#include "mvm/Allocator.h"
-#include "mvm/Threads/Locks.h"
+#include "vmkit/Allocator.h"
+#include "vmkit/Threads/Locks.h"
 #include "UTF8.h"
 
 #include "JavaArray.h" // for comparing UTF8s

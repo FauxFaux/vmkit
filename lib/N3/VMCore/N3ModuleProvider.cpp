@@ -10,7 +10,7 @@
 #include <llvm/Module.h>
 #include <llvm/GVMaterializer.h>
 
-#include "mvm/JIT.h"
+#include "vmkit/JIT.h"
 
 #include "Assembly.h"
 #include "CLIJit.h"

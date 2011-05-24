@@ -11,8 +11,8 @@
 #ifndef MVM_MUTATOR_THREAD_H
 #define MVM_MUTATOR_THREAD_H
 
-#include "mvm/Allocator.h"
-#include "mvm/Threads/Thread.h"
+#include "vmkit/Allocator.h"
+#include "vmkit/Threads/Thread.h"
 
 namespace vmkit {
 

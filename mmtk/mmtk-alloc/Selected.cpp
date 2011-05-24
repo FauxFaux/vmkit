@@ -8,10 +8,10 @@
 //===----------------------------------------------------------------------===//
 
 #include "MutatorThread.h"
-#include "mvm/GC.h"
+#include "vmkit/GC.h"
 
-#include "mvm/VirtualMachine.h"
-#include "mvm/VMKit.h"
+#include "vmkit/VirtualMachine.h"
+#include "vmkit/VMKit.h"
 
 #include <sys/mman.h>
 #include <set>

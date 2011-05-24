@@ -8,10 +8,10 @@
 #include "JavaThread.h"
 #include "JavaJIT.h"
 #include "Jnjvm.h"
-#include "mvm/VirtualMachine.h"
-#include "mvm/Threads/Cond.h"
-#include "mvm/Threads/Locks.h"
-#include "mvm/JIT.h"
+#include "vmkit/VirtualMachine.h"
+#include "vmkit/Threads/Cond.h"
+#include "vmkit/Threads/Locks.h"
+#include "vmkit/JIT.h"
 
 #include "signal.h"
 

@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mvm/Object.h"
+#include "vmkit/Object.h"
 
 #include "Assembly.h"
 #include "CLIString.h"

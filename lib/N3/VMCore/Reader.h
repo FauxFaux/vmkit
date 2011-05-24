@@ -10,7 +10,7 @@
 #ifndef N3_READER_H
 #define N3_READER_H
 
-#include "mvm/Object.h"
+#include "vmkit/Object.h"
 
 #include "types.h"
 

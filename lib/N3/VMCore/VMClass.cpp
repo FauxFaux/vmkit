@@ -16,9 +16,9 @@
 
 #include "N3Debug.h"
 #include "types.h"
-#include "mvm/JIT.h"
-#include "mvm/PrintBuffer.h"
-#include "mvm/Threads/Locks.h"
+#include "vmkit/JIT.h"
+#include "vmkit/PrintBuffer.h"
+#include "vmkit/Threads/Locks.h"
 
 
 #include "Assembly.h"

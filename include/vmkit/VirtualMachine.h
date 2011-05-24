@@ -10,9 +10,9 @@
 #ifndef MVM_VIRTUALMACHINE_H
 #define MVM_VIRTUALMACHINE_H
 
-#include "mvm/Allocator.h"
-#include "mvm/Threads/CollectionRV.h"
-#include "mvm/Threads/Locks.h"
+#include "vmkit/Allocator.h"
+#include "vmkit/Threads/CollectionRV.h"
+#include "vmkit/Threads/Locks.h"
 
 #include <cassert>
 #include <map>

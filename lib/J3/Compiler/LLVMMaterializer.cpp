@@ -11,7 +11,7 @@
 #include "llvm/Module.h"
 #include "llvm/ExecutionEngine/ExecutionEngine.h"
 
-#include "mvm/JIT.h"
+#include "vmkit/JIT.h"
 
 #include "JavaAccess.h"
 #include "JavaClass.h"

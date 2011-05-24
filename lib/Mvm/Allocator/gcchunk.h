@@ -10,8 +10,8 @@
 #ifndef _GC_CHUNK_H_
 #define _GC_CHUNK_H_
 
-//#include "mvm/VirtualMachine.h"
-//#include "mvm/GC.h"
+//#include "vmkit/VirtualMachine.h"
+//#include "vmkit/GC.h"
 
 #include "gcmapper.h"
 #include "types.h"

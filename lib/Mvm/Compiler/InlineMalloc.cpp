@@ -18,7 +18,7 @@
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Transforms/Utils/Cloning.h"
 
-#include "mvm/JIT.h"
+#include "vmkit/JIT.h"
 
 using namespace llvm;
 

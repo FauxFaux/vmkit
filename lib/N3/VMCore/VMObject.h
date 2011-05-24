@@ -18,10 +18,10 @@
 #include "llvm/Type.h"
 #include "llvm/ExecutionEngine/GenericValue.h"
 
-#include "mvm/Object.h"
-#include "mvm/Threads/Locks.h"
+#include "vmkit/Object.h"
+#include "vmkit/Threads/Locks.h"
 
-#include "mvm/GC/GC.h"
+#include "vmkit/GC/GC.h"
 
 #include "types.h"
 

@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mvm/GC.h"
+#include "vmkit/GC.h"
 
 using namespace vmkit;
 

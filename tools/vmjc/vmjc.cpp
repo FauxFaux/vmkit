@@ -36,11 +36,11 @@
 #include "llvm/Target/TargetMachine.h"
 
 
-#include "mvm/GC.h"
-#include "mvm/JIT.h"
-#include "mvm/VMKit.h"
-#include "mvm/VirtualMachine.h"
-#include "mvm/Threads/Thread.h"
+#include "vmkit/GC.h"
+#include "vmkit/JIT.h"
+#include "vmkit/VMKit.h"
+#include "vmkit/VirtualMachine.h"
+#include "vmkit/Threads/Thread.h"
 
 #include "j3/JavaAOTCompiler.h"
 

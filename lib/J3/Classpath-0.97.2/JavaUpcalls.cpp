@@ -15,8 +15,8 @@
 #include "JavaThread.h"
 #include "JavaUpcalls.h"
 #include "Jnjvm.h"
-#include "mvm/SystemThreads.h"
-#include "mvm/VMKit.h"
+#include "vmkit/SystemThreads.h"
+#include "vmkit/VMKit.h"
 #include "j3/JavaCompiler.h"
 #include "JavaTypes.h"
 

@@ -14,7 +14,7 @@
 #ifndef ISOLATE_COMMON_CLASS_H
 #define ISOLATE_COMMON_CLASS_H
 
-#include "mvm/Object.h"
+#include "vmkit/Object.h"
 
 #include "JavaConstantPool.h"
 

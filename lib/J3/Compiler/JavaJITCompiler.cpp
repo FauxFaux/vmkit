@@ -24,9 +24,9 @@
 #include "llvm/Support/raw_ostream.h"
 #include <../lib/ExecutionEngine/JIT/JIT.h>
 
-#include "mvm/GC.h"
-#include "mvm/VirtualMachine.h"
-#include "mvm/VMKit.h"
+#include "vmkit/GC.h"
+#include "vmkit/VirtualMachine.h"
+#include "vmkit/VMKit.h"
 
 #include "JavaClass.h"
 #include "JavaConstantPool.h"

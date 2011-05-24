@@ -9,10 +9,10 @@
 
 #include <cassert>
 #include <signal.h>
-#include "mvm/VirtualMachine.h"
-#include "mvm/Threads/CollectionRV.h"
-#include "mvm/VMKit.h"
-#include "mvm/GC.h"
+#include "vmkit/VirtualMachine.h"
+#include "vmkit/Threads/CollectionRV.h"
+#include "vmkit/VMKit.h"
+#include "vmkit/GC.h"
 
 #include "debug.h"
 

@@ -14,8 +14,8 @@
 
 #include <string.h>
 
-#include "mvm/Object.h"
-#include "mvm/VirtualMachine.h"
+#include "vmkit/Object.h"
+#include "vmkit/VirtualMachine.h"
 
 #if defined(__APPLE__)
 #define JNJVM_LIB "Jnjvm.dylib"

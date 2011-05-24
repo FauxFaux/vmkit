@@ -15,8 +15,8 @@
 #include "llvm/PassManager.h"
 #include "llvm/Support/raw_ostream.h"
 
-#include "mvm/Threads/Thread.h"
-#include "mvm/VMKit.h"
+#include "vmkit/Threads/Thread.h"
+#include "vmkit/VMKit.h"
 
 #include "j3/J3Intrinsics.h"
 #include "j3/JavaAOTCompiler.h"

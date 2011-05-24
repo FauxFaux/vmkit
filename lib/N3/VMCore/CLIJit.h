@@ -10,10 +10,10 @@
 #ifndef N3_CLIJit_H
 #define N3_CLIJit_H
 
-#include "mvm/JIT.h"
-#include "mvm/Object.h"
-#include "mvm/PrintBuffer.h"
-#include "mvm/Threads/Locks.h"
+#include "vmkit/JIT.h"
+#include "vmkit/Object.h"
+#include "vmkit/PrintBuffer.h"
+#include "vmkit/Threads/Locks.h"
 
 #include "llvm/BasicBlock.h"
 #include "llvm/DerivedTypes.h"

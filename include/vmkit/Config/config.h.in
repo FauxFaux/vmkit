@@ -1,4 +1,4 @@
-/* include/mvm/Config/config.h.in.  Generated from autoconf/configure.ac by autoheader.  */
+/* include/vmkit/Config/config.h.in.  Generated from autoconf/configure.ac by autoheader.  */
 
 /* Define to 1 if the system has the type `int64_t'. */
 #undef HAVE_INT64_T

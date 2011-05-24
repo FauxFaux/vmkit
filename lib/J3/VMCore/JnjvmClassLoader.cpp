@@ -24,8 +24,8 @@
 #include <string>
 
 #include "debug.h"
-#include "mvm/Allocator.h"
-#include "mvm/VMKit.h"
+#include "vmkit/Allocator.h"
+#include "vmkit/VMKit.h"
 
 #include "Classpath.h"
 #include "ClasspathReflect.h"

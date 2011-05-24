@@ -1,8 +1,8 @@
-#include "mvm/VMKit.h"
-#include "mvm/VirtualMachine.h"
-#include "mvm/SystemThreads.h"
-#include "mvm/GC.h"
-#include "mvm/JIT.h"
+#include "vmkit/VMKit.h"
+#include "vmkit/VirtualMachine.h"
+#include "vmkit/SystemThreads.h"
+#include "vmkit/GC.h"
+#include "vmkit/JIT.h"
 
 using namespace vmkit;
 

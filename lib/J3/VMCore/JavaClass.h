@@ -13,10 +13,10 @@
 
 #include "types.h"
 
-#include "mvm/Allocator.h"
-#include "mvm/MethodInfo.h"
-#include "mvm/Threads/Cond.h"
-#include "mvm/Threads/Locks.h"
+#include "vmkit/Allocator.h"
+#include "vmkit/MethodInfo.h"
+#include "vmkit/Threads/Cond.h"
+#include "vmkit/Threads/Locks.h"
 
 #include "JavaAccess.h"
 #include "JavaObject.h"

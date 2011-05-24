@@ -12,7 +12,7 @@
 #include "llvm/CodeGen/GCStrategy.h"
 #include "llvm/Support/Compiler.h"
 
-#include "mvm/JIT.h"
+#include "vmkit/JIT.h"
 
 using namespace llvm;
 

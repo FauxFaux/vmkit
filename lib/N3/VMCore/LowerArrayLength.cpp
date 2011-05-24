@@ -14,7 +14,7 @@
 #include "llvm/Support/Compiler.h"
 #include "llvm/Support/Debug.h"
 
-#include "mvm/JIT.h"
+#include "vmkit/JIT.h"
 
 #include "VMArray.h"
 #include "CLIJit.h"

@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 
 
-#include "mvm/VirtualMachine.h"
-#include "mvm/Threads/Thread.h"
+#include "vmkit/VirtualMachine.h"
+#include "vmkit/Threads/Thread.h"
 
 #include <csignal>
 #include <cstdio>

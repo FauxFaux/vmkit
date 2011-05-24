@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 
 
-#include "mvm/JIT.h"
+#include "vmkit/JIT.h"
 
 #include "Assembly.h"
 #include "MSCorlib.h"

@@ -12,10 +12,10 @@
 #include <signal.h>
 #include <stdio.h>
 
-#include "mvm/GC.h"
-#include "mvm/PrintBuffer.h"
-#include "mvm/Threads/Thread.h"
-#include "mvm/Sigsegv.h"
+#include "vmkit/GC.h"
+#include "vmkit/PrintBuffer.h"
+#include "vmkit/Threads/Thread.h"
+#include "vmkit/Sigsegv.h"
 
 class Toto : public vmkit::Object {
 public:

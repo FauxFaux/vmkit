@@ -1,6 +1,6 @@
-#include "mvm/SystemThreads.h"
-#include "mvm/GC.h"
-#include "mvm/VirtualMachine.h"
+#include "vmkit/SystemThreads.h"
+#include "vmkit/GC.h"
+#include "vmkit/VirtualMachine.h"
 
 using namespace vmkit;
 

@@ -13,8 +13,8 @@
 
 #include "types.h"
 #include "gcalloc.h"
-#include "mvm/VirtualMachine.h"
-#include "mvm/VMKit.h"
+#include "vmkit/VirtualMachine.h"
+#include "vmkit/VMKit.h"
 
 #define gc_allocator std::allocator
 

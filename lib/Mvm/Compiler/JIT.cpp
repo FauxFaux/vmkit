@@ -38,13 +38,13 @@
 #include <llvm/Target/TargetSelect.h>
 #include <../lib/ExecutionEngine/JIT/JIT.h>
 
-#include "mvm/JIT.h"
-#include "mvm/Threads/Locks.h"
-#include "mvm/Threads/Thread.h"
-#include "mvm/VirtualMachine.h"
+#include "vmkit/JIT.h"
+#include "vmkit/Threads/Locks.h"
+#include "vmkit/Threads/Thread.h"
+#include "vmkit/VirtualMachine.h"
 #include "MutatorThread.h"
-#include "mvm/GC.h"
-#include "mvm/VMKit.h"
+#include "vmkit/GC.h"
+#include "vmkit/VMKit.h"
 
 #include <dlfcn.h>
 #include <sys/mman.h>

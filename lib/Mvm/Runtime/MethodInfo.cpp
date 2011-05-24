@@ -7,11 +7,11 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mvm/Allocator.h"
-#include "mvm/MethodInfo.h"
-#include "mvm/VirtualMachine.h"
-#include "mvm/GC.h"
-#include "mvm/VMKit.h"
+#include "vmkit/Allocator.h"
+#include "vmkit/MethodInfo.h"
+#include "vmkit/VirtualMachine.h"
+#include "vmkit/GC.h"
+#include "vmkit/VMKit.h"
 
 #include <dlfcn.h>
 #include <map>

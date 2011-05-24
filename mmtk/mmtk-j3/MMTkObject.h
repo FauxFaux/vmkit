@@ -12,7 +12,7 @@
 
 #include <stdint.h>
 #include "MutatorThread.h"
-#include "mvm/GC.h"
+#include "vmkit/GC.h"
 
 namespace mmtk {
 
