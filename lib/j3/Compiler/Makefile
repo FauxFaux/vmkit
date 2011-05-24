@@ -11,6 +11,11 @@ LEVEL = ../../..
 include ../Classpath.config
 include $(LEVEL)/Makefile.config
 
+VMKIT_RUNTIME = $(PROJ_SRC_DIR)/../../vmkit/Compiler/LLVMRuntime.gen.ll \
+								$(PROJ_SRC_DIR)/j3-runtime.ll
+
+BUILT_SOURCES = LLVMRuntime.inc
+
 ifeq ($(WITH_LLVM_GCC), 1)
   MODULE_NAME = J3Compiler
 else

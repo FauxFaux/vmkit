@@ -10,7 +10,7 @@ LEVEL = ../..
 
 include Classpath.config
 
-DIRS = LLVMRuntime VMCore $(CLASSPATH) Compiler
+DIRS = VMCore $(CLASSPATH) Compiler
 
 include $(LEVEL)/Makefile.config
 include $(LEVEL)/Makefile.common
