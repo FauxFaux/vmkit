@@ -18,8 +18,8 @@ ifeq ($(WITH_LLVM_GCC), 1)
 	endif
 
   MODULESNAME = j3
-  USEDMODULES = J3.bc Classpath.bc J3Compiler.bc $(Allocator) CommonThread.bc \
-		Mvm.bc MvmCompiler.bc
+  USEDMODULES = j3.bc Classpath.bc J3Compiler.bc $(Allocator) CommonThread.bc \
+		VMKit.bc VMKitCompiler.bc
 
   ifeq ($(GC_MMTK), 1)
     USEDMODULES += FinalMMTk.bc InlineMMTk.bc
@@ -36,8 +36,8 @@ else
 		Allocator=Allocator.a
 	endif
 
-	USEDLIBS = J3.a Classpath.a J3.a J3Compiler.a $(Allocator) \
-	   Mvm.a MvmCompiler.a $(GCLIB).a $(Allocator) CommonThread.a
+	USEDLIBS = j3.a Classpath.a j3.a J3Compiler.a $(Allocator) \
+	   VMKit.a VMKitCompiler.a $(GCLIB).a $(Allocator) CommonThread.a
 
 endif
 

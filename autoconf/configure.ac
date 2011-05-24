@@ -44,7 +44,7 @@ AC_PREREQ(2.59)
 
 dnl Verify that the source directory is valid. This makes sure that we are
 dnl configuring VMKit and not some other package (it validates --srcdir argument)
-AC_CONFIG_SRCDIR([lib/Mvm/Runtime/Object.cpp])
+AC_CONFIG_SRCDIR([lib/vmkit/Runtime/Object.cpp])
 
 
 dnl Quit if the source directory has already been configured.
@@ -230,7 +230,7 @@ AC_ARG_WITH(mmtk-plan,
 )
 
 if test "x$gc" = "xboehm";  then
-  GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/Mvm/BoehmGC -DGC_THREADS"
+  GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/vmkit/BoehmGC -DGC_THREADS"
   AC_DEFINE([USE_GC_BOEHM], [1], [Using the boehm gc])
   AC_SUBST(GC_MMAP2, [0])
   AC_SUBST(GC_BOEHM, [1])
@@ -238,7 +238,7 @@ if test "x$gc" = "xboehm";  then
   GC_LIBS=BoehmGC
   case $target_os in
     *linux*)
-      GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/Mvm/BoehmGC -DUSE_GC_BOEHM -DGC_THREADS -DGC_LINUX_THREADS"
+      GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/vmkit/BoehmGC -DUSE_GC_BOEHM -DGC_THREADS -DGC_LINUX_THREADS"
     ;;
   esac
 else
@@ -249,15 +249,15 @@ else
     AC_SUBST(GC_BOEHM, [0])
     AC_SUBST(GC_MMTK, [1])
     GC_LIBS=MMTk
-    GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/Mvm/MMTk -DWITH_MMTK"
+    GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/vmkit/MMTk -DWITH_MMTK"
   else
     GC_LIBS=GCMmap2
     if test "x$gc" = "xmulti-mmap"; then
-      GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/Mvm/GCMmap2 -DWITH_TRACER -DMULTIPLE_GC -I\$(PROJ_SRC_ROOT)/lib/Mvm/Allocator"
+      GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/vmkit/GCMmap2 -DWITH_TRACER -DMULTIPLE_GC -I\$(PROJ_SRC_ROOT)/lib/vmkit/Allocator"
       AC_SUBST([GC_MULTI_MMAP], [1])
       AC_SUBST([GC_SINGLE_MMAP], [0])
     else
-      GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/Mvm/GCMmap2 -DWITH_TRACER -I\$(PROJ_SRC_ROOT)/lib/Mvm/Allocator"
+      GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/vmkit/GCMmap2 -DWITH_TRACER -I\$(PROJ_SRC_ROOT)/lib/vmkit/Allocator"
       AC_SUBST([GC_MULTI_MMAP], [0])
       AC_SUBST([GC_SINGLE_MMAP], [1])
     fi

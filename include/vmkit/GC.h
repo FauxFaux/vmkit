@@ -64,7 +64,7 @@ namespace vmkit {
 
 } // namespace vmkit
 
-#include "MvmGC.h"
+#include "VMKitGC.h"
 
 namespace vmkit {
 	class gc : public collectable {

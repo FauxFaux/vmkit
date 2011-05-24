@@ -20,7 +20,7 @@ using namespace vmkit;
 int main(int argc, char **argv, char **envp) {
   llvm::llvm_shutdown_obj X;  
     
-  MvmModule::initialise();
+  VMKitModule::initialise();
   Collector::initialise();
 
   VirtualMachine::initialiseCLIVM();

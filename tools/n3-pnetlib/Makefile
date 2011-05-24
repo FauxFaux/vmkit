@@ -15,12 +15,12 @@ LINK_COMPONENTS = jit nativecodegen scalaropts instrumentation ipa ipo bitreader
 
 ifeq ($(WITH_LLVM_GCC), 1)
   MODULESNAME = vmkit
-  USEDMODULES = N3.bc PNetLib.bc Allocator.bc CommonThread.bc Mvm.bc \
-		MvmCompiler.bc $(GCLIB).bc
+  USEDMODULES = N3.bc PNetLib.bc Allocator.bc CommonThread.bc VMKit.bc \
+		VMKitCompiler.bc $(GCLIB).bc
   BUILT_SOURCES = vmkit.s
   SOURCES = vmkit.s $(notdir $(wildcard $(PROJ_SRC_DIR)/*.cpp))
 else
-  USEDLIBS = N3.a PNetLib.a Allocator.a Mvm.a MvmCompiler.a \
+  USEDLIBS = N3.a PNetLib.a Allocator.a VMKit.a VMKitCompiler.a \
 		     $(GCLIB).a CommonThread.a
 endif
 

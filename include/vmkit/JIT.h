@@ -189,7 +189,7 @@ public:
 };
 
 
-class MvmModule {
+class VMKitModule {
 public:
    static llvm::GCStrategy* TheGCStrategy;
    static vmkit::LockRecursive protectEngine;
@@ -224,10 +224,10 @@ public:
   void addToVMKit(VMKit* vmkit, llvm::JIT* jit);
 };
 
-class MvmJITMethodInfo : public JITMethodInfo {
+class VMKitJITMethodInfo : public JITMethodInfo {
 public:
   virtual void print(void* ip, void* addr);
-  MvmJITMethodInfo(llvm::GCFunctionInfo* GFI,
+  VMKitJITMethodInfo(llvm::GCFunctionInfo* GFI,
                    const llvm::Function* F,
                    void* owner) :
     JITMethodInfo(GFI) {

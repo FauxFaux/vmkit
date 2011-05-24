@@ -1,6 +1,6 @@
-//===------------------ main.cc - Mvm allocator ---------------------------===//
+//===------------------ main.cc - VMKit allocator ---------------------------===//
 //
-//                              Mvm
+//                              VMKit
 //
 // This file is distributed under the University of Illinois Open Source
 // License. See LICENSE.TXT for details.

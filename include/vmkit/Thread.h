@@ -43,7 +43,7 @@ class VirtualMachine;
 /// CircularBase - This class represents a circular list. Classes that extend
 /// this class automatically place their instances in a circular list.
 ///
-// WARNING: if you modify this class, you must also change mvm-runtime.ll
+// WARNING: if you modify this class, you must also change vmkit-runtime.ll
 template<typename T>
 class CircularBase {
   /// _next - The next object in the list.
@@ -132,7 +132,7 @@ class ExceptionBuffer;
 class Thread;
 class VMKit;
 
-// WARNING: if you modify this class, you must also change mvm-runtime.ll
+// WARNING: if you modify this class, you must also change vmkit-runtime.ll
 // WARNING: when a VMThreadData is in a thread (in allVmsData), you must never delete it yourself.
 class VMThreadData {
 public:
@@ -158,7 +158,7 @@ public:
 /// Thread - This class is the base of custom virtual machines' Thread classes.
 /// It provides static functions to manage threads. An instance of this class
 /// contains all thread-specific informations.
-// WARNING: if you modify this class, you must also change mvm-runtime.ll
+// WARNING: if you modify this class, you must also change vmkit-runtime.ll
 class Thread : public CircularBase<Thread> {
 public:
   /// doYield - Flag to tell the thread to yield for GC reasons.
@@ -310,9 +310,9 @@ public:
     return pendingException;
   }
 
-  bool isMvmThread() {
+  bool isVMKitThread() {
     if (!baseAddr) return false;
-    else return (((uintptr_t)this) & MvmThreadMask) == baseAddr;
+    else return (((uintptr_t)this) & VMKitThreadMask) == baseAddr;
   }
 
   /// baseAddr - The base address for all threads.
@@ -325,10 +325,10 @@ public:
 #else
   static const uint64_t IDMask = 0x7FF00000;
 #endif
-  /// MvmThreadMask - Apply this mask to verify that the current thread was
-  /// created by Mvm.
+  /// VMKitThreadMask - Apply this mask to verify that the current thread was
+  /// created by VMKit.
   ///
-  static const uint64_t MvmThreadMask = 0xF0000000;
+  static const uint64_t VMKitThreadMask = 0xF0000000;
 
   /// OverflowMask - Apply this mask to implement overflow checks. For
   /// efficiency, we lower the available size of the stack: it can never go

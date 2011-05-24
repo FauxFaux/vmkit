@@ -26,8 +26,8 @@
 #include "vmkit/Thread.h"
 
 #include "j3/JavaJITCompiler.h"
-#include "../../lib/J3/VMCore/JnjvmClassLoader.h"
-#include "../../lib/J3/VMCore/Jnjvm.h"
+#include "../../lib/j3/VMCore/JnjvmClassLoader.h"
+#include "../../lib/j3/VMCore/Jnjvm.h"
 
 //#include "CommandLine.h"
 

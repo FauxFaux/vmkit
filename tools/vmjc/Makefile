@@ -21,8 +21,8 @@ ifeq ($(WITH_LLVM_GCC), 1)
 	endif
 
   MODULESNAME = vmkit
-  USEDMODULES = J3.bc Classpath.bc J3Compiler.bc $(Allocator) \
-		CommonThread.bc Mvm.bc MvmCompiler.bc $(GCLIB).bc
+  USEDMODULES = j3.bc Classpath.bc J3Compiler.bc $(Allocator) \
+		CommonThread.bc VMKit.bc VMKitCompiler.bc $(GCLIB).bc
 
   BUILT_SOURCES = vmkit.s
   SOURCES = vmkit.s $(notdir $(wildcard $(PROJ_SRC_DIR)/*.cpp))
@@ -32,8 +32,8 @@ else
 		Allocator=Allocator.a
 	endif
 
-  USEDLIBS = J3.a Classpath.a J3.a J3Compiler.a $(Allocator) \
-	     Mvm.a MvmCompiler.a $(GCLIB).a Allocator.a CommonThread.a
+  USEDLIBS = j3.a Classpath.a j3.a J3Compiler.a $(Allocator) \
+	     VMKit.a VMKitCompiler.a $(GCLIB).a Allocator.a CommonThread.a
 endif
 
 LINK_COMPONENTS = jit nativecodegen scalaropts instrumentation ipa ipo bitwriter bitreader asmparser linker

@@ -44,8 +44,8 @@
 
 #include "j3/JavaAOTCompiler.h"
 
-#include "../../lib/J3/VMCore/JnjvmClassLoader.h"
-#include "../../lib/J3/VMCore/Jnjvm.h"
+#include "../../lib/j3/VMCore/JnjvmClassLoader.h"
+#include "../../lib/j3/VMCore/Jnjvm.h"
 
 #include <iostream>
 #include <fstream>
@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
     if (!TargetTriple.empty())
       theModule->setTargetTriple(TargetTriple);
     else
-      theModule->setTargetTriple(vmkit::MvmModule::getHostTriple());
+      theModule->setTargetTriple(vmkit::VMKitModule::getHostTriple());
 
 #if 0
     // explicitly specified an architecture to compile for.
