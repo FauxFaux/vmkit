@@ -19,7 +19,7 @@
 
 
 #include "vmkit/GC.h"
-#include "vmkit/Config/config.h"
+#include "vmkit/config.h"
 #include "vmkit/JIT.h"
 #include "vmkit/VMKit.h"
 #include "vmkit/VirtualMachine.h"

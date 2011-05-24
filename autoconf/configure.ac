@@ -50,7 +50,7 @@ AC_CONFIG_SRCDIR([lib/Mvm/Runtime/Object.cpp])
 dnl Quit if the source directory has already been configured.
 dnl NOTE: This relies upon undocumented autoconf behavior.
 if test ${srcdir} != "." ; then
-  if test -f ${srcdir}/include/mvm/Config/config.h ; then
+  if test -f ${srcdir}/include/vmkit/config.h ; then
     AC_MSG_ERROR([Already configured in ${srcdir}])
   fi
 fi
@@ -413,25 +413,6 @@ AC_SUBST([monopath])
 
 AC_SUBST([WITH_N3])
 
-dnl **************************************************************************
-dnl toy vm
-dnl **************************************************************************
-AC_ARG_WITH(p3,
-       [AS_HELP_STRING(--with-p3=yes|no,
-        [Build the python virtual machine (default is no)])],
-       [[WITH_P3=$withval]],
-       [[WITH_P3=no]]
-)
-
-if test "x${WITH_P3}" = "xyes"; then
-  echo Building P3;
-  WITH_P3=1;
-else
-  WITH_P3=0;
-fi 
-
-AC_SUBST([WITH_P3])
-
 dnl===-----------------------------------------------------------------------===
 dnl===
 dnl=== SECTION 4: Check for programs we need and that they are the right version
@@ -606,7 +587,7 @@ dnl WARNING: dnl If you add or remove any of the following config headers, then
 dnl you MUST also update Makefile.rules so that the variable FilesToConfig
 dnl contains the same list of files as AC_CONFIG_HEADERS below. This ensures the
 dnl files can be updated automatically when their *.in sources change.
-AC_CONFIG_HEADERS([include/mvm/Config/config.h])
+AC_CONFIG_HEADERS([include/vmkit/config.h])
 
 dnl Verify that the source directory is valid
 AC_CONFIG_SRCDIR(["Makefile.common.in"])

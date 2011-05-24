@@ -20,9 +20,5 @@ ifeq ($(WITH_N3), 1)
 PARALLEL_DIRS += N3
 endif
 
-ifeq ($(WITH_P3), 1)
-PARALLEL_DIRS += p3
-endif
-
 include $(LEVEL)/Makefile.common
 
