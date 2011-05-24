@@ -14,27 +14,27 @@
 #include "mvm/Allocator.h"
 #include "mvm/Threads/Thread.h"
 
-namespace mvm {
+namespace vmkit {
 
-class MutatorThread : public mvm::Thread {
+class MutatorThread : public vmkit::Thread {
 public:
-  MutatorThread(VMKit* vmkit) : mvm::Thread(vmkit) {
+  MutatorThread(VMKit* vmkit) : vmkit::Thread(vmkit) {
     MutatorContext = 0;
   }
-  mvm::ThreadAllocator Allocator;
+  vmkit::ThreadAllocator Allocator;
   uintptr_t MutatorContext;
   
   /// realRoutine - The function to invoke when the thread starts.
   ///
-  void (*realRoutine)(mvm::Thread*);
+  void (*realRoutine)(vmkit::Thread*);
 
   static void init(Thread* _th);
 
   static MutatorThread* get() {
-    return (MutatorThread*)mvm::Thread::get();
+    return (MutatorThread*)vmkit::Thread::get();
   }
 
-  virtual int start(void (*fct)(mvm::Thread*)) {
+  virtual int start(void (*fct)(vmkit::Thread*)) {
     realRoutine = fct;
     routine = init;
     return Thread::start(init);

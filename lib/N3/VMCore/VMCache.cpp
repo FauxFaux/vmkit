@@ -32,7 +32,7 @@
 using namespace n3;
 using namespace llvm;
 
-void CacheNode::print(mvm::PrintBuffer* buf) const {
+void CacheNode::print(vmkit::PrintBuffer* buf) const {
   buf->write("CacheNode<");
   if (lastCible) {
     lastCible->print(buf);
@@ -44,11 +44,11 @@ void CacheNode::print(mvm::PrintBuffer* buf) const {
   buf->write(">");
 }
 
-void Enveloppe::print(mvm::PrintBuffer* buf) const {
+void Enveloppe::print(vmkit::PrintBuffer* buf) const {
   buf->write("Enveloppe<>");
 }
 
-CacheNode* CacheNode::allocate(mvm::BumpPtrAllocator &allocator) {
+CacheNode* CacheNode::allocate(vmkit::BumpPtrAllocator &allocator) {
   CacheNode* cache = new(allocator, "CacheNode") CacheNode();
   cache->lastCible = 0;
   cache->methPtr = 0;
@@ -56,11 +56,11 @@ CacheNode* CacheNode::allocate(mvm::BumpPtrAllocator &allocator) {
   return cache;
 }
 
-Enveloppe* Enveloppe::allocate(mvm::BumpPtrAllocator &allocator, VMMethod* meth) {
+Enveloppe* Enveloppe::allocate(vmkit::BumpPtrAllocator &allocator, VMMethod* meth) {
   Enveloppe* enveloppe = new(allocator, "Enveloppe") Enveloppe();
   enveloppe->firstCache = CacheNode::allocate(allocator);
   enveloppe->firstCache->enveloppe = enveloppe;
-  enveloppe->cacheLock = new mvm::LockNormal();
+  enveloppe->cacheLock = new vmkit::LockNormal();
   enveloppe->originalMethod = meth;
   return enveloppe;
 }

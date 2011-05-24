@@ -4,8 +4,8 @@
 #include "mvm/UTF8.h"
 
 namespace n3 {
-	using mvm::UTF8;
-	using mvm::UTF8Map;
+	using vmkit::UTF8;
+	using vmkit::UTF8Map;
 }
 
 #endif

@@ -29,10 +29,10 @@
 #include <signal.h>
 #include <unistd.h>
 
-using namespace mvm;
+using namespace vmkit;
 
 #if 0
-#define dprintf(...) do { printf("[%p] cttthread: ", (void*)mvm::Thread::get()); printf(__VA_ARGS__); } while(0)
+#define dprintf(...) do { printf("[%p] cttthread: ", (void*)vmkit::Thread::get()); printf(__VA_ARGS__); } while(0)
 #else
 #define dprintf(...)
 #endif
@@ -87,7 +87,7 @@ void Thread::reallocAllVmsData(int old, int n) {
 }
 
 void Thread::tracer(uintptr_t closure) {
-	mvm::Collector::markAndTraceRoot(&pendingException, closure);
+	vmkit::Collector::markAndTraceRoot(&pendingException, closure);
 
 	// should we take the vmkit lock? I suppose that all the threads are suspended during the collection...
 	for(size_t i=0; i<vmkit->vmsArraySize; i++)
@@ -109,7 +109,7 @@ void Thread::exit(int value) {
 }
 
 void Thread::yield(void) {
-  Thread* th = mvm::Thread::get();
+  Thread* th = vmkit::Thread::get();
   if (th->isMvmThread()) {
     if (th->doYield && !th->inRV) {
       th->vmkit->rendezvous.join();
@@ -212,7 +212,7 @@ void Thread::printBacktrace() {
 }
 
 void Thread::getFrameContext(void** buffer) {
-  mvm::StackWalker Walker(this);
+  vmkit::StackWalker Walker(this);
   uint32_t i = 0;
 
   while (void* ip = *Walker) {
@@ -222,7 +222,7 @@ void Thread::getFrameContext(void** buffer) {
 }
 
 uint32_t Thread::getFrameContextLength() {
-  mvm::StackWalker Walker(this);
+  vmkit::StackWalker Walker(this);
   uint32_t i = 0;
 
   while (*Walker) {
@@ -265,10 +265,10 @@ void StackWalker::operator++() {
   }
 }
 
-StackWalker::StackWalker(mvm::Thread* th) {
+StackWalker::StackWalker(vmkit::Thread* th) {
   thread = th;
   frame = th->lastKnownFrame;
-  if (mvm::Thread::get() == th) {
+  if (vmkit::Thread::get() == th) {
     addr = (void**)FRAME_PTR();
     addr = (void**)addr[0];
   } else {
@@ -298,7 +298,7 @@ void Thread::scanStack(uintptr_t closure) {
 
 void Thread::scanStack(uintptr_t closure) {
   register unsigned int  **max = (unsigned int**)(void*)this->baseSP;
-  if (mvm::Thread::get() != this) {
+  if (vmkit::Thread::get() != this) {
     register unsigned int  **cur = (unsigned int**)this->waitOnSP();
     for(; cur<max; cur++) Collector::scanObject((void**)cur, closure);
   } else {
@@ -365,7 +365,7 @@ void* Thread::waitOnSP() {
   }
   
   // Finally, yield until lastSP is not set.
-  while ((sp = lastSP) == NULL) mvm::Thread::yield();
+  while ((sp = lastSP) == NULL) vmkit::Thread::yield();
 
   assert(sp != NULL && "Still no sp");
   return sp;
@@ -437,7 +437,7 @@ public:
 
     memset((void*)used, 0, NR_THREADS * sizeof(uint32));
     allocPtr = 0;
-    mvm::Thread::baseAddr = baseAddr;
+    vmkit::Thread::baseAddr = baseAddr;
   }
 
   uintptr_t allocate() {
@@ -472,7 +472,7 @@ extern void sigsegvHandler(int, siginfo_t*, void*);
 /// thread specific data, registers the thread to the GC and calls the
 /// given routine of th.
 ///
-void Thread::internalThreadStart(mvm::Thread* th) {
+void Thread::internalThreadStart(vmkit::Thread* th) {
   th->baseSP  = FRAME_PTR();
 
   // Set the SIGSEGV handler to diagnose errors.
@@ -500,7 +500,7 @@ void Thread::internalThreadStart(mvm::Thread* th) {
 /// start - Called by the creator of the thread to run the new thread.
 /// The thread is in a detached state, because each virtual machine has
 /// its own way of waiting for created threads.
-int Thread::start(void (*fct)(mvm::Thread*)) {
+int Thread::start(void (*fct)(vmkit::Thread*)) {
   pthread_attr_t attributs;
 	const size_t page_size = getpagesize(); 
   pthread_attr_init(&attributs);

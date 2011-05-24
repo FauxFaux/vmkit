@@ -46,7 +46,7 @@ const unsigned int Jnjvm::Magic = 0xcafebabe;
 /// initialiseClass - Java class initialisation. Java specification §2.17.5.
 
 void UserClass::initialiseClass() {
-	mvm::gc* exc = NULL;
+	vmkit::gc* exc = NULL;
   JavaObject* obj = NULL;
 	JavaObject* jexc;
 	
@@ -77,7 +77,7 @@ void UserClass::initialiseClass() {
     //    current thread can obtain the lock for that object
     //    (Java specification §8.13).
     acquire();
-		mvm::Thread* mut = mvm::Thread::get();
+		vmkit::Thread* mut = vmkit::Thread::get();
 
     if (getInitializationState() == inClinit) {
       // 2. If initialization by some other thread is in progress for the
@@ -164,7 +164,7 @@ void UserClass::initialiseClass() {
     
     PRINT_DEBUG(JNJVM_LOAD, 0, COLOR_NORMAL, "; ", 0);
     PRINT_DEBUG(JNJVM_LOAD, 0, LIGHT_GREEN, "clinit ", 0);
-    PRINT_DEBUG(JNJVM_LOAD, 0, COLOR_NORMAL, "%s\n", mvm::PrintString(this).cString());
+    PRINT_DEBUG(JNJVM_LOAD, 0, COLOR_NORMAL, "%s\n", vmkit::PrintString(this).cString());
 
 
 
@@ -246,7 +246,7 @@ void Jnjvm::errorWithExcp(UserClass* cl, JavaMethod* init,
 
   obj = cl->doNew();
   init->invokeIntSpecial(cl, obj, &excp);
-  mvm::Thread::get()->setPendingException(obj)->throwIt();
+  vmkit::Thread::get()->setPendingException(obj)->throwIt();
 }
 
 JavaObject* Jnjvm::CreateError(UserClass* cl, JavaMethod* init,
@@ -278,7 +278,7 @@ void Jnjvm::error(UserClass* cl, JavaMethod* init, JavaString* str) {
   llvm_gcroot(obj, 0);
   llvm_gcroot(str, 0);
   obj = CreateError(cl, init, str);
-  mvm::Thread::get()->setPendingException(obj)->throwIt();
+  vmkit::Thread::get()->setPendingException(obj)->throwIt();
 }
 
 void Jnjvm::arrayStoreException() {
@@ -849,7 +849,7 @@ void ClArgumentsInfo::extractClassFromJar(Jnjvm* vm, int argc, char** argv,
     return;
   }
 
-  mvm::BumpPtrAllocator allocator;
+  vmkit::BumpPtrAllocator allocator;
   ZipArchive* archive = new(allocator, "TempZipArchive")
       ZipArchive(bytes, allocator);
   if (archive->getOfscd() != -1) {
@@ -1010,7 +1010,7 @@ void ClArgumentsInfo::readArgs(Jnjvm* vm) {
     } else if (!(strcmp(cur, "-verbosegc"))) {
       nyi();
     } else if (!(strcmp(cur, "-verbose:gc"))) {
-      mvm::Collector::verbose = 1;
+      vmkit::Collector::verbose = 1;
     } else if (!(strcmp(cur, "-verbose:jni"))) {
       nyi();
     } else if (!(strcmp(cur, "-version"))) {
@@ -1059,7 +1059,7 @@ JnjvmClassLoader* Jnjvm::loadAppClassLoader() {
   return appClassLoader;
 }
 
-mvm::VMThreadData* Jnjvm::buildVMThreadData(mvm::Thread* mut) {
+vmkit::VMThreadData* Jnjvm::buildVMThreadData(vmkit::Thread* mut) {
 	JavaThread* th = JavaThread::associate(this, mut);
 	upcalls->CreateForeignJavaThread(this, th);
 	return th;
@@ -1173,7 +1173,7 @@ void Jnjvm::loadBootstrap() {
 }
 
 void Jnjvm::executeClass(const char* className, ArrayObject* args) {
-	mvm::gc* exc = NULL;
+	vmkit::gc* exc = NULL;
   JavaObject* obj = NULL;
   JavaObject* group = NULL;
   
@@ -1206,7 +1206,7 @@ void Jnjvm::executeClass(const char* className, ArrayObject* args) {
   } CATCH {
   } END_CATCH;
 
-	mvm::Thread* mut = mvm::Thread::get();
+	vmkit::Thread* mut = vmkit::Thread::get();
   exc = mut->getPendingException();
 
   if (exc != NULL) {
@@ -1247,7 +1247,7 @@ void Jnjvm::runApplicationImpl(int argc, char** argv) {
   JavaString* str = NULL;
   JavaObject* instrumenter = NULL;
   ArrayObject* args = NULL;
-	mvm::gc* exc = NULL;
+	vmkit::gc* exc = NULL;
 	JavaObject *jexc;
 	
 	llvm_gcroot(jexc, 0);
@@ -1256,7 +1256,7 @@ void Jnjvm::runApplicationImpl(int argc, char** argv) {
   llvm_gcroot(args, 0);
   llvm_gcroot(exc, 0);
 
-	JavaThread::associate(this, mvm::Thread::get());
+	JavaThread::associate(this, vmkit::Thread::get());
 
   argumentsInfo.argc = argc;
   argumentsInfo.argv = argv;
@@ -1273,7 +1273,7 @@ void Jnjvm::runApplicationImpl(int argc, char** argv) {
   TRY {
     loadBootstrap();
   } CATCH {
-    exc = mvm::Thread::get()->getPendingException();
+    exc = vmkit::Thread::get()->getPendingException();
   } END_CATCH;
 
   if (exc != NULL) {
@@ -1303,7 +1303,7 @@ void Jnjvm::runApplicationImpl(int argc, char** argv) {
   }
 }
 
-Jnjvm::Jnjvm(mvm::BumpPtrAllocator& Alloc, mvm::VMKit* vmkit, JavaCompiler* Comp, bool dlLoad) : 
+Jnjvm::Jnjvm(vmkit::BumpPtrAllocator& Alloc, vmkit::VMKit* vmkit, JavaCompiler* Comp, bool dlLoad) : 
 	VirtualMachine(Alloc, vmkit), 
 	lockSystem(Alloc) {
 
@@ -1350,7 +1350,7 @@ ArrayUInt16* Jnjvm::asciizToArray(const char* asciiz) {
   return tmp;
 }
 
-void Jnjvm::finalizeObject(mvm::gc* _o) {
+void Jnjvm::finalizeObject(vmkit::gc* _o) {
 	JavaObject *obj = (JavaObject*)_o;
 
 	llvm_gcroot(_o, 0);
@@ -1361,14 +1361,14 @@ void Jnjvm::finalizeObject(mvm::gc* _o) {
   meth->invokeIntVirtualBuf(cl, obj, 0);
 }
 
-mvm::gc** Jnjvm::getReferent(mvm::gc* _obj) {
+vmkit::gc** Jnjvm::getReferent(vmkit::gc* _obj) {
   llvm_gcroot(_obj, 0);
   JavaObjectReference* obj = (JavaObjectReference*)_obj;
   llvm_gcroot(obj, 0);
-  return (mvm::gc**)JavaObjectReference::getReferentPtr(obj);
+  return (vmkit::gc**)JavaObjectReference::getReferentPtr(obj);
 }
 
-void Jnjvm::setReferent(mvm::gc* _obj, mvm::gc* val) {
+void Jnjvm::setReferent(vmkit::gc* _obj, vmkit::gc* val) {
   llvm_gcroot(_obj, 0);
   JavaObjectReference* obj = (JavaObjectReference*)_obj;
   llvm_gcroot(obj, 0);
@@ -1376,7 +1376,7 @@ void Jnjvm::setReferent(mvm::gc* _obj, mvm::gc* val) {
   JavaObjectReference::setReferent(obj, (JavaObject*)val);
 }
 
-bool Jnjvm::enqueueReference(mvm::gc* _obj) {
+bool Jnjvm::enqueueReference(vmkit::gc* _obj) {
   JavaObject* obj = (JavaObject*)_obj;
   llvm_gcroot(obj, 0);
   JavaMethod* meth = upcalls->EnqueueReference;
@@ -1384,7 +1384,7 @@ bool Jnjvm::enqueueReference(mvm::gc* _obj) {
   return (bool)meth->invokeIntSpecialBuf(cl, obj, 0);
 }
   
-size_t Jnjvm::getObjectSize(mvm::gc* object) {
+size_t Jnjvm::getObjectSize(vmkit::gc* object) {
   // TODO: because this is called during GC, there is no need to do
   // llvm_gcroot. For clarity, it may be useful to have a special type
   // in this case.
@@ -1410,7 +1410,7 @@ size_t Jnjvm::getObjectSize(mvm::gc* object) {
   return size;
 }
 
-const char* Jnjvm::getObjectTypeName(mvm::gc* object) {
+const char* Jnjvm::getObjectTypeName(vmkit::gc* object) {
   JavaObject* src = (JavaObject*)object;
   if (VMClassLoader::isVMClassLoader(this, src)) {
     return "VMClassLoader";
@@ -1424,15 +1424,15 @@ const char* Jnjvm::getObjectTypeName(mvm::gc* object) {
 
 // Helper function to run J3 without JIT.
 extern "C" int StartJnjvmWithoutJIT(int argc, char** argv, char* mainClass) {
-  mvm::BumpPtrAllocator Allocator;
+  vmkit::BumpPtrAllocator Allocator;
 
-	mvm::VMKit* vmkit = new(Allocator, "VMKit") mvm::VMKit(Allocator);
+	vmkit::VMKit* vmkit = new(Allocator, "VMKit") vmkit::VMKit(Allocator);
  
   JavaCompiler* Comp = new JavaCompiler();
 
   Jnjvm* vm = new(Allocator, "VM") Jnjvm(Allocator, vmkit, Comp, true);
 
-  mvm::ThreadAllocator thallocator; 
+  vmkit::ThreadAllocator thallocator; 
   char** newArgv = (char**)thallocator.Allocate((argc + 1) * sizeof(char*));
   memcpy(newArgv + 1, argv, argc * sizeof(char*));
   newArgv[0] = newArgv[1];

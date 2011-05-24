@@ -25,12 +25,12 @@
 
 #include <cstdarg>
 
-namespace mvm {
+namespace vmkit {
 	class UTF8;
 }
 
 namespace n3 {
-using mvm::UTF8;
+using vmkit::UTF8;
 
 class ArraySInt32;
 class Assembly;
@@ -50,9 +50,9 @@ typedef enum VMClassState {
 }VMClassState;
 
 
-class VMCommonClass : public mvm::PermanentObject {
+class VMCommonClass : public vmkit::PermanentObject {
 public:
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
   virtual void TRACER;
 
   std::vector<VMMethod*> virtualMethods;
@@ -65,8 +65,8 @@ public:
   N3* vm;
   const UTF8* name;
   const UTF8* nameSpace;
-  mvm::Lock* lockVar;
-  mvm::Cond* condVar;
+  vmkit::Lock* lockVar;
+  vmkit::Cond* condVar;
   VMObject* ooo_delegatee;
   std::vector<VMCommonClass*> display;
   Assembly* assembly;
@@ -136,7 +136,7 @@ public:
 
 class VMClass : public VMCommonClass {
 public:
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
   virtual void TRACER;
   
   void resolveFields();
@@ -161,7 +161,7 @@ public:
 //       add flag to VMClass instead
 class VMGenericClass : public VMClass {
 public:
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
   virtual void TRACER;
 
   std::vector<VMCommonClass*> genericParams;
@@ -169,7 +169,7 @@ public:
 
 class VMClassArray : public VMCommonClass {
 public:
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
   virtual void TRACER;
 
   uint32 dims;
@@ -190,7 +190,7 @@ public:
 
 class VMClassPointer : public VMCommonClass {
 public:
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
   virtual void TRACER;
 
   uint32 dims;
@@ -199,9 +199,9 @@ public:
   void makeType();
 };
 
-class VMMethod : public mvm::PermanentObject {
+class VMMethod : public vmkit::PermanentObject {
 public:
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
   virtual void TRACER;
 
 	uint32 offsetInVt;
@@ -253,15 +253,15 @@ public:
 //       add flag to VMMethod instead
 class VMGenericMethod : public VMMethod {
 public:
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
   virtual void TRACER;
 
   std::vector<VMCommonClass*> genericParams;
 };
 
-class VMField : public mvm::PermanentObject {
+class VMField : public vmkit::PermanentObject {
 public:
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
   virtual void TRACER;
   
   uint32 flags;
@@ -286,9 +286,9 @@ public:
   llvm::GlobalVariable* _llvmVar;
 };
 
-class Param : public mvm::PermanentObject {
+class Param : public vmkit::PermanentObject {
 public:
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
 
   uint32 flags;
   uint32 sequence;
@@ -296,9 +296,9 @@ public:
   const UTF8* name;
 };
 
-class Property : public mvm::PermanentObject {
+class Property : public vmkit::PermanentObject {
 public:
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
   virtual void TRACER;
   
   std::vector<VMCommonClass*> parameters;

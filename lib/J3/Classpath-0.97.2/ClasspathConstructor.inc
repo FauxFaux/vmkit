@@ -78,7 +78,7 @@ JavaObject* proceedConstructor(JavaObjectConstructor* cons,
                                ArrayObject* args,
                                JavaObject* Clazz, jint index) {
   JavaObject* res = 0;
-	mvm::gc* excp = 0;
+	vmkit::gc* excp = 0;
 	JavaObject* jexcp;
 	
   llvm_gcroot(cons, 0);
@@ -97,7 +97,7 @@ JavaObject* proceedConstructor(JavaObjectConstructor* cons,
 
   if (isAbstract(cl->access)) vm->instantiationException(cl);
 
-  mvm::ThreadAllocator allocator;
+  vmkit::ThreadAllocator allocator;
   // Allocate a buffer to store the arguments.
   jvalue* buf = size ? 
       (jvalue*)allocator.Allocate(size * sizeof(jvalue)) : NULL;
@@ -122,9 +122,9 @@ JavaObject* proceedConstructor(JavaObjectConstructor* cons,
       TRY {
         meth->invokeIntSpecialBuf(cl, res, buf);
       } CATCH {
-        excp = mvm::Thread::get()->getPendingException();
+        excp = vmkit::Thread::get()->getPendingException();
       } END_CATCH;
-			mvm::Thread* mut = mvm::Thread::get();
+			vmkit::Thread* mut = vmkit::Thread::get();
       if (excp) {
 				jexcp = Jnjvm::asJavaException(excp);
         if (jexcp && JavaObject::getClass(jexcp)->isAssignableFrom(vm->upcalls->newException)) {

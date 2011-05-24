@@ -110,7 +110,7 @@ bool LoopSafePoints::runOnLoop(Loop* L, LPPassManager& LPM) {
 }
 
 
-namespace mvm {
+namespace vmkit {
 
 LoopPass* createLoopSafePointsPass() {
   return new LoopSafePoints();

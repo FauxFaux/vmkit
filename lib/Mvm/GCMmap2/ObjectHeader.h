@@ -12,7 +12,7 @@
 
 #include <stdint.h>
 
-namespace mvm {
+namespace vmkit {
   static const uint32_t GCBits = 2;
   static const bool MovesObject = false;
 }

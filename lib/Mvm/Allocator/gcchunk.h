@@ -16,11 +16,11 @@
 #include "gcmapper.h"
 #include "types.h"
 
-namespace mvm {
+namespace vmkit {
 	class gcRoot;
 }
 
-using namespace mvm;
+using namespace vmkit;
 
 /* description d'un bout de mémoire */
 class GCChunkNode {

@@ -225,7 +225,7 @@ unsigned JavaJIT::readExceptionTable(Reader& reader, uint32 codeLen) {
     }
   }
   
-  mvm::ThreadAllocator allocator;
+  vmkit::ThreadAllocator allocator;
   // Loop over all handlers in the bytecode to initialize their values.
   Handler* handlers = (Handler*)
       allocator.Allocate(sizeof(Handler) * (nbe - sync));

@@ -10,9 +10,9 @@
 #include "mvm/GC.h"
 #include "mvm/Threads/Thread.h"
 
-using namespace mvm;
+using namespace vmkit;
 
-void Collector::inject_my_thread(mvm::Thread* th) {
+void Collector::inject_my_thread(vmkit::Thread* th) {
   GC_init();
 }
 

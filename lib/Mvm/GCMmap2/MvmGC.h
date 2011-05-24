@@ -18,9 +18,9 @@
 
 #define gc_allocator std::allocator
 
-using namespace mvm;
+using namespace vmkit;
 
-namespace mvm {
+namespace vmkit {
 	class Thread;
 	class VirtualMachine;
 
@@ -148,7 +148,7 @@ public:
     unlock();
 
     if (((CommonVirtualTable*)vt)->destructor)
-      mvm::Thread::get()->vmkit->addFinalizationCandidate((gc*)p);
+      vmkit::Thread::get()->vmkit->addFinalizationCandidate((gc*)p);
 
 
     return p;
@@ -300,11 +300,11 @@ class collectable : public gcRoot {
 public:
  
   size_t objectSize() const {
-    return mvm::Collector::objectSize((void*)this);
+    return vmkit::Collector::objectSize((void*)this);
   }
 
   void* operator new(size_t sz, VirtualTable *VT) {
-    return mvm::Collector::gcmalloc(VT, sz);
+    return vmkit::Collector::gcmalloc(VT, sz);
   }
 
   void* operator new(size_t sz) {
@@ -316,7 +316,7 @@ public:
   }
 
   void* realloc(size_t n) {
-    return mvm::Collector::gcrealloc(this, n);
+    return vmkit::Collector::gcrealloc(this, n);
   }
 
 };

@@ -1,7 +1,7 @@
 #include "mvm/Allocator.h"
 #include "mvm/UTF8.h"
 
-using namespace mvm;
+using namespace vmkit;
 
 const UTF8* UTF8::extract(UTF8Map* map, uint32 start, uint32 end) const {
   uint32 len = end - start;

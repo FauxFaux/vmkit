@@ -20,11 +20,11 @@ using namespace n3;
 
 N3VirtualTable LockObj::_VT((uintptr_t)LockObj::_destroy, 
 														(uintptr_t)0, 
-														(uintptr_t)mvm::Object::default_tracer, 
+														(uintptr_t)vmkit::Object::default_tracer, 
 														(uintptr_t)LockObj::_print, 
-														(uintptr_t)mvm::Object::default_hashCode);
+														(uintptr_t)vmkit::Object::default_hashCode);
 
-void *N3VirtualTable::operator new(size_t size, mvm::BumpPtrAllocator &allocator, size_t totalVtSize) {
+void *N3VirtualTable::operator new(size_t size, vmkit::BumpPtrAllocator &allocator, size_t totalVtSize) {
 	//printf("Allocate N3VirtualTable with %d elements\n", totalVtSize);
 	return allocator.Allocate(totalVtSize * sizeof(uintptr_t), "N3VirtualTable");
 }
@@ -49,11 +49,11 @@ uint32 N3VirtualTable::baseVtSize() {
 LockObj* LockObj::allocate() {
   declare_gcroot(LockObj*, res) = new(&_VT) LockObj();
 	res->threads = new std::vector<VMThread*>();
-	res->lock    = new mvm::LockRecursive();
+	res->lock    = new vmkit::LockRecursive();
   return res;
 }
 
-void LockObj::_print(const LockObj *self, mvm::PrintBuffer* buf) {
+void LockObj::_print(const LockObj *self, vmkit::PrintBuffer* buf) {
 	llvm_gcroot(self, 0);
   buf->write("Lock<>");
 }
@@ -152,7 +152,7 @@ void VMObject::initialise(VMObject* self, VMCommonClass* cl) {
   self->lockObj = 0;
 }
 
-void VMObject::_print(const VMObject *self, mvm::PrintBuffer* buf) {
+void VMObject::_print(const VMObject *self, vmkit::PrintBuffer* buf) {
 	llvm_gcroot(self, 0);
   buf->write("VMObject<");
   self->classOf->print(buf);
@@ -181,8 +181,8 @@ void VMObject::waitIntern(VMObject* self, struct timeval* info, bool timed) {
 
   if (owner) {
     VMThread* thread = VMThread::get();
-    mvm::Lock* mutexThread = thread->lock;
-    mvm::Cond* varcondThread = thread->varcond;
+    vmkit::Lock* mutexThread = thread->lock;
+    vmkit::Cond* varcondThread = thread->varcond;
 
     mutexThread->lock();
     if (thread->interruptFlag != 0) {

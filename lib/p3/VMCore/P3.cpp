@@ -7,18 +7,18 @@
 
 using namespace p3;
 
-P3::P3(mvm::BumpPtrAllocator& alloc, mvm::VMKit* vmkit) : mvm::VirtualMachine(alloc, vmkit) {
+P3::P3(vmkit::BumpPtrAllocator& alloc, vmkit::VMKit* vmkit) : vmkit::VirtualMachine(alloc, vmkit) {
 }
 
-void P3::finalizeObject(mvm::gc* obj) { NI(); }
-mvm::gc** P3::getReferent(mvm::gc* ref) { NI(); }
-void P3::setReferent(mvm::gc* ref, mvm::gc* val) { NI(); }
-bool P3::enqueueReference(mvm::gc* _obj) { NI(); }
-size_t P3::getObjectSize(mvm::gc* object) { NI(); }
-const char* P3::getObjectTypeName(mvm::gc* object) { NI(); }
+void P3::finalizeObject(vmkit::gc* obj) { NI(); }
+vmkit::gc** P3::getReferent(vmkit::gc* ref) { NI(); }
+void P3::setReferent(vmkit::gc* ref, vmkit::gc* val) { NI(); }
+bool P3::enqueueReference(vmkit::gc* _obj) { NI(); }
+size_t P3::getObjectSize(vmkit::gc* object) { NI(); }
+const char* P3::getObjectTypeName(vmkit::gc* object) { NI(); }
 
 void P3::runFile(const char* fileName) {
-	mvm::BumpPtrAllocator allocator;
+	vmkit::BumpPtrAllocator allocator;
 	P3ByteCode* bc = P3Reader::openFile(allocator, fileName); 
 	if(!bc)
 		fatal("unable to open: %s", fileName);

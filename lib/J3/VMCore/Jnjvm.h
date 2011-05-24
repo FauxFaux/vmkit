@@ -24,7 +24,7 @@
 #include "JNIReferences.h"
 #include "LockedMap.h"
 
-namespace mvm {
+namespace vmkit {
 	class MutatorThread;
 }
 
@@ -67,7 +67,7 @@ public:
 
 /// Jnjvm - A JVM. Each execution of a program allocates a Jnjvm.
 ///
-class Jnjvm : public mvm::VirtualMachine {
+class Jnjvm : public vmkit::VirtualMachine {
   friend class JnjvmClassLoader;
 public:
   /// throwable - The java/lang/Throwable class. In an isolate
@@ -76,8 +76,8 @@ public:
 
 private:
 
-  virtual size_t getObjectSize(mvm::gc* obj);
-  virtual const char* getObjectTypeName(mvm::gc* obj);
+  virtual size_t getObjectSize(vmkit::gc* obj);
+  virtual const char* getObjectTypeName(vmkit::gc* obj);
 
   /// CreateError - Creates a Java object of the specified exception class
   /// and calling its <init> function.
@@ -113,7 +113,7 @@ private:
    
   /// mainJavaStart - Starts the execution of the application in a Java thread.
   ///
-  static void mainJavaStart(mvm::Thread* thread);
+  static void mainJavaStart(vmkit::Thread* thread);
   
 public:
   
@@ -145,7 +145,7 @@ public:
   
   /// lockSystem - The lock system to allocate and manage Java locks.
   ///
-  mvm::LockSystem lockSystem;
+  vmkit::LockSystem lockSystem;
   
   /// argumentsInfo - The command line arguments given to the vm
   ///
@@ -173,7 +173,7 @@ public:
 
   /// globalRefsLock - Lock for adding a new global reference.
   ///
-  mvm::LockNormal globalRefsLock;
+  vmkit::LockNormal globalRefsLock;
   
   /// appClassLoader - The bootstrap class loader.
   ///
@@ -183,7 +183,7 @@ public:
   ///
   StringMap hashStr;
 
-	mvm::VirtualTable* VMClassLoader__VT;
+	vmkit::VirtualTable* VMClassLoader__VT;
 
 	void initialiseInternalVTs();
 public:
@@ -246,19 +246,19 @@ public:
 
   /// finalizeObject - invoke the finalizer of a java object
   ///
-	virtual void finalizeObject(mvm::gc* obj);
+	virtual void finalizeObject(vmkit::gc* obj);
   
   /// getReferentPtr - return the referent of a reference
   ///
-	virtual mvm::gc** getReferent(mvm::gc* ref);
+	virtual vmkit::gc** getReferent(vmkit::gc* ref);
 
   /// setReferentPtr - set the referent of a reference
   ///
-	virtual void setReferent(mvm::gc* ref, mvm::gc* val);
+	virtual void setReferent(vmkit::gc* ref, vmkit::gc* val);
 
   /// enqueueReference - enqueue the reference
   ///
-	virtual bool enqueueReference(mvm::gc* _obj);
+	virtual bool enqueueReference(vmkit::gc* _obj);
 
   /// ~Jnjvm - Destroy the JVM.
   ///
@@ -276,7 +276,7 @@ public:
 
   /// Jnjvm - Allocates a new JVM.
   ///
-  Jnjvm(mvm::BumpPtrAllocator& Alloc, mvm::VMKit* vmkit, JavaCompiler* Comp, bool dlLoad);
+  Jnjvm(vmkit::BumpPtrAllocator& Alloc, vmkit::VMKit* vmkit, JavaCompiler* Comp, bool dlLoad);
 
   /// runApplicationImpl - function executed in a thread after a call to runApplication
 	///
@@ -284,7 +284,7 @@ public:
   
 	/// buildVMThreadData - allocate a java thread for the underlying mutator. Called when the java thread is a foreign thread.
 	///
-	virtual mvm::VMThreadData* buildVMThreadData(mvm::Thread* mut);
+	virtual vmkit::VMThreadData* buildVMThreadData(vmkit::Thread* mut);
 
   /// loadBootstrap - Bootstraps the JVM, getting the class loader, initializing
   /// bootstrap classes (e.g. java/lang/Class, java/lang/Exception) and
@@ -294,7 +294,7 @@ public:
 
 	// asjavaException - convert from gc to JavaObject. Will be used to identify the points
 	// where we must test the original vm of the exception
-	static JavaObject* asJavaException(mvm::gc* o) { llvm_gcroot(o, 0); return (JavaObject*)o; } 
+	static JavaObject* asJavaException(vmkit::gc* o) { llvm_gcroot(o, 0); return (JavaObject*)o; } 
 };
 
 } // end namespace j3

@@ -23,7 +23,7 @@ namespace {
   };
 }
 
-namespace mvm {
+namespace vmkit {
   void linkVmkitGC() { }
 }
 

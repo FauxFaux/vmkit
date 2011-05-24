@@ -13,7 +13,7 @@
 #include "mvm/GC.h"
 #include "mvm/PrintBuffer.h"
 
-using namespace mvm;
+using namespace vmkit;
 
 extern "C" void printFloat(float f) {
   fprintf(stderr, "%f\n", f);

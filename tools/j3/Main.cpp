@@ -23,14 +23,14 @@
 extern llvm::cl::opt<bool> StandardCompileOpts;
 
 using namespace j3;
-using namespace mvm;
+using namespace vmkit;
 
 int main(int argc, char **argv, char **envp) {
   llvm::llvm_shutdown_obj X;  
 
   // Initialize base components.  
-  mvm::BumpPtrAllocator Allocator;
-	mvm::VMKit* vmkit = new(Allocator, "VMKit") mvm::VMKit(Allocator);
+  vmkit::BumpPtrAllocator Allocator;
+	vmkit::VMKit* vmkit = new(Allocator, "VMKit") vmkit::VMKit(Allocator);
   
   // Tell the compiler to run all optimizations.
   StandardCompileOpts = true;

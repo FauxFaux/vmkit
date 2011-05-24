@@ -81,7 +81,7 @@ TYPE JavaMethod::invoke##TYPE_NAME##VirtualAP(UserClass* cl, JavaObject* obj, va
   llvm_gcroot(obj, 0); \
   verifyNull(obj); \
   Signdef* sign = getSignature(); \
-  mvm::ThreadAllocator allocator; \
+  vmkit::ThreadAllocator allocator; \
   jvalue* buf = (jvalue*)allocator.Allocate(sign->nbArguments * sizeof(jvalue)); \
   readArgs(buf, sign, ap, jni); \
   return invoke##TYPE_NAME##VirtualBuf(cl, obj, buf); \
@@ -91,7 +91,7 @@ TYPE JavaMethod::invoke##TYPE_NAME##SpecialAP(UserClass* cl, JavaObject* obj, va
   llvm_gcroot(obj, 0); \
   verifyNull(obj); \
   Signdef* sign = getSignature(); \
-  mvm::ThreadAllocator allocator; \
+  vmkit::ThreadAllocator allocator; \
   jvalue* buf = (jvalue*)allocator.Allocate(sign->nbArguments * sizeof(jvalue)); \
   readArgs(buf, sign, ap, jni); \
   return invoke##TYPE_NAME##SpecialBuf(cl, obj, buf); \
@@ -99,7 +99,7 @@ TYPE JavaMethod::invoke##TYPE_NAME##SpecialAP(UserClass* cl, JavaObject* obj, va
 \
 TYPE JavaMethod::invoke##TYPE_NAME##StaticAP(UserClass* cl, va_list ap) {\
   Signdef* sign = getSignature(); \
-  mvm::ThreadAllocator allocator; \
+  vmkit::ThreadAllocator allocator; \
   jvalue* buf = (jvalue*)allocator.Allocate(sign->nbArguments * sizeof(jvalue)); \
   readArgs(buf, sign, ap, jni); \
   return invoke##TYPE_NAME##StaticBuf(cl, buf); \

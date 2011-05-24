@@ -41,7 +41,7 @@ class VMGenericClass;
 class VMGenericMethod;
 class N3VirtualTable;
 
-class ExceptionBlockDesc : public mvm::PermanentObject {
+class ExceptionBlockDesc : public vmkit::PermanentObject {
 public:
 	uint32 tryOffset;
 	uint32 tryLength;
@@ -52,7 +52,7 @@ public:
 	llvm::BasicBlock* realTest;
 	llvm::BasicBlock* handler;
 
-	virtual void print(mvm::PrintBuffer* buf) const;
+	virtual void print(vmkit::PrintBuffer* buf) const;
 };
 
 class Opinfo {
@@ -62,19 +62,19 @@ public:
   bool reqSuppl;
   llvm::Value* exception;
   
-  virtual void print(mvm::PrintBuffer* buf) const {
+  virtual void print(vmkit::PrintBuffer* buf) const {
     buf->write("Opinfo");
   }
 };
 
 
-class CLIJit : public mvm::PermanentObject {
+class CLIJit : public vmkit::PermanentObject {
 public:
-	mvm::BumpPtrAllocator &allocator;
+	vmkit::BumpPtrAllocator &allocator;
 
-	CLIJit(mvm::BumpPtrAllocator &a) : allocator(a) {}
+	CLIJit(vmkit::BumpPtrAllocator &a) : allocator(a) {}
 
-  virtual void print(mvm::PrintBuffer* buf) const {
+  virtual void print(vmkit::PrintBuffer* buf) const {
     buf->write("CLIJit");
   }
   
@@ -91,7 +91,7 @@ public:
   llvm::Function* llvmFunction;
   VMMethod* compilingMethod;
   VMClass* compilingClass;
-  mvm::BaseIntrinsics* module;
+  vmkit::BaseIntrinsics* module;
 
   std::vector<llvm::Value*> arguments;
   std::vector<llvm::Value*> locals;

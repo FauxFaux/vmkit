@@ -11,7 +11,7 @@ class P3ByteCode {
     size = l;
   }
 
-  void* operator new(size_t sz, mvm::BumpPtrAllocator& allocator, int n) {
+  void* operator new(size_t sz, vmkit::BumpPtrAllocator& allocator, int n) {
     return allocator.Allocate(sizeof(uint32_t) + n * sizeof(uint8_t),
                               "Class bytes");
   }
@@ -48,7 +48,7 @@ public:
   static const int SeekCur;
   static const int SeekEnd;
 
-  static P3ByteCode* openFile(mvm::BumpPtrAllocator& allocator, const char* path);
+  static P3ByteCode* openFile(vmkit::BumpPtrAllocator& allocator, const char* path);
   
   uint8 readU1() {
     ++cursor;

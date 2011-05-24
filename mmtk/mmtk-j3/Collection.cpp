@@ -33,7 +33,7 @@ extern "C" void Java_org_j3_mmtk_Collection_reportAllocationSuccess__ (MMTkObjec
 }
 
 extern "C" void Java_org_j3_mmtk_Collection_triggerCollection__I (MMTkObject* C, int why) {
-  mvm::Thread* th = mvm::Thread::get();
+  vmkit::Thread* th = vmkit::Thread::get();
 
   if (th->vmkit->startCollection()) {
     JnJVM_org_mmtk_plan_Plan_setCollectionTriggered__();
@@ -57,7 +57,7 @@ extern "C" void Java_org_j3_mmtk_Collection_triggerCollection__I (MMTkObject* C,
 
     JnJVM_org_mmtk_plan_Plan_collectionComplete__();
     
-    if (mvm::Collector::verbose > 0) {
+    if (vmkit::Collector::verbose > 0) {
       static int collectionNum = 1;
       if (why == 2) fprintf(stderr, "[Forced] ");
       fprintf(stderr, "Collection %d finished in %lld ms.\n", collectionNum++,
@@ -70,7 +70,7 @@ extern "C" void Java_org_j3_mmtk_Collection_triggerCollection__I (MMTkObject* C,
 }
 
 extern "C" void Java_org_j3_mmtk_Collection_joinCollection__ (MMTkObject* C) {
-  mvm::Thread* th = mvm::Thread::get();
+  vmkit::Thread* th = vmkit::Thread::get();
   assert(th->inRV && "Joining collection without a rendezvous");
   th->vmkit->rendezvous.join();
 }
@@ -96,11 +96,11 @@ extern "C" int32_t Java_org_j3_mmtk_Collection_activeGCThreadOrdinal__ (MMTkObje
 
 extern "C" void Java_org_j3_mmtk_Collection_reportPhysicalAllocationFailed__ (MMTkObject* C) { UNIMPLEMENTED(); }
 extern "C" void Java_org_j3_mmtk_Collection_triggerAsyncCollection__I (MMTkObject* C, sint32 val) {
-  mvm::Thread::get()->doYield = true;
+  vmkit::Thread::get()->doYield = true;
 }
 
 extern "C" uint8_t Java_org_j3_mmtk_Collection_noThreadsInGC__ (MMTkObject* C) {
-  mvm::Thread* th = mvm::Thread::get();
+  vmkit::Thread* th = vmkit::Thread::get();
   bool threadInGC = th->doYield;
   return !threadInGC;
 }

@@ -25,7 +25,7 @@ class JNILocalReferences {
 private:
   JNILocalReferences* prev;
   uint32_t length;
-	mvm::gc* localReferences[MAXIMUM_REFERENCES];
+	vmkit::gc* localReferences[MAXIMUM_REFERENCES];
 
 public:
   
@@ -34,7 +34,7 @@ public:
     length = 0;
   }
 
-	mvm::gc** addJNIReference(JavaThread* th, mvm::gc* obj);
+	vmkit::gc** addJNIReference(JavaThread* th, vmkit::gc* obj);
 
   void removeJNIReferences(JavaThread* th, uint32_t num);
 

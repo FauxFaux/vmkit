@@ -13,7 +13,7 @@
 #include "mvm/Allocator.h"
 #include "mvm/GC.h"
 
-namespace mvm {
+namespace vmkit {
 
 class MethodInfo : public PermanentObject {
 public:
@@ -76,5 +76,5 @@ public:
 };
 
 
-} // end namespace mvm
+} // end namespace vmkit
 #endif // MVM_METHODINFO_H

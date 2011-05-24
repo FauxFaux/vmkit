@@ -53,12 +53,12 @@ const int Reader::SeekSet = SEEK_SET;
 const int Reader::SeekCur = SEEK_CUR;
 const int Reader::SeekEnd = SEEK_END;
 
-ByteCode::ByteCode(mvm::BumpPtrAllocator &allocator, int size) {
+ByteCode::ByteCode(vmkit::BumpPtrAllocator &allocator, int size) {
 	this->size = size;
 	this->elements = (uint8*)allocator.Allocate(size * sizeof(uint8), "uint8[]");
 }
 
-ByteCode* Reader::openFile(mvm::BumpPtrAllocator &allocator, char* path) {
+ByteCode* Reader::openFile(vmkit::BumpPtrAllocator &allocator, char* path) {
   FILE* fp = fopen(path, "r");
   ByteCode* res = 0;
   if (fp != 0) {
@@ -146,6 +146,6 @@ void Reader::seek(uint32 pos, int from) {
   cursor = n;
 }
 
-void Reader::print(mvm::PrintBuffer* buf) const {
+void Reader::print(vmkit::PrintBuffer* buf) const {
   buf->write("Reader<>");
 }

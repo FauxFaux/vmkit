@@ -11,20 +11,20 @@
 #define INITIAL_QUEUE_SIZE 256
 #define GROW_FACTOR 2
 
-namespace mvm {
+namespace vmkit {
 class VirtualMachine;
 
 class ReferenceThread;
 
 class ReferenceQueue {
 private:
-	mvm::gc** References;
+	vmkit::gc** References;
   uint32 QueueLength;
   uint32 CurrentIndex;
-  mvm::SpinLock QueueLock;
+  vmkit::SpinLock QueueLock;
   uint8_t semantics;
 
-	mvm::gc* processReference(mvm::gc*, ReferenceThread*, uintptr_t closure);
+	vmkit::gc* processReference(vmkit::gc*, ReferenceThread*, uintptr_t closure);
 public:
 
   static const uint8_t WEAK = 1;
@@ -33,8 +33,8 @@ public:
 
 
   ReferenceQueue(uint8_t s) {
-    References = new mvm::gc*[INITIAL_QUEUE_SIZE];
-    memset(References, 0, INITIAL_QUEUE_SIZE * sizeof(mvm::gc*));
+    References = new vmkit::gc*[INITIAL_QUEUE_SIZE];
+    memset(References, 0, INITIAL_QUEUE_SIZE * sizeof(vmkit::gc*));
     QueueLength = INITIAL_QUEUE_SIZE;
     CurrentIndex = 0;
     semantics = s;
@@ -44,7 +44,7 @@ public:
     delete[] References;
   }
  
-  void addReference(mvm::gc* ref);
+  void addReference(vmkit::gc* ref);
   
   void acquire() {
     QueueLock.acquire();
@@ -57,7 +57,7 @@ public:
   void scan(ReferenceThread* thread, uintptr_t closure);
 };
 
-class ReferenceThread : public mvm::MutatorThread {
+class ReferenceThread : public vmkit::MutatorThread {
 public:
   /// WeakReferencesQueue - The queue of weak references.
   ///
@@ -71,33 +71,33 @@ public:
   ///
   ReferenceQueue PhantomReferencesQueue;
 
-	mvm::gc** ToEnqueue;
+	vmkit::gc** ToEnqueue;
   uint32 ToEnqueueLength;
   uint32 ToEnqueueIndex;
   
   /// ToEnqueueLock - A lock to protect access to the queue.
   ///
-  mvm::LockNormal EnqueueLock;
-  mvm::Cond EnqueueCond;
-  mvm::SpinLock ToEnqueueLock;
+  vmkit::LockNormal EnqueueLock;
+  vmkit::Cond EnqueueCond;
+  vmkit::SpinLock ToEnqueueLock;
 
-  void addToEnqueue(mvm::gc* obj);
+  void addToEnqueue(vmkit::gc* obj);
 
   static void enqueueStart(ReferenceThread*);
 
   /// addWeakReference - Add a weak reference to the queue.
   ///
-  void addWeakReference(mvm::gc* ref);
+  void addWeakReference(vmkit::gc* ref);
   
   /// addSoftReference - Add a weak reference to the queue.
   ///
-  void addSoftReference(mvm::gc* ref);
+  void addSoftReference(vmkit::gc* ref);
   
   /// addPhantomReference - Add a weak reference to the queue.
   ///
-  void addPhantomReference(mvm::gc* ref);
+  void addPhantomReference(vmkit::gc* ref);
 
-  ReferenceThread(mvm::VMKit* vmkit);
+  ReferenceThread(vmkit::VMKit* vmkit);
 
 	virtual ~ReferenceThread() {
     delete[] ToEnqueue;
@@ -106,16 +106,16 @@ public:
   virtual void tracer(uintptr_t closure);
 };
 
-class FinalizerThread : public mvm::MutatorThread {
+class FinalizerThread : public vmkit::MutatorThread {
 public:
     /// FinalizationQueueLock - A lock to protect access to the queue.
   ///
-  mvm::SpinLock FinalizationQueueLock;
+  vmkit::SpinLock FinalizationQueueLock;
 
   /// finalizationQueue - A list of allocated objets that contain a finalize
   /// method.
   ///
-	mvm::gc** FinalizationQueue;
+	vmkit::gc** FinalizationQueue;
 
   /// CurrentIndex - Current index in the queue of finalizable objects.
   ///
@@ -131,7 +131,7 @@ public:
   
   /// ToBeFinalized - List of objects that are scheduled to be finalized.
   ///
-	mvm::gc** ToBeFinalized;
+	vmkit::gc** ToBeFinalized;
   
   /// ToBeFinalizedLength - Current length of the queue of objects scheduled
   /// for finalization.
@@ -149,18 +149,18 @@ public:
   
   /// finalizationCond - Condition variable to wake up finalization threads.
   ///
-  mvm::Cond FinalizationCond;
+  vmkit::Cond FinalizationCond;
 
   /// finalizationLock - Lock for the condition variable.
   ///
-  mvm::LockNormal FinalizationLock;
+  vmkit::LockNormal FinalizationLock;
 
   static void finalizerStart(FinalizerThread*);
 
   /// addFinalizationCandidate - Add an object to the queue of objects with
   /// a finalization method.
   ///
-  void addFinalizationCandidate(mvm::gc*);
+  void addFinalizationCandidate(vmkit::gc*);
 
   /// scanFinalizationQueue - Scan objets with a finalized method and schedule
   /// them for finalization if they are not live.
@@ -177,7 +177,7 @@ public:
   virtual void tracer(uintptr_t closure);
 };
 
-} // namespace mvm
+} // namespace vmkit
 
 
 #endif

@@ -4,10 +4,10 @@
 #include "mvm/GC.h"
 #include "mvm/JIT.h"
 
-using namespace mvm;
+using namespace vmkit;
 
 #if 0
-#define dprintf(...) do { printf("[%p] vmkit: ", (void*)mvm::Thread::get()); printf(__VA_ARGS__); } while(0)
+#define dprintf(...) do { printf("[%p] vmkit: ", (void*)vmkit::Thread::get()); printf(__VA_ARGS__); } while(0)
 #else
 #define dprintf(...)
 #endif
@@ -15,7 +15,7 @@ using namespace mvm;
 static SpinLock initedLock;
 static bool     inited = false;
 
-VMKit::VMKit(mvm::BumpPtrAllocator &Alloc) : allocator(Alloc) {
+VMKit::VMKit(vmkit::BumpPtrAllocator &Alloc) : allocator(Alloc) {
 	initialise();
 
 	vms          = 0;
@@ -30,8 +30,8 @@ void VMKit::initialise(llvm::CodeGenOpt::Level level, llvm::Module* TheModule, l
 	initedLock.lock();
 	if(!inited) {
 		inited = true;
-		mvm::MvmModule::initialise(level, TheModule, TheTarget);
-		mvm::Collector::initialise();
+		vmkit::MvmModule::initialise(level, TheModule, TheTarget);
+		vmkit::Collector::initialise();
 	}
 	initedLock.unlock();
 }
@@ -61,7 +61,7 @@ FinalizerThread* VMKit::getAndAllocateFinalizerThread() {
 		vmkitLock();
 		if(!finalizerThread) {
 			finalizerThread = new FinalizerThread(this);
-			finalizerThread->start((void (*)(mvm::Thread*))FinalizerThread::finalizerStart);
+			finalizerThread->start((void (*)(vmkit::Thread*))FinalizerThread::finalizerStart);
 		}
 		vmkitUnlock();
 	}
@@ -73,29 +73,29 @@ ReferenceThread* VMKit::getAndAllocateReferenceThread() {
 		vmkitLock();
 		if(!referenceThread) {
 			referenceThread = new ReferenceThread(this);
-			referenceThread->start((void (*)(mvm::Thread*))ReferenceThread::enqueueStart);
+			referenceThread->start((void (*)(vmkit::Thread*))ReferenceThread::enqueueStart);
 		}
 		vmkitUnlock();
 	}
 	return referenceThread;
 }
 
-void VMKit::addFinalizationCandidate(mvm::gc* object) {
+void VMKit::addFinalizationCandidate(vmkit::gc* object) {
   llvm_gcroot(object, 0);
   getAndAllocateFinalizerThread()->addFinalizationCandidate(object);
 }
 
-void VMKit::addWeakReference(mvm::gc* ref) {
+void VMKit::addWeakReference(vmkit::gc* ref) {
   llvm_gcroot(ref, 0);
 	getAndAllocateReferenceThread()->addWeakReference(ref);
 }
   
-void VMKit::addSoftReference(mvm::gc* ref) {
+void VMKit::addSoftReference(vmkit::gc* ref) {
   llvm_gcroot(ref, 0);
 	getAndAllocateReferenceThread()->addSoftReference(ref);
 }
   
-void VMKit::addPhantomReference(mvm::gc* ref) {
+void VMKit::addPhantomReference(vmkit::gc* ref) {
 	llvm_gcroot(ref, 0);
 	getAndAllocateReferenceThread()->addPhantomReference(ref);
 }
@@ -212,7 +212,7 @@ void VMKit::removeVM(size_t id) {
 	vms[id] = 0;
 }
 
-void VMKit::registerPreparedThread(mvm::Thread* th) {
+void VMKit::registerPreparedThread(vmkit::Thread* th) {
 	dprintf("Register prepared thread: %p\n", (void*)th);
 	vmkitLock();
 	th->appendTo(&preparedThreads);
@@ -220,7 +220,7 @@ void VMKit::registerPreparedThread(mvm::Thread* th) {
 	vmkitUnlock();
 }
   
-void VMKit::unregisterPreparedThread(mvm::Thread* th) {
+void VMKit::unregisterPreparedThread(vmkit::Thread* th) {
 	dprintf("Unregister prepared thread: %p\n", (void*)th);
 	vmkitLock();
 	th->remove();
@@ -234,7 +234,7 @@ void VMKit::unregisterPreparedThread(mvm::Thread* th) {
 	th->allVmsData = 0;
 }
 
-void VMKit::notifyThreadStart(mvm::Thread* th) {
+void VMKit::notifyThreadStart(vmkit::Thread* th) {
 	dprintf("Register running thread: %p\n", (void*)th);
 	vmkitLock();
 	numberOfRunningThreads++;
@@ -243,7 +243,7 @@ void VMKit::notifyThreadStart(mvm::Thread* th) {
 	vmkitUnlock();
 }
   
-void VMKit::notifyThreadQuit(mvm::Thread* th) {
+void VMKit::notifyThreadQuit(vmkit::Thread* th) {
 	dprintf("Unregister running thread: %p\n", (void*)th);
 	vmkitLock();
 	numberOfRunningThreads--;
@@ -252,7 +252,7 @@ void VMKit::notifyThreadQuit(mvm::Thread* th) {
 	vmkitUnlock();
 }
 
-void VMKit::leaveNonDaemonMode(mvm::Thread* th) {
+void VMKit::leaveNonDaemonMode(vmkit::Thread* th) {
 	vmkitLock();
 	dprintf("Leave non daemon mode: %p\n", (void*)th);
 	--nonDaemonThreads;
@@ -260,7 +260,7 @@ void VMKit::leaveNonDaemonMode(mvm::Thread* th) {
 	vmkitUnlock();
 }
 
-void VMKit::enterNonDaemonMode(mvm::Thread* th) {
+void VMKit::enterNonDaemonMode(vmkit::Thread* th) {
 	vmkitLock();
 	dprintf("Enter non daemon mode: %p\n", (void*)th);
 	++nonDaemonThreads;
@@ -269,7 +269,7 @@ void VMKit::enterNonDaemonMode(mvm::Thread* th) {
 
 #include <sys/mman.h>
 
-void VMKit::freeThread(mvm::Thread* th) {
+void VMKit::freeThread(vmkit::Thread* th) {
 	vmkitLock();
 
 	while(exitingThread)
@@ -287,7 +287,7 @@ void VMKit::waitNonDaemonThreads() {
 		if (exitingThread == NULL) {
 			nonDaemonVar.wait(&_vmkitLock);
 		} else {
-			mvm::MutatorThread* th = (mvm::MutatorThread*)exitingThread;
+			vmkit::MutatorThread* th = (vmkit::MutatorThread*)exitingThread;
 			exitingThread = NULL;
 			delete th;
 			nonDaemonVar.broadcast();

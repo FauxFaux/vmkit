@@ -22,7 +22,7 @@
 
 using namespace llvm;
 
-namespace mvm {
+namespace vmkit {
 
   class InlineMalloc : public FunctionPass {
   public:
@@ -59,14 +59,14 @@ bool InlineMalloc::runOnFunction(Function& F) {
       Function* Temp = Call.getCalledFunction();
       if (Temp == Malloc) {
         if (dyn_cast<Constant>(Call.getArgument(0))) {
-          InlineFunctionInfo IFI(NULL, mvm::MvmModule::TheTargetData);
+          InlineFunctionInfo IFI(NULL, vmkit::MvmModule::TheTargetData);
           Changed |= InlineFunction(Call, IFI);
           break;
         }
       } else if (Temp == FieldWriteBarrier ||
                  Temp == NonHeapWriteBarrier ||
                  Temp == ArrayWriteBarrier) {
-        InlineFunctionInfo IFI(NULL, mvm::MvmModule::TheTargetData);
+        InlineFunctionInfo IFI(NULL, vmkit::MvmModule::TheTargetData);
         Changed |= InlineFunction(Call, IFI);
         break;
       }

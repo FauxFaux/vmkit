@@ -4,7 +4,7 @@
 #include <map>
 #include "mvm/Allocator.h"
 
-namespace mvm {
+namespace vmkit {
 
 class PrintBuffer;
 class UTF8Map;
@@ -15,7 +15,7 @@ private:
   
   /// operator new - Redefines the new operator of this class to allocate
   /// its objects in permanent memory, not with the garbage collector.
-  void* operator new(size_t sz, mvm::BumpPtrAllocator& allocator, sint32 n) {
+  void* operator new(size_t sz, vmkit::BumpPtrAllocator& allocator, sint32 n) {
     return allocator.Allocate(sizeof(UTF8) + (n - 1) * sizeof(uint16), "UTF8");
   }
   
@@ -65,12 +65,12 @@ public:
 };
 
 
-class UTF8Map : public mvm::PermanentObject {
+class UTF8Map : public vmkit::PermanentObject {
 private:
   typedef std::multimap<const uint32, const UTF8*>::iterator iterator;
   
-  mvm::LockNormal lock;
-  mvm::BumpPtrAllocator& allocator;
+  vmkit::LockNormal lock;
+  vmkit::BumpPtrAllocator& allocator;
   std::multimap<const uint32, const UTF8*> map;
 public:
 
@@ -79,7 +79,7 @@ public:
   const UTF8* lookupAsciiz(const char* asciiz); 
   const UTF8* lookupReader(const uint16* buf, uint32 size);
   
-  UTF8Map(mvm::BumpPtrAllocator& A) : allocator(A) {}
+  UTF8Map(vmkit::BumpPtrAllocator& A) : allocator(A) {}
 
   ~UTF8Map() {
     for (iterator i = map.begin(), e = map.end(); i!= e; ++i) {
@@ -97,6 +97,6 @@ public:
   void insert(const UTF8* val);
 };
 
-} // end namespace mvm
+} // end namespace vmkit
 
 #endif

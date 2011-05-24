@@ -16,7 +16,7 @@
 #include "types.h"
 #include "mvm/UTF8.h"
 
-namespace mvm {
+namespace vmkit {
 
 // #define VT_DESTRUCTOR_OFFSET 0
 // #define VT_OPERATOR_DELETE_OFFSET 1
@@ -206,6 +206,6 @@ public:
 	}
 };
 
-} // end namespace mvm
+} // end namespace vmkit
 
 #endif // MVM_PRINTBUFFER_H

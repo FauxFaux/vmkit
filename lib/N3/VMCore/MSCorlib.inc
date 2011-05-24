@@ -224,7 +224,7 @@ extern "C" void System_GC_Collect() {
 #ifdef MULTIPLE_GC
   VMThread::get()->GC->collect();
 #else
-  mvm::Collector::collect();
+  vmkit::Collector::collect();
 #endif
 }
 

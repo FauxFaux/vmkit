@@ -19,8 +19,8 @@
 using namespace jnjvm;
 
 UserCommonClass::UserCommonClass() {
-  this->lockVar = mvm::Lock::allocRecursive();
-  this->condVar = mvm::Cond::allocCond();
+  this->lockVar = vmkit::Lock::allocRecursive();
+  this->condVar = vmkit::Cond::allocCond();
   this->status = loaded;
 }
 
@@ -342,13 +342,13 @@ JavaField* UserCommonClass::lookupField(const UTF8* name, const UTF8* type,
   return res;
 }
 
-void UserConstantPool::print(mvm::PrintBuffer* buf) const {
+void UserConstantPool::print(vmkit::PrintBuffer* buf) const {
   buf->write("User constant pool of <");
   getClass()->classDef->print(buf);
   buf->write(">");
 }
 
-void UserCommonClass::print(mvm::PrintBuffer* buf) const {
+void UserCommonClass::print(vmkit::PrintBuffer* buf) const {
   buf->write("User class of <");
   classDef->print(buf);
   buf->write(">");

@@ -25,7 +25,7 @@ class ArrayChar;
 class CLIString : public VMObject {
 	CLIString() {}
 public:
-  virtual void print(mvm::PrintBuffer* buf) const {
+  virtual void print(vmkit::PrintBuffer* buf) const {
     buf->write("CLI string");
   }
   

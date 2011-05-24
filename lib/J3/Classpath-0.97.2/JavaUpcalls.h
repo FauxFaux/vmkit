@@ -67,7 +67,7 @@ class ClassArray;
 #define DYLD_EXTENSION ".so"
 #endif
 
-class Classpath : public mvm::PermanentObject {
+class Classpath : public vmkit::PermanentObject {
 public: 
 	Classpath(JnjvmBootstrapLoader* loader, bool dlLoad);
 

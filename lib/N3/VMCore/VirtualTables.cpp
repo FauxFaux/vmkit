@@ -29,13 +29,13 @@ extern "C" void CLIObjectTracer(VMObject* obj) {
 
 // N3 Objects
 void VMObject::_trace(VMObject *self) {
-  mvm::Collector::markAndTrace(self, &self->lockObj);
+  vmkit::Collector::markAndTrace(self, &self->lockObj);
 }
 
 #define TRACE_VECTOR(type, name, alloc) { \
   for (std::vector<type, alloc<type> >::iterator i = name.begin(), e = name.end(); \
        i!= e; ++i) {                                                    \
-    mvm::Collector::markAndTraceRoot(&(*i)); }}
+    vmkit::Collector::markAndTraceRoot(&(*i)); }}
 
 #define CALL_TRACER_VECTOR(type, name, alloc) { \
   for (std::vector<type, alloc<type> >::iterator i = name.begin(), e = name.end(); \
@@ -44,8 +44,8 @@ void VMObject::_trace(VMObject *self) {
 
 // internal objects
 void VMThread::tracer() {
-  mvm::Collector::markAndTraceRoot(&ooo_appThread);
-  mvm::Collector::markAndTraceRoot(&ooo_pendingException);
+  vmkit::Collector::markAndTraceRoot(&ooo_appThread);
+  vmkit::Collector::markAndTraceRoot(&ooo_pendingException);
 	// I suppose that the vm is already traced by the gc
 	//  vm->tracer();
 }
@@ -63,11 +63,11 @@ void N3::tracer() {
 
 void Assembly::tracer() {
   loadedNameClasses->tracer();
-  mvm::Collector::markAndTraceRoot(&ooo_delegatee);
+  vmkit::Collector::markAndTraceRoot(&ooo_delegatee);
 }
 
 void VMCommonClass::tracer() {
-  mvm::Collector::markAndTraceRoot(&ooo_delegatee);
+  vmkit::Collector::markAndTraceRoot(&ooo_delegatee);
 	CALL_TRACER_VECTOR(VMMethod*, virtualMethods, std::allocator);
 	CALL_TRACER_VECTOR(VMMethod*, staticMethods, std::allocator);
   CALL_TRACER_VECTOR(Property*, properties, gc_allocator);
@@ -75,8 +75,8 @@ void VMCommonClass::tracer() {
 
 void VMClass::tracer() {
   VMCommonClass::tracer();
-  mvm::Collector::markAndTraceRoot(&staticInstance);
-  mvm::Collector::markAndTraceRoot(&virtualInstance);
+  vmkit::Collector::markAndTraceRoot(&staticInstance);
+  vmkit::Collector::markAndTraceRoot(&virtualInstance);
 }
 
 void VMGenericClass::tracer() {
@@ -92,7 +92,7 @@ void VMClassPointer::tracer() {
 }
 
 void VMMethod::tracer() {
-  mvm::Collector::markAndTraceRoot(&ooo_delegatee);
+  vmkit::Collector::markAndTraceRoot(&ooo_delegatee);
 }
 
 void VMGenericMethod::tracer() {
@@ -100,7 +100,7 @@ void VMGenericMethod::tracer() {
 }
 
 void Property::tracer() {
-  mvm::Collector::markAndTraceRoot(&ooo_delegatee);
+  vmkit::Collector::markAndTraceRoot(&ooo_delegatee);
 }
 
 // useless (never called or used) but it simplifies the definition of LockedMap

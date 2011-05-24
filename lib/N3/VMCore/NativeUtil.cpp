@@ -32,9 +32,9 @@ static void* makeFull(VMCommonClass* cl, VMMethod* meth) {
   char* buf = (char*)alloca(4096);
   sprintf(buf, 
 					"%s_%s_%s", 
-					mvm::PrintBuffer(cl->nameSpace).cString(), 
-					mvm::PrintBuffer(cl->name).cString(),
-					mvm::PrintBuffer(meth->name).cString());
+					vmkit::PrintBuffer(cl->nameSpace).cString(), 
+					vmkit::PrintBuffer(cl->name).cString(),
+					vmkit::PrintBuffer(meth->name).cString());
 
   std::vector<VMCommonClass*>::iterator i = meth->parameters.begin(),
                                         e = meth->parameters.end();
@@ -43,7 +43,7 @@ static void* makeFull(VMCommonClass* cl, VMMethod* meth) {
   ++i;
   for ( ; i!= e; ++i) {
     VMCommonClass* cl = *i;
-    sprintf(buf, "%s_%s_%s", buf, mvm::PrintBuffer(cl->nameSpace).cString(), mvm::PrintBuffer(cl->name).cString());
+    sprintf(buf, "%s_%s_%s", buf, vmkit::PrintBuffer(cl->nameSpace).cString(), vmkit::PrintBuffer(cl->name).cString());
   }
 
   cliToInternal(buf);
@@ -51,16 +51,16 @@ static void* makeFull(VMCommonClass* cl, VMMethod* meth) {
   
   if (!res) {
     VMThread::get()->getVM()->error("unable to find native method %s",
-                               mvm::PrintBuffer(meth).cString());
+                               vmkit::PrintBuffer(meth).cString());
   }
 
   return res;
 }
 
 void* NativeUtil::nativeLookup(VMCommonClass* cl, VMMethod* meth) {
-	mvm::PrintBuffer _name(cl->name);
-	mvm::PrintBuffer _nameSpace(cl->nameSpace);
-	mvm::PrintBuffer _methName(meth->name);
+	vmkit::PrintBuffer _name(cl->name);
+	vmkit::PrintBuffer _nameSpace(cl->nameSpace);
+	vmkit::PrintBuffer _methName(meth->name);
   char* name = _name.cString();
   char* nameSpace = _nameSpace.cString();
   char* methName = _methName.cString();

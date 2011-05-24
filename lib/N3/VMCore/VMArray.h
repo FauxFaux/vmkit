@@ -49,7 +49,7 @@ public:
 		static const llvm::Type* llvmType;                                  \
 		sint32 size;                                                        \
 		type elements[1];                                                   \
-		static void do_print(const Array##name *self, mvm::PrintBuffer* buf); \
+		static void do_print(const Array##name *self, vmkit::PrintBuffer* buf); \
 	};
 
 ON_TYPES(DEFINE_ARRAY_CLASS, _F_NT)

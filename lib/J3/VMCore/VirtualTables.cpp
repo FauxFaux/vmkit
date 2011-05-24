@@ -56,7 +56,7 @@ using namespace j3;
 //===----------------------------------------------------------------------===//
 
 void Jnjvm::initialiseInternalVTs() {
-	VMClassLoader__VT = (mvm::VirtualTable*)allocator.Allocate(sizeof(mvm::VirtualTable), "Virtual table");
+	VMClassLoader__VT = (vmkit::VirtualTable*)allocator.Allocate(sizeof(vmkit::VirtualTable), "Virtual table");
 	VMClassLoader__VT->destructor     = (uintptr_t)VMClassLoader::staticDestructor;
 	VMClassLoader__VT->operatorDelete = (uintptr_t)VMClassLoader::staticDestructor;
 	VMClassLoader__VT->tracer         = (uintptr_t)VMClassLoader::staticTracer;
@@ -82,7 +82,7 @@ extern "C" void JavaObjectTracer(JavaObject* obj, uintptr_t closure) {
 extern "C" void RegularObjectTracer(JavaObject* obj, uintptr_t closure) {
   Class* cl = JavaObject::getClass(obj)->asClass();
   assert(cl && "Not a class in regular tracer");
-  mvm::Collector::markAndTraceRoot(
+  vmkit::Collector::markAndTraceRoot(
       cl->classLoader->getJavaClassLoaderPtr(), closure);
 
   while (cl->super != 0) {
@@ -90,7 +90,7 @@ extern "C" void RegularObjectTracer(JavaObject* obj, uintptr_t closure) {
       JavaField& field = cl->virtualFields[i];
       if (field.isReference()) {
         JavaObject** ptr = field.getInstanceObjectFieldPtr(obj);
-        mvm::Collector::markAndTrace(obj, ptr, closure);
+        vmkit::Collector::markAndTrace(obj, ptr, closure);
       }
     }
     cl = cl->super;
@@ -102,13 +102,13 @@ extern "C" void RegularObjectTracer(JavaObject* obj, uintptr_t closure) {
 extern "C" void ArrayObjectTracer(ArrayObject* obj, uintptr_t closure) {
   CommonClass* cl = JavaObject::getClass(obj);
   assert(cl && "No class");
-  mvm::Collector::markAndTraceRoot(
+  vmkit::Collector::markAndTraceRoot(
       cl->classLoader->getJavaClassLoaderPtr(), closure);
   
 
   for (sint32 i = 0; i < ArrayObject::getSize(obj); i++) {
     if (ArrayObject::getElement(obj, i) != NULL) {
-      mvm::Collector::markAndTrace(
+      vmkit::Collector::markAndTrace(
           obj, ArrayObject::getElements(obj) + i, closure);
     }
   } 
@@ -119,7 +119,7 @@ extern "C" void ReferenceObjectTracer(
     JavaObjectReference* obj, uintptr_t closure) {
   Class* cl = JavaObject::getClass(obj)->asClass();
   assert(cl && "Not a class in reference tracer");
-  mvm::Collector::markAndTraceRoot(
+  vmkit::Collector::markAndTraceRoot(
       cl->classLoader->getJavaClassLoaderPtr(), closure);
 
   bool found = false;
@@ -129,7 +129,7 @@ extern "C" void ReferenceObjectTracer(
       if (field.isReference()) {
         JavaObject** ptr = field.getInstanceObjectFieldPtr(obj);
         if (ptr != JavaObjectReference::getReferentPtr(obj)) {
-          mvm::Collector::markAndTrace(obj, ptr, closure);
+          vmkit::Collector::markAndTrace(obj, ptr, closure);
         } else {
           found = true;
         }
@@ -155,24 +155,24 @@ void CommonClass::tracer(uintptr_t closure) {
   
   if (super != NULL && super->classLoader != NULL) {
     JavaObject** Obj = super->classLoader->getJavaClassLoaderPtr();
-    if (*Obj != NULL) mvm::Collector::markAndTraceRoot(Obj, closure);
+    if (*Obj != NULL) vmkit::Collector::markAndTraceRoot(Obj, closure);
   
     for (uint32 i = 0; i < nbInterfaces; ++i) {
       if (interfaces[i]->classLoader) {
         JavaObject** Obj = interfaces[i]->classLoader->getJavaClassLoaderPtr();
-        if (*Obj != NULL) mvm::Collector::markAndTraceRoot(Obj, closure);
+        if (*Obj != NULL) vmkit::Collector::markAndTraceRoot(Obj, closure);
       }
     }
   }
 
   if (classLoader != NULL) {
-    mvm::Collector::markAndTraceRoot(
+    vmkit::Collector::markAndTraceRoot(
         classLoader->getJavaClassLoaderPtr(), closure);
   }
 
   for (uint32 i = 0; i < NR_ISOLATES; ++i) {
     if (delegatee[i] != NULL) {
-      mvm::Collector::markAndTraceRoot(delegatee + i, closure);
+      vmkit::Collector::markAndTraceRoot(delegatee + i, closure);
     }
   }
 }
@@ -187,7 +187,7 @@ void Class::tracer(uintptr_t closure) {
         JavaField& field = staticFields[i];
         if (field.isReference()) {
           JavaObject** ptr = field.getStaticObjectFieldPtr();
-          mvm::Collector::markAndTraceRoot(ptr, closure);
+          vmkit::Collector::markAndTraceRoot(ptr, closure);
         }
       }
     }
@@ -224,12 +224,12 @@ void JnjvmClassLoader::tracer(uintptr_t closure) {
   while (end != NULL) {
     for (uint32 i = 0; i < end->length; ++i) {
       JavaString** obj = end->strings + i;
-      mvm::Collector::markAndTraceRoot(obj, closure);
+      vmkit::Collector::markAndTraceRoot(obj, closure);
     }
     end = end->prev;
   }
   
-  mvm::Collector::markAndTraceRoot(&javaLoader, closure);
+  vmkit::Collector::markAndTraceRoot(&javaLoader, closure);
 }
 
 void JnjvmBootstrapLoader::tracer(uintptr_t closure) {
@@ -256,7 +256,7 @@ void Jnjvm::tracer(uintptr_t closure) {
   
   // (2) Trace the application class loader.
   if (appClassLoader != NULL) {
-    mvm::Collector::markAndTraceRoot(
+    vmkit::Collector::markAndTraceRoot(
         appClassLoader->getJavaClassLoaderPtr(), closure);
   }
   
@@ -265,7 +265,7 @@ void Jnjvm::tracer(uintptr_t closure) {
   while (start != NULL) {
     for (uint32 i = 0; i < start->length; ++i) {
       JavaObject** obj = start->globalReferences + i;
-      mvm::Collector::markAndTraceRoot(obj, closure);
+      vmkit::Collector::markAndTraceRoot(obj, closure);
     }
     start = start->next;
   }
@@ -274,9 +274,9 @@ void Jnjvm::tracer(uintptr_t closure) {
   for (StringMap::iterator i = hashStr.map.begin(), e = hashStr.map.end();
        i!= e; ++i) {
     JavaString** str = &(i->second);
-    mvm::Collector::markAndTraceRoot(str, closure);
+    vmkit::Collector::markAndTraceRoot(str, closure);
     ArrayUInt16** key = const_cast<ArrayUInt16**>(&(i->first));
-    mvm::Collector::markAndTraceRoot(key, closure);
+    vmkit::Collector::markAndTraceRoot(key, closure);
   }
 
   // (4) Trace the upcalls
@@ -292,33 +292,33 @@ void Jnjvm::tracer(uintptr_t closure) {
   
   // (6) Trace the locks and their associated object.
   uint32 i = 0;
-  for (; i < mvm::LockSystem::GlobalSize; i++) {
-    mvm::FatLock** array = lockSystem.LockTable[i];
+  for (; i < vmkit::LockSystem::GlobalSize; i++) {
+    vmkit::FatLock** array = lockSystem.LockTable[i];
     if (array == NULL) break;
     uint32 j = 0;
-    for (; j < mvm::LockSystem::IndexSize; j++) {
+    for (; j < vmkit::LockSystem::IndexSize; j++) {
       if (array[j] == NULL) break;
-      mvm::FatLock* lock = array[j];
-      mvm::Collector::markAndTraceRoot(lock->getAssociatedObjectPtr(), closure);
+      vmkit::FatLock* lock = array[j];
+      vmkit::Collector::markAndTraceRoot(lock->getAssociatedObjectPtr(), closure);
     }
-    for (j = j + 1; j < mvm::LockSystem::IndexSize; j++) {
+    for (j = j + 1; j < vmkit::LockSystem::IndexSize; j++) {
       assert(array[j] == NULL);
     }
   }
-  for (i = i + 1; i < mvm::LockSystem::GlobalSize; i++) {
+  for (i = i + 1; i < vmkit::LockSystem::GlobalSize; i++) {
     assert(lockSystem.LockTable[i] == NULL);
   }
 }
 
 void JavaThread::tracer(uintptr_t closure) {
-  mvm::Collector::markAndTraceRoot(&javaThread, closure);
-  mvm::Collector::markAndTraceRoot(&vmThread, closure);
+  vmkit::Collector::markAndTraceRoot(&javaThread, closure);
+  vmkit::Collector::markAndTraceRoot(&vmThread, closure);
   
   JNILocalReferences* end = localJNIRefs;
   while (end != NULL) {
     for (uint32 i = 0; i < end->length; ++i) {
-			mvm::gc** obj = end->localReferences + i;
-      mvm::Collector::markAndTraceRoot(obj, closure);
+			vmkit::gc** obj = end->localReferences + i;
+      vmkit::Collector::markAndTraceRoot(obj, closure);
     }
     end = end->prev;
   }

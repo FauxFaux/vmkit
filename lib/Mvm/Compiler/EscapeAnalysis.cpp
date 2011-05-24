@@ -26,7 +26,7 @@
 #include "mvm/GC.h"
 
 using namespace llvm;
-using namespace mvm;
+using namespace vmkit;
 
 namespace {
 
@@ -244,7 +244,7 @@ bool EscapeAnalysis::processMalloc(Instruction* I, Value* Size, Value* VT,
 }
 }
 
-namespace mvm {
+namespace vmkit {
 FunctionPass* createEscapeAnalysisPass() {
   return new EscapeAnalysis();
 }

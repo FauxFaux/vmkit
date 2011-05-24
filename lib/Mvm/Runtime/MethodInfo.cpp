@@ -22,7 +22,7 @@
 #define SELF_HANDLE 0
 #endif
 
-using namespace mvm;
+using namespace vmkit;
 
 void CamlMethodInfo::scan(uintptr_t closure, void* ip, void* addr) {
   assert(CF != NULL);
@@ -132,10 +132,10 @@ void FunctionMap::addMethodInfo(MethodInfo* meth, void* ip) {
 
 void FunctionMap::removeMethodInfos(void* owner) {
   FunctionMapLock.acquire();
-  std::map<void*, mvm::MethodInfo*>::iterator temp;
-  for (std::map<void*, mvm::MethodInfo*>::iterator i = Functions.begin(),
+  std::map<void*, vmkit::MethodInfo*>::iterator temp;
+  for (std::map<void*, vmkit::MethodInfo*>::iterator i = Functions.begin(),
        e = Functions.end(); i != e;) {
-    mvm::MethodInfo* MI = i->second;
+    vmkit::MethodInfo* MI = i->second;
     temp = i;
     i++;
     if (MI->Owner == owner) {

@@ -28,15 +28,15 @@ namespace llvm {
   class GenericValue;
 }
 
-namespace mvm {
+namespace vmkit {
 	class UTF8;
 	class UTF8Map;
 }
 
 namespace n3 {
 
-using mvm::UTF8;
-using mvm::UTF8Map;
+using vmkit::UTF8;
+using vmkit::UTF8Map;
 
 class ArrayChar;
 class ArrayObject;
@@ -61,9 +61,9 @@ class VMGenericClass;
 class VMGenericMethod;
 class ByteCode;
 
-class Section : public mvm::PermanentObject {
+class Section : public vmkit::PermanentObject {
 public:
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
   
   char* name;
   uint32 virtualSize;
@@ -79,18 +79,18 @@ public:
   void read(Reader* reader, N3* vm);
 };
 
-class Stream : public mvm::PermanentObject {
+class Stream : public vmkit::PermanentObject {
 public:
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
 
   char* name;
   uint32 realOffset;
   uint32 size;
 };
 
-class Table : public mvm::PermanentObject {
+class Table : public vmkit::PermanentObject {
 public:
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
 
   uint32 offset;
   uint32 rowsNumber;
@@ -104,9 +104,9 @@ public:
 };
 
 
-class Header : public mvm::PermanentObject {
+class Header : public vmkit::PermanentObject {
 public:
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
 
   uint32 signature;
   uint32 major;
@@ -124,7 +124,7 @@ public:
   Stream* guidStream;
   std::vector<Table*, gc_allocator<Table*> > tables;
   
-  void read(mvm::BumpPtrAllocator &allocator, Reader* reader, N3* vm);
+  void read(vmkit::BumpPtrAllocator &allocator, Reader* reader, N3* vm);
 };
 
 typedef void (*maskVector_t)(uint32 index,
@@ -134,9 +134,9 @@ typedef void (*maskVector_t)(uint32 index,
 typedef VMCommonClass* (*signatureVector_t)(uint32 op, Assembly* ass,
                                             uint32& offset, VMGenericClass* genClass, VMGenericMethod* genMethod);
 
-class Assembly : public mvm::PermanentObject {
+class Assembly : public vmkit::PermanentObject {
 public:
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
   virtual void TRACER;
 
   VMClassPointer* constructPointer(VMCommonClass* base, uint32 dims);
@@ -166,8 +166,8 @@ public:
   FieldTokenMap* loadedTokenFields;
   
   N3*           vm;
-  mvm::Lock*    lockVar;
-  mvm::Cond*    condVar;
+  vmkit::Lock*    lockVar;
+  vmkit::Cond*    condVar;
   const UTF8*   name;
   ByteCode*     bytes;
   Section*      textSection;
@@ -189,9 +189,9 @@ public:
   uint32 resRva;
   uint32 resSize;
 
-	mvm::BumpPtrAllocator &allocator;
+	vmkit::BumpPtrAllocator &allocator;
 
-	Assembly(mvm::BumpPtrAllocator &Alloc, N3 *vm, const UTF8* name);
+	Assembly(vmkit::BumpPtrAllocator &Alloc, N3 *vm, const UTF8* name);
 
 	int open(const char *ext);
   int resolve(int doResolve, const char *ext);

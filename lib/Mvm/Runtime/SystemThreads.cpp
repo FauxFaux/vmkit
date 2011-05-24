@@ -2,64 +2,64 @@
 #include "mvm/GC.h"
 #include "mvm/VirtualMachine.h"
 
-using namespace mvm;
+using namespace vmkit;
 
-ReferenceThread::ReferenceThread(mvm::VMKit* vmkit) :
+ReferenceThread::ReferenceThread(vmkit::VMKit* vmkit) :
 	MutatorThread(vmkit),
 	WeakReferencesQueue(ReferenceQueue::WEAK),
 	SoftReferencesQueue(ReferenceQueue::SOFT), 
 	PhantomReferencesQueue(ReferenceQueue::PHANTOM) {
 
-  ToEnqueue = new mvm::gc*[INITIAL_QUEUE_SIZE];
+  ToEnqueue = new vmkit::gc*[INITIAL_QUEUE_SIZE];
   ToEnqueueLength = INITIAL_QUEUE_SIZE;
   ToEnqueueIndex = 0;
 
 	setDaemon();
 }
 
-void ReferenceThread::addWeakReference(mvm::gc* ref) {
+void ReferenceThread::addWeakReference(vmkit::gc* ref) {
 	llvm_gcroot(ref, 0);
 	WeakReferencesQueue.addReference(ref);
 }
   
-void ReferenceThread::addSoftReference(mvm::gc* ref) {
+void ReferenceThread::addSoftReference(vmkit::gc* ref) {
 	llvm_gcroot(ref, 0);
 	SoftReferencesQueue.addReference(ref);
 }
   
-void ReferenceThread::addPhantomReference(mvm::gc* ref) {
+void ReferenceThread::addPhantomReference(vmkit::gc* ref) {
 	llvm_gcroot(ref, 0);
 	PhantomReferencesQueue.addReference(ref);
 }
 
-mvm::gc** getReferent(mvm::gc* obj) {
+vmkit::gc** getReferent(vmkit::gc* obj) {
   llvm_gcroot(obj, 0);
-	mvm::VirtualMachine* vm = obj->getVirtualTable()->vm;
-	mvm::Thread::get()->attach(vm);
+	vmkit::VirtualMachine* vm = obj->getVirtualTable()->vm;
+	vmkit::Thread::get()->attach(vm);
 	return vm->getReferent(obj);
 }
 
-void setReferent(mvm::gc* obj, mvm::gc* val) {
+void setReferent(vmkit::gc* obj, vmkit::gc* val) {
   llvm_gcroot(obj, 0);
   llvm_gcroot(val, 0);
-	mvm::VirtualMachine* vm = obj->getVirtualTable()->vm;
-	mvm::Thread::get()->attach(vm);
+	vmkit::VirtualMachine* vm = obj->getVirtualTable()->vm;
+	vmkit::Thread::get()->attach(vm);
 	vm->setReferent(obj, val);
 }
  
-void invokeEnqueue(mvm::gc* obj) {
+void invokeEnqueue(vmkit::gc* obj) {
   llvm_gcroot(obj, 0);
   TRY {
-		mvm::VirtualMachine* vm = obj->getVirtualTable()->vm;
-		mvm::Thread::get()->attach(vm);
+		vmkit::VirtualMachine* vm = obj->getVirtualTable()->vm;
+		vmkit::Thread::get()->attach(vm);
 		
     vm->enqueueReference(obj);
   } IGNORE;
-  mvm::Thread::get()->clearPendingException();
+  vmkit::Thread::get()->clearPendingException();
 }
 
 void ReferenceThread::enqueueStart(ReferenceThread* th) {
-	mvm::gc* res = NULL;
+	vmkit::gc* res = NULL;
   llvm_gcroot(res, 0);
 
   while (true) {
@@ -85,11 +85,11 @@ void ReferenceThread::enqueueStart(ReferenceThread* th) {
 }
 
 
-void ReferenceThread::addToEnqueue(mvm::gc* obj) {
+void ReferenceThread::addToEnqueue(vmkit::gc* obj) {
   llvm_gcroot(obj, 0);
   if (ToEnqueueIndex >= ToEnqueueLength) {
     uint32 newLength = ToEnqueueLength * GROW_FACTOR;
-		mvm::gc** newQueue = new mvm::gc*[newLength];
+		vmkit::gc** newQueue = new vmkit::gc*[newLength];
     if (!newQueue) {
       fprintf(stderr, "I don't know how to handle reference overflow yet!\n");
       abort();
@@ -104,13 +104,13 @@ void ReferenceThread::addToEnqueue(mvm::gc* obj) {
   ToEnqueue[ToEnqueueIndex++] = obj;
 }
 
-void ReferenceQueue::addReference(mvm::gc* ref) {
+void ReferenceQueue::addReference(vmkit::gc* ref) {
 	llvm_gcroot(ref, 0);
 	QueueLock.acquire();
 	if (CurrentIndex >= QueueLength) {
 		uint32 newLength = QueueLength * GROW_FACTOR;
-		mvm::gc** newQueue = new mvm::gc*[newLength];
-		memset(newQueue, 0, newLength * sizeof(mvm::gc*));
+		vmkit::gc** newQueue = new vmkit::gc*[newLength];
+		memset(newQueue, 0, newLength * sizeof(vmkit::gc*));
 		if (!newQueue) {
 			fprintf(stderr, "I don't know how to handle reference overflow yet!\n");
 			abort();
@@ -124,13 +124,13 @@ void ReferenceQueue::addReference(mvm::gc* ref) {
 	QueueLock.release();
 }
 
-mvm::gc* ReferenceQueue::processReference(mvm::gc* reference, ReferenceThread* th, uintptr_t closure) {
-  if (!mvm::Collector::isLive(reference, closure)) {
+vmkit::gc* ReferenceQueue::processReference(vmkit::gc* reference, ReferenceThread* th, uintptr_t closure) {
+  if (!vmkit::Collector::isLive(reference, closure)) {
     setReferent(reference, 0);
     return NULL;
   }
 
-	mvm::gc* referent = *(getReferent(reference));
+	vmkit::gc* referent = *(getReferent(reference));
 
   if (!referent) {
     return NULL;
@@ -139,16 +139,16 @@ mvm::gc* ReferenceQueue::processReference(mvm::gc* reference, ReferenceThread* t
   if (semantics == SOFT) {
     // TODO: are we are out of memory? Consider that we always are for now.
     if (false) {
-      mvm::Collector::retainReferent(referent, closure);
+      vmkit::Collector::retainReferent(referent, closure);
     }
   } else if (semantics == PHANTOM) {
     // Nothing to do.
   }
 
-	mvm::gc* newReference =
-      mvm::Collector::getForwardedReference(reference, closure);
-  if (mvm::Collector::isLive(referent, closure)) {
-		mvm::gc* newReferent = mvm::Collector::getForwardedReferent(referent, closure);
+	vmkit::gc* newReference =
+      vmkit::Collector::getForwardedReference(reference, closure);
+  if (vmkit::Collector::isLive(referent, closure)) {
+		vmkit::gc* newReferent = vmkit::Collector::getForwardedReferent(referent, closure);
     setReferent(newReference, newReferent);
     return newReference;
   } else {
@@ -163,8 +163,8 @@ void ReferenceQueue::scan(ReferenceThread* th, uintptr_t closure) {
   uint32 NewIndex = 0;
 
   for (uint32 i = 0; i < CurrentIndex; ++i) {
-		mvm::gc* obj = References[i];
-		mvm::gc* res = processReference(obj, th, closure);
+		vmkit::gc* obj = References[i];
+		vmkit::gc* res = processReference(obj, th, closure);
     if (res) References[NewIndex++] = res;
   }
 
@@ -173,18 +173,18 @@ void ReferenceQueue::scan(ReferenceThread* th, uintptr_t closure) {
 
 void ReferenceThread::tracer(uintptr_t closure) {
   for (uint32 i = 0; i < ToEnqueueIndex; ++i) {
-    mvm::Collector::markAndTraceRoot(ToEnqueue + i, closure);
+    vmkit::Collector::markAndTraceRoot(ToEnqueue + i, closure);
   } 
 	MutatorThread::tracer(closure);
 }
 
 
 FinalizerThread::FinalizerThread(VMKit* vmkit) : MutatorThread(vmkit) {
-  FinalizationQueue = new mvm::gc*[INITIAL_QUEUE_SIZE];
+  FinalizationQueue = new vmkit::gc*[INITIAL_QUEUE_SIZE];
   QueueLength = INITIAL_QUEUE_SIZE;
   CurrentIndex = 0;
 
-  ToBeFinalized = new mvm::gc*[INITIAL_QUEUE_SIZE];
+  ToBeFinalized = new vmkit::gc*[INITIAL_QUEUE_SIZE];
   ToBeFinalizedLength = INITIAL_QUEUE_SIZE;
   CurrentFinalizedIndex = 0;
 
@@ -194,7 +194,7 @@ FinalizerThread::FinalizerThread(VMKit* vmkit) : MutatorThread(vmkit) {
 void FinalizerThread::growFinalizationQueue() {
   if (CurrentIndex >= QueueLength) {
     uint32 newLength = QueueLength * GROW_FACTOR;
-		mvm::gc** newQueue = new mvm::gc*[newLength];
+		vmkit::gc** newQueue = new vmkit::gc*[newLength];
     if (!newQueue) {
       fprintf(stderr, "I don't know how to handle finalizer overflows yet!\n");
       abort();
@@ -209,7 +209,7 @@ void FinalizerThread::growFinalizationQueue() {
 void FinalizerThread::growToBeFinalizedQueue() {
   if (CurrentFinalizedIndex >= ToBeFinalizedLength) {
     uint32 newLength = ToBeFinalizedLength * GROW_FACTOR;
-		mvm::gc** newQueue = new mvm::gc*[newLength];
+		vmkit::gc** newQueue = new vmkit::gc*[newLength];
     if (!newQueue) {
       fprintf(stderr, "I don't know how to handle finalizer overflows yet!\n");
       abort();
@@ -222,7 +222,7 @@ void FinalizerThread::growToBeFinalizedQueue() {
 }
 
 
-void FinalizerThread::addFinalizationCandidate(mvm::gc* obj) {
+void FinalizerThread::addFinalizationCandidate(vmkit::gc* obj) {
   llvm_gcroot(obj, 0);
   FinalizationQueueLock.acquire();
  
@@ -237,10 +237,10 @@ void FinalizerThread::addFinalizationCandidate(mvm::gc* obj) {
 void FinalizerThread::scanFinalizationQueue(uintptr_t closure) {
   uint32 NewIndex = 0;
   for (uint32 i = 0; i < CurrentIndex; ++i) {
-		mvm::gc* obj = FinalizationQueue[i];
+		vmkit::gc* obj = FinalizationQueue[i];
 
-    if (!mvm::Collector::isLive(obj, closure)) {
-      obj = mvm::Collector::retainForFinalize(FinalizationQueue[i], closure);
+    if (!vmkit::Collector::isLive(obj, closure)) {
+      obj = vmkit::Collector::retainForFinalize(FinalizationQueue[i], closure);
       
       if (CurrentFinalizedIndex >= ToBeFinalizedLength)
         growToBeFinalizedQueue();
@@ -249,7 +249,7 @@ void FinalizerThread::scanFinalizationQueue(uintptr_t closure) {
       ToBeFinalized[CurrentFinalizedIndex++] = obj;
     } else {
       FinalizationQueue[NewIndex++] =
-        mvm::Collector::getForwardedFinalizable(obj, closure);
+        vmkit::Collector::getForwardedFinalizable(obj, closure);
     }
   }
   CurrentIndex = NewIndex;
@@ -257,19 +257,19 @@ void FinalizerThread::scanFinalizationQueue(uintptr_t closure) {
 
 typedef void (*destructor_t)(void*);
 
-void invokeFinalize(mvm::gc* obj) {
+void invokeFinalize(vmkit::gc* obj) {
   llvm_gcroot(obj, 0);
   TRY {
 		llvm_gcroot(obj, 0);
 		VirtualMachine* vm = obj->getVirtualTable()->vm;
-		mvm::Thread::get()->attach(vm);
+		vmkit::Thread::get()->attach(vm);
 		vm->finalizeObject(obj);
   } IGNORE;
-  mvm::Thread::get()->clearPendingException();
+  vmkit::Thread::get()->clearPendingException();
 }
 
 void FinalizerThread::finalizerStart(FinalizerThread* th) {
-	mvm::gc* res = NULL;
+	vmkit::gc* res = NULL;
   llvm_gcroot(res, 0);
 
   while (true) {
@@ -288,7 +288,7 @@ void FinalizerThread::finalizerStart(FinalizerThread* th) {
       th->FinalizationQueueLock.release();
       if (!res) break;
 
-			mvm::VirtualTable* VT = res->getVirtualTable();
+			vmkit::VirtualTable* VT = res->getVirtualTable();
 			ASSERT(VT->vm);
       if (VT->operatorDelete) {
         destructor_t dest = (destructor_t)VT->destructor;
@@ -303,7 +303,7 @@ void FinalizerThread::finalizerStart(FinalizerThread* th) {
 
 void FinalizerThread::tracer(uintptr_t closure) {
   for (uint32 i = 0; i < CurrentFinalizedIndex; ++i) {
-    mvm::Collector::markAndTraceRoot(ToBeFinalized + i, closure);
+    vmkit::Collector::markAndTraceRoot(ToBeFinalized + i, closure);
   }
 	MutatorThread::tracer(closure);
 }

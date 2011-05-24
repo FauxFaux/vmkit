@@ -28,7 +28,7 @@ const unsigned int VMThread::StateRunning = 0;
 const unsigned int VMThread::StateWaiting = 1;
 const unsigned int VMThread::StateInterrupted = 2;
 
-void VMThread::print(mvm::PrintBuffer* buf) const {
+void VMThread::print(vmkit::PrintBuffer* buf) const {
   buf->write("Thread<>");
 	declare_gcroot(VMObject *, appThread) = ooo_appThread;
   appThread->print(buf);
@@ -45,8 +45,8 @@ VMThread::VMThread(VMObject* appThread, N3* vm) {
   this->perFunctionPasses = 0;
   this->ooo_appThread = appThread;
   this->MyVM = vm;
-  this->lock = new mvm::LockNormal();
-  this->varcond = new mvm::Cond();
+  this->lock = new vmkit::LockNormal();
+  this->varcond = new vmkit::Cond();
   this->interruptFlag = 0;
   this->state = StateRunning;
   this->ooo_pendingException = 0;

@@ -143,9 +143,9 @@ extern "C" CacheNode* n3VirtualLookup(CacheNode* cache, VMObject *obj) {
                                                  orig->parameters,
                                                  false, true);
     if (dmeth == 0) {
-			mvm::PrintBuffer _methAsciiz(orig->name);
-      mvm::PrintBuffer _nameAsciiz(orig->classDef->name);
-      mvm::PrintBuffer _nameSpaceAsciiz(orig->classDef->nameSpace);
+			vmkit::PrintBuffer _methAsciiz(orig->name);
+      vmkit::PrintBuffer _nameAsciiz(orig->classDef->name);
+      vmkit::PrintBuffer _nameSpaceAsciiz(orig->classDef->nameSpace);
       const char* methAsciiz = _methAsciiz.cString();
       const char* nameAsciiz = _nameAsciiz.cString();
       const char* nameSpaceAsciiz = _nameSpaceAsciiz.cString();
@@ -166,7 +166,7 @@ extern "C" CacheNode* n3VirtualLookup(CacheNode* cache, VMObject *obj) {
     }
     
     Function* func = dmeth->compiledPtr(NULL);
-    rcache->methPtr = mvm::MvmModule::executionEngine->getPointerToGlobal(func);
+    rcache->methPtr = vmkit::MvmModule::executionEngine->getPointerToGlobal(func);
     rcache->lastCible = (VMClass*)ocl;
     rcache->box = (dmeth->classDef->super == MSCorlib::pValue);
   }

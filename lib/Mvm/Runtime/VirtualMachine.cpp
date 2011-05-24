@@ -2,9 +2,9 @@
 #include "mvm/VMKit.h"
 #include "MutatorThread.h"
 
-using namespace mvm;
+using namespace vmkit;
 
-VirtualMachine::VirtualMachine(mvm::BumpPtrAllocator &Alloc, mvm::VMKit* vmk) :	allocator(Alloc) {
+VirtualMachine::VirtualMachine(vmkit::BumpPtrAllocator &Alloc, vmkit::VMKit* vmk) :	allocator(Alloc) {
 	vmkit = vmk;
 	vmID = vmkit->addVM(this);
 }

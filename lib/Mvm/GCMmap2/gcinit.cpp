@@ -9,7 +9,7 @@
 
 #include "mvm/GC.h"
 
-using namespace mvm;
+using namespace vmkit;
 
 static const size_t def_collect_freq_auto = 64*1024*1024;
 static const size_t def_collect_freq_maybe = 64*1024*1024;

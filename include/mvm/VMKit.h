@@ -12,7 +12,7 @@ namespace llvm {
   class TargetMachine;
 }
 
-namespace mvm {
+namespace vmkit {
 class MethodInfo;
 class VMKit;
 class gc;
@@ -29,7 +29,7 @@ public:
 
   /// FunctionMapLock - Spin lock to protect the Functions map.
   ///
-  mvm::SpinLock FunctionMapLock;
+  vmkit::SpinLock FunctionMapLock;
 
   /// IPToMethodInfo - Map a code start instruction instruction to the MethodInfo.
   ///
@@ -45,17 +45,17 @@ public:
   FunctionMap();
 };
 
-class VMKit : public mvm::PermanentObject {
+class VMKit : public vmkit::PermanentObject {
 public:
   /// allocator - Bump pointer allocator to allocate permanent memory of VMKit
-  mvm::BumpPtrAllocator& allocator;
+  vmkit::BumpPtrAllocator& allocator;
 
 	// initialise - initialise vmkit. If never called, will be called by the first constructor of vmkit
 	static void initialise(llvm::CodeGenOpt::Level = llvm::CodeGenOpt::Default,
                          llvm::Module* TheModule = 0,
                          llvm::TargetMachine* TheTarget = 0);
 
-  VMKit(mvm::BumpPtrAllocator &Alloc);
+  VMKit(vmkit::BumpPtrAllocator &Alloc);
 
 	LockRecursive                _vmkitLock;
 
@@ -91,7 +91,7 @@ public:
 
   /// exitingThread - Thread that is currently exiting. Used by the thread
   /// manager to free the resources (stack) used by a thread.
-  mvm::Thread* exitingThread;
+  vmkit::Thread* exitingThread;
 
   /// numberOfRunningThreads - Number of threads that are running in the system
   /// threads.
@@ -108,24 +108,24 @@ public:
   /// decrements the nonDaemonThreads variable to zero wakes up the initial
   /// thread.
   ///
-  mvm::Cond nonDaemonVar;
+  vmkit::Cond nonDaemonVar;
   
   /// leave - A thread calls this function when it leaves the thread system.
   ///
-  void leaveNonDaemonMode(mvm::Thread* th);
+  void leaveNonDaemonMode(vmkit::Thread* th);
 
   /// enter - A thread calls this function when it enters the thread system.
   ///
-  void enterNonDaemonMode(mvm::Thread* th);
+  void enterNonDaemonMode(vmkit::Thread* th);
 
 public:
-	void registerPreparedThread(mvm::Thread* th);  
-	void unregisterPreparedThread(mvm::Thread* th);
+	void registerPreparedThread(vmkit::Thread* th);  
+	void unregisterPreparedThread(vmkit::Thread* th);
 
-	void notifyThreadStart(mvm::Thread* th);  
-	void notifyThreadQuit(mvm::Thread* th);
+	void notifyThreadStart(vmkit::Thread* th);  
+	void notifyThreadQuit(vmkit::Thread* th);
 
-	void freeThread(mvm::Thread* th);
+	void freeThread(vmkit::Thread* th);
 
 	void waitNonDaemonThreads();
 
@@ -163,15 +163,15 @@ private:
 public:
   /// addWeakReference - Add a weak reference to the queue.
   ///
-  void addWeakReference(mvm::gc* ref);
+  void addWeakReference(vmkit::gc* ref);
   
   /// addSoftReference - Add a weak reference to the queue.
   ///
-  void addSoftReference(mvm::gc* ref);
+  void addSoftReference(vmkit::gc* ref);
   
   /// addPhantomReference - Add a weak reference to the queue.
   ///
-  void addPhantomReference(mvm::gc* ref);
+  void addPhantomReference(vmkit::gc* ref);
 
   /// addFinalizationCandidate - Add an object to the queue of objects with
   /// a finalization method.

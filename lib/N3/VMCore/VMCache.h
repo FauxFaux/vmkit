@@ -24,9 +24,9 @@ class Assembly;
 class Enveloppe;
 class VMClass;
 
-class CacheNode : public mvm::PermanentObject {
+class CacheNode : public vmkit::PermanentObject {
 public:
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
 
   void* methPtr;
   VMClass* lastCible;
@@ -36,20 +36,20 @@ public:
   
   static const llvm::Type* llvmType;
 
-  static CacheNode* allocate(mvm::BumpPtrAllocator &allocator);
+  static CacheNode* allocate(vmkit::BumpPtrAllocator &allocator);
 };
 
-class Enveloppe : public mvm::PermanentObject {
+class Enveloppe : public vmkit::PermanentObject {
 public:
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
   
   CacheNode *firstCache;
-  mvm::Lock* cacheLock;
+  vmkit::Lock* cacheLock;
   VMMethod* originalMethod;
 
   static const llvm::Type* llvmType;
 
-  static Enveloppe* allocate(mvm::BumpPtrAllocator &allocator, VMMethod* orig);
+  static Enveloppe* allocate(vmkit::BumpPtrAllocator &allocator, VMMethod* orig);
 
 };
 

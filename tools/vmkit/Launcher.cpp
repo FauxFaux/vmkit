@@ -66,10 +66,10 @@ int main(int argc, char** argv) {
     return 0;
   }
   
-	mvm::BumpPtrAllocator Allocator;
+	vmkit::BumpPtrAllocator Allocator;
 
-  mvm::VMKit::initialise(Fast ? CodeGenOpt::None : CodeGenOpt::Aggressive);
-	mvm::VMKit* vmkit = new(Allocator, "VMKit") mvm::VMKit(Allocator);
+  vmkit::VMKit::initialise(Fast ? CodeGenOpt::None : CodeGenOpt::Aggressive);
+	vmkit::VMKit* vmkit = new(Allocator, "VMKit") vmkit::VMKit(Allocator);
 
   if (VMToRun == RunJava) {
     JavaJITCompiler* Comp = JavaJITCompiler::CreateCompiler("JITModule");

@@ -28,7 +28,7 @@ class ClassBytes {
     size = l;
   }
 
-  void* operator new(size_t sz, mvm::BumpPtrAllocator& allocator, int n) {
+  void* operator new(size_t sz, vmkit::BumpPtrAllocator& allocator, int n) {
     return allocator.Allocate(sizeof(uint32_t) + n * sizeof(uint8_t),
                               "Class bytes");
   }

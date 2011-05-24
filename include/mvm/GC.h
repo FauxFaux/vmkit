@@ -20,7 +20,7 @@ extern "C" void __llvm_gcroot(void**, void*) __attribute__((nothrow));
 #define llvm_gcroot(a, b)
 #endif
 
-namespace mvm {
+namespace vmkit {
 
 	class VirtualMachine;
 	class VirtualTable;
@@ -62,11 +62,11 @@ namespace mvm {
 		static void emptyTracer(void*) {}
 	};
 
-} // namespace mvm
+} // namespace vmkit
 
 #include "MvmGC.h"
 
-namespace mvm {
+namespace vmkit {
 	class gc : public collectable {
 	};
 
@@ -78,6 +78,6 @@ namespace mvm {
   static const bool MovesObject = true;
   static const uint32_t HashBits = 8;
   static const uint64_t GCBitMask = ((1 << GCBits) - 1);
-} // namespace mvm
+} // namespace vmkit
 
 #endif

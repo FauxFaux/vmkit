@@ -309,7 +309,7 @@ Constant* JavaAOTCompiler::getFinalObject(JavaObject* obj, CommonClass* objCl) {
   final_object_iterator I = finalObjects.find(obj);
   if (I == End) {
   
-    if (mvm::Collector::begOf(obj)) {
+    if (vmkit::Collector::begOf(obj)) {
       const Type* Ty = 0;
       CommonClass* cl = JavaObject::getClass(obj);
       
@@ -1410,7 +1410,7 @@ Constant* JavaAOTCompiler::CreateConstantFromVT(JavaVirtualTable* VT) {
   Elemts.push_back(N);
   
 	// specialized tracers
-  for (uint32_t i = 0; i < mvm::VirtualTable::numberOfSpecializedTracers(); i++) {
+  for (uint32_t i = 0; i < vmkit::VirtualTable::numberOfSpecializedTracers(); i++) {
     // Push null for now.
     Elemts.push_back(N);
   }
@@ -1595,7 +1595,7 @@ Constant* JavaAOTCompiler::CreateConstantFromVT(JavaVirtualTable* VT) {
   return Array;
 }
 
-namespace mvm {
+namespace vmkit {
   llvm::FunctionPass* createEscapeAnalysisPass(llvm::Function*);
 }
 
@@ -1676,7 +1676,7 @@ void JavaAOTCompiler::printStats() {
   Module* Mod = getLLVMModule();
   for (Module::const_global_iterator i = Mod->global_begin(),
        e = Mod->global_end(); i != e; ++i) {
-    size += mvm::MvmModule::getTypeSize(i->getType());
+    size += vmkit::MvmModule::getTypeSize(i->getType());
   }
   fprintf(stderr, "%lluB\n", (unsigned long long int)size);
 }
@@ -1874,7 +1874,7 @@ void extractFiles(ClassBytes* bytes,
                   std::vector<Class*>& classes) {
   ZipArchive archive(bytes, bootstrapLoader->allocator);
    
-  mvm::BumpPtrAllocator allocator; 
+  vmkit::BumpPtrAllocator allocator; 
   char* realName = (char*)allocator.Allocate(4096, "temp");
   for (ZipArchive::table_iterator i = archive.filetable.begin(), 
        e = archive.filetable.end(); i != e; ++i) {
@@ -1905,15 +1905,15 @@ void extractFiles(ClassBytes* bytes,
 static const char* name;
 
 
-void mainCompilerStart(mvm::VirtualMachine* _vm, int argc, char** argv) {
+void mainCompilerStart(vmkit::VirtualMachine* _vm, int argc, char** argv) {
 	Jnjvm* vm = (Jnjvm*)_vm;
 
-	JavaThread::associate(vm, mvm::Thread::get());
+	JavaThread::associate(vm, vmkit::Thread::get());
 
   JnjvmBootstrapLoader* bootstrapLoader = vm->bootstrapLoader;
   JavaAOTCompiler* M = (JavaAOTCompiler*)bootstrapLoader->getCompiler();
   JavaJITCompiler* Comp = 0;
-  mvm::ThreadAllocator allocator;
+  vmkit::ThreadAllocator allocator;
   bootstrapLoader->analyseClasspathEnv(vm->bootstrapLoader->bootClasspathEnv);
   uint32 size = strlen(name);
   if (size > 4 && 
@@ -1957,7 +1957,7 @@ void mainCompilerStart(mvm::VirtualMachine* _vm, int argc, char** argv) {
            e = classes.end(); i != e; ++i) {
         Class* cl = *i;
         cl->resolveClass();
-        cl->setOwnerClass(mvm::Thread::get());
+        cl->setOwnerClass(vmkit::Thread::get());
         
         for (uint32 i = 0; i < cl->nbVirtualMethods; ++i) {
           LLVMMethodInfo* LMI = M->getMethodInfo(&cl->virtualMethods[i]);
@@ -2016,7 +2016,7 @@ void mainCompilerStart(mvm::VirtualMachine* _vm, int argc, char** argv) {
       for (std::vector<Class*>::iterator i = classes.begin(), e = classes.end();
            i != e; ++i) {
         Class* cl = *i;
-        cl->setOwnerClass(mvm::Thread::get());
+        cl->setOwnerClass(vmkit::Thread::get());
       }
       
       for (std::vector<Class*>::iterator i = classes.begin(), e = classes.end();
@@ -2044,10 +2044,10 @@ void mainCompilerStart(mvm::VirtualMachine* _vm, int argc, char** argv) {
         bootstrapLoader->setCompiler(M);
       }
       
-      cl->setOwnerClass(mvm::Thread::get());
+      cl->setOwnerClass(vmkit::Thread::get());
       cl->resolveInnerOuterClasses();
       for (uint32 i = 0; i < cl->nbInnerClasses; ++i) {
-        cl->innerClasses[i]->setOwnerClass(mvm::Thread::get());
+        cl->innerClasses[i]->setOwnerClass(vmkit::Thread::get());
         M->compileClass(cl->innerClasses[i]);
       }
       M->compileClass(cl);
@@ -2159,7 +2159,7 @@ void JavaAOTCompiler::generateMain(const char* name, bool jit) {
 extern "C" void __JavaAOTFakeFunction__() {}
 
 void* JavaAOTCompiler::loadMethod(void* handle, const char* symbol) {
-  Function* F = mvm::MvmModule::globalModule->getFunction(symbol);
+  Function* F = vmkit::MvmModule::globalModule->getFunction(symbol);
   if (F) {
     return (void*)(uintptr_t)__JavaAOTFakeFunction__;
   }
@@ -2170,11 +2170,11 @@ void* JavaAOTCompiler::loadMethod(void* handle, const char* symbol) {
 #ifdef WITH_MMTK
 
 #include <set>
-extern std::set<mvm::gc*> __InternalSet__;
+extern std::set<vmkit::gc*> __InternalSet__;
 
 CommonClass* JavaAOTCompiler::getUniqueBaseClass(CommonClass* cl) {
-  std::set<mvm::gc*>::iterator I = __InternalSet__.begin();
-  std::set<mvm::gc*>::iterator E = __InternalSet__.end();
+  std::set<vmkit::gc*>::iterator I = __InternalSet__.begin();
+  std::set<vmkit::gc*>::iterator E = __InternalSet__.end();
   CommonClass* currentClass = 0;
 
   for (; I != E; ++I) {

@@ -14,7 +14,7 @@
 
 namespace j3 {
 
-class J3Intrinsics : public mvm::BaseIntrinsics {
+class J3Intrinsics : public vmkit::BaseIntrinsics {
 
 public:
   const llvm::Type* JavaArrayUInt8Type;

@@ -76,7 +76,7 @@ JavaString* strLib) {
 
 typedef int (*onLoad_t)(const void**, void*);
 extern "C" void  j3EndJNI(uint32** old);
-extern "C" void  j3StartJNI(uint32* num, uint32** old, mvm::KnownFrame* Frame);
+extern "C" void  j3StartJNI(uint32* num, uint32** old, vmkit::KnownFrame* Frame);
 
 extern "C" void callOnLoad(void* res, JnjvmClassLoader* loader, Jnjvm* vm)
   __attribute__ ((noinline));
@@ -89,7 +89,7 @@ extern "C" void callOnLoad(void* res, JnjvmClassLoader* loader, Jnjvm* vm) {
   if (onLoad) {
     uint32 num = 0;
     uint32* old = 0;
-    mvm::KnownFrame Frame;
+    vmkit::KnownFrame Frame;
     
     j3StartJNI(&num, &old, &Frame);
     onLoad(&vm->javavmEnv, res);
@@ -118,7 +118,7 @@ JavaObject* javaLoader) {
   JnjvmClassLoader* loader = 
     JnjvmClassLoader::getJnjvmLoaderFromJavaObject(javaLoader, vm);
 
-  mvm::ThreadAllocator allocator;
+  vmkit::ThreadAllocator allocator;
   char* buf = JavaString::strToAsciiz(str, &allocator);
   
   res = loader->loadLib(buf);
@@ -139,7 +139,7 @@ jclass clazz,
 ) {
   BEGIN_NATIVE_EXCEPTION(0)
   
-  mvm::Collector::collect();
+  vmkit::Collector::collect();
 
   END_NATIVE_EXCEPTION
 }
@@ -150,7 +150,7 @@ JNIEnv *env,
 jclass clazz,
 #endif
 ) {
-  mvm::Collector::collect();
+  vmkit::Collector::collect();
   // Sleep a bit.
   sleep(1);
   return;
@@ -190,7 +190,7 @@ JNIEnv *env,
 jclass clazz,
 #endif
 ) {
-  return (jlong)mvm::Collector::getFreeMemory();
+  return (jlong)vmkit::Collector::getFreeMemory();
 }
 
 JNIEXPORT jlong Java_java_lang_VMRuntime_totalMemory(
@@ -199,7 +199,7 @@ JNIEnv *env,
 jclass clazz,
 #endif
 ) {
-  return (jlong)mvm::Collector::getTotalMemory();
+  return (jlong)vmkit::Collector::getTotalMemory();
 }
 
 JNIEXPORT jlong Java_java_lang_VMRuntime_maxMemory(
@@ -208,7 +208,7 @@ JNIEnv *env,
 jclass clazz,
 #endif
 ) {
-  return (jlong)mvm::Collector::getMaxMemory();
+  return (jlong)vmkit::Collector::getMaxMemory();
 }
 
 JNIEXPORT jint Java_java_lang_VMRuntime_availableProcessors(){

@@ -21,7 +21,7 @@
 
 using namespace llvm;
 
-namespace mvm {
+namespace vmkit {
 
   class VISIBILITY_HIDDEN LowerArrayLength : public FunctionPass {
   public:

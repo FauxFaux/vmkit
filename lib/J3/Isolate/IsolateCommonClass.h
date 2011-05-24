@@ -38,7 +38,7 @@ class UserConstantPool;
 class UTF8;
 enum JavaState;
 
-class UserCommonClass : public mvm::Object {
+class UserCommonClass : public vmkit::Object {
 public:
   
  //===----------------------------------------------------------------------===//
@@ -231,11 +231,11 @@ public:
   /// lockVar - When multiple threads want to initialize a class,
   /// they must be synchronized so that it is only performed once
   /// for a given class.
-  mvm::Lock* lockVar;
+  vmkit::Lock* lockVar;
 
   /// condVar - Used to wake threads waiting on the initialization
   /// process of this class, done by another thread.
-  mvm::Cond* condVar;
+  vmkit::Cond* condVar;
 
   /// acquire - Acquire this class lock.
   ///
@@ -265,7 +265,7 @@ public:
   /// ownerClass - Is the current thread the owner of this thread?
   ///
   bool ownerClass() {
-    return mvm::Lock::selfOwner(lockVar);    
+    return vmkit::Lock::selfOwner(lockVar);    
   }
 
   const UTF8* getSuperUTF8(){
@@ -278,7 +278,7 @@ public:
   
   UserCommonClass();
   
-  virtual void print(mvm::PrintBuffer *buf) const;
+  virtual void print(vmkit::PrintBuffer *buf) const;
 };
 
 class UserClass : public UserCommonClass {
@@ -378,7 +378,7 @@ public:
   UserClassPrimitive(JnjvmClassLoader* JCL, const UTF8* name, uint32 nb);
 };
 
-class UserConstantPool : public mvm::Object {
+class UserConstantPool : public vmkit::Object {
 public:
   
   static VirtualTable* VT;
@@ -430,7 +430,7 @@ public:
 
   UserCommonClass* isClassLoaded(uint32 entry);
 
-  virtual void print(mvm::PrintBuffer *buf) const;
+  virtual void print(vmkit::PrintBuffer *buf) const;
 
 };
 

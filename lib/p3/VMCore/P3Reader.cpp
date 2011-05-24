@@ -20,7 +20,7 @@ const int P3Reader::SeekSet = SEEK_SET;
 const int P3Reader::SeekCur = SEEK_CUR;
 const int P3Reader::SeekEnd = SEEK_END;
 
-P3ByteCode* P3Reader::openFile(mvm::BumpPtrAllocator& allocator, const char* path) {
+P3ByteCode* P3Reader::openFile(vmkit::BumpPtrAllocator& allocator, const char* path) {
   P3ByteCode* res = NULL;
   FILE* fp = fopen(path, "r");
   if (fp != 0) {

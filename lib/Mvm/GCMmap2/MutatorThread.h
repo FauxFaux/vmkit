@@ -13,11 +13,11 @@
 
 #include "mvm/Threads/Thread.h"
 
-namespace mvm {
+namespace vmkit {
 
-class MutatorThread : public mvm::Thread {
+class MutatorThread : public vmkit::Thread {
 public:
-  MutatorThread(VMKit* vmkit) : mvm::Thread(vmkit) {}
+  MutatorThread(VMKit* vmkit) : vmkit::Thread(vmkit) {}
 };
 
 }

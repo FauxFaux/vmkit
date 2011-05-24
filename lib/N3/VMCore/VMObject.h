@@ -36,7 +36,7 @@ struct N3VirtualTable : VirtualTable {
 	uintptr_t  print;
 	uintptr_t  hashCode;
 
-	void *operator new(size_t size, mvm::BumpPtrAllocator &allocator, size_t totalVtSize);
+	void *operator new(size_t size, vmkit::BumpPtrAllocator &allocator, size_t totalVtSize);
 
   N3VirtualTable();
   N3VirtualTable(N3VirtualTable *vmobjVt, uint32 baseVtSize, uint32 totalVtSize=-1);
@@ -45,15 +45,15 @@ struct N3VirtualTable : VirtualTable {
 	static uint32 baseVtSize();
 };
 
-class LockObj : public mvm::Object {
+class LockObj : public vmkit::Object {
 public:
 	static N3VirtualTable  _VT;
-  mvm::LockRecursive     *lock;
+  vmkit::LockRecursive     *lock;
   std::vector<VMThread*> *threads;
 
   static LockObj* allocate();
 	static void _destroy(LockObj *);
-	static void _print(const LockObj *, mvm::PrintBuffer *);
+	static void _print(const LockObj *, vmkit::PrintBuffer *);
   
   static void notify(LockObj*);
   static void notifyAll(LockObj*);
@@ -67,15 +67,15 @@ public:
 
 #define VALUE_OFFSET 3
 
-class VMObject : public mvm::Object {
+class VMObject : public vmkit::Object {
 public:
   VMCommonClass* classOf;
   LockObj*       lockObj;
 
-  static mvm::Lock*        globalLock;
+  static vmkit::Lock*        globalLock;
   static const llvm::Type* llvmType;
 
-	static void _print(const VMObject *, mvm::PrintBuffer *);
+	static void _print(const VMObject *, vmkit::PrintBuffer *);
 	static void _trace(VMObject *);
   
   static void aquire(VMObject *self);

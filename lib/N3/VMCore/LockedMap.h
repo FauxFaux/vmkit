@@ -38,17 +38,17 @@ class VMMethod;
 class VMField;
 
 template<class Key, class Container, class Compare, class Upcall>
-class LockedMap : public mvm::PermanentObject {
+class LockedMap : public vmkit::PermanentObject {
 public:
 
   typedef typename std::map<const Key, Container*, Compare>::iterator iterator;
   typedef Container* (*funcCreate)(Key& V, Upcall* ass);
 
-  mvm::Lock *lock;
+  vmkit::Lock *lock;
   std::map<Key, Container*, Compare,
            gc_allocator<std::pair<const Key, Container*> > > map;
 
-	LockedMap(mvm::Lock *lock) {
+	LockedMap(vmkit::Lock *lock) {
 		this->lock = lock;
 	}
   
@@ -102,7 +102,7 @@ public:
     }
   }
 
-  virtual void print(mvm::PrintBuffer* buf) const {
+  virtual void print(vmkit::PrintBuffer* buf) const {
     buf->write("Hashtable<>");
   }
 
@@ -125,38 +125,38 @@ public:
 
 class ClassNameMap : public LockedMap<ClassNameCmp, VMCommonClass, std::less<ClassNameCmp>, Assembly > {
 public:
-	ClassNameMap() : LockedMap<ClassNameCmp, VMCommonClass, std::less<ClassNameCmp>, Assembly >(new mvm::LockNormal()) {}
+	ClassNameMap() : LockedMap<ClassNameCmp, VMCommonClass, std::less<ClassNameCmp>, Assembly >(new vmkit::LockNormal()) {}
 };
 
 class ClassTokenMap : public LockedMap<uint32, VMCommonClass, std::less<uint32>, Assembly > {
 public:
-	ClassTokenMap() : LockedMap<uint32, VMCommonClass, std::less<uint32>, Assembly >(new mvm::LockNormal()) {}
+	ClassTokenMap() : LockedMap<uint32, VMCommonClass, std::less<uint32>, Assembly >(new vmkit::LockNormal()) {}
 };
 
 class FieldTokenMap : public LockedMap<uint32, VMField, std::less<uint32>, Assembly > {
 public:
-	FieldTokenMap() : LockedMap<uint32, VMField, std::less<uint32>, Assembly >(new mvm::LockNormal()) {}
+	FieldTokenMap() : LockedMap<uint32, VMField, std::less<uint32>, Assembly >(new vmkit::LockNormal()) {}
 };
 
 class MethodTokenMap : public LockedMap<uint32, VMMethod, std::less<uint32>, Assembly > {
 public:
-	MethodTokenMap() : LockedMap<uint32, VMMethod, std::less<uint32>, Assembly >(new mvm::LockNormal()) {}
+	MethodTokenMap() : LockedMap<uint32, VMMethod, std::less<uint32>, Assembly >(new vmkit::LockNormal()) {}
 };
 
 class AssemblyMap : public LockedMap<const UTF8*, Assembly, std::less<const UTF8*>, N3 > {
 public:
-	AssemblyMap() : LockedMap<const UTF8*, Assembly, std::less<const UTF8*>, N3 >(new mvm::LockNormal()) {}
+	AssemblyMap() : LockedMap<const UTF8*, Assembly, std::less<const UTF8*>, N3 >(new vmkit::LockNormal()) {}
 };
 
 
 class StringMap : public LockedMap<const UTF8*, CLIString, std::less<const UTF8*>, N3 > { 
 public:
-	StringMap() : LockedMap<const UTF8*, CLIString, std::less<const UTF8*>, N3 >(new mvm::LockRecursive()) {}
+	StringMap() : LockedMap<const UTF8*, CLIString, std::less<const UTF8*>, N3 >(new vmkit::LockRecursive()) {}
 };
 
 class FunctionMap : public LockedMap<llvm::Function*, VMMethod, std::less<llvm::Function*>, N3 > { 
 public:
-	FunctionMap() : LockedMap<llvm::Function*, VMMethod, std::less<llvm::Function*>, N3 >(new mvm::LockNormal()) {}
+	FunctionMap() : LockedMap<llvm::Function*, VMMethod, std::less<llvm::Function*>, N3 >(new vmkit::LockNormal()) {}
 };
 
 } // end namespace n3

@@ -26,7 +26,7 @@ Java_org_j3_mmtk_FinalizableProcessor_forward__Lorg_mmtk_plan_TraceLocal_2Z (MMT
 
 extern "C" void
 Java_org_j3_mmtk_FinalizableProcessor_scan__Lorg_mmtk_plan_TraceLocal_2Z (MMTkObject* FP, MMTkObject* TL, uint8_t nursery) {
-  mvm::Thread* th = mvm::Thread::get();
+  vmkit::Thread* th = vmkit::Thread::get();
   th->vmkit->scanFinalizationQueue(reinterpret_cast<uintptr_t>(TL));
 }
 

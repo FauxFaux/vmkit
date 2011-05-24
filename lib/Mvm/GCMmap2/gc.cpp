@@ -10,7 +10,7 @@
 #include "mvm/Threads/Thread.h"
 #include "mvm/GC.h"
 
-using namespace mvm;
+using namespace vmkit;
 
 
 extern "C" void MarkAndTrace(gc* gc, uintptr_t closure) {

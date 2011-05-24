@@ -16,15 +16,15 @@
 
 namespace n3 {
 
-class ByteCode : public mvm::PermanentObject {
+class ByteCode : public vmkit::PermanentObject {
 public:
 	sint32 size;
 	uint8  *elements;
 
-	ByteCode(mvm::BumpPtrAllocator &allocator, int nbb);
+	ByteCode(vmkit::BumpPtrAllocator &allocator, int nbb);
 };
 
-class Reader : public mvm::PermanentObject {
+class Reader : public vmkit::PermanentObject {
 public:
   ByteCode* bytes;
   uint32 min;
@@ -40,7 +40,7 @@ public:
   static const int SeekCur;
   static const int SeekEnd;
 
-  static ByteCode* openFile(mvm::BumpPtrAllocator &allocator, char* path);
+  static ByteCode* openFile(vmkit::BumpPtrAllocator &allocator, char* path);
   uint8 readU1();
   sint8 readS1();
   uint16 readU2();
@@ -53,7 +53,7 @@ public:
 	//  Reader* derive(uint32 nbb);
   void seek(uint32 pos, int from);
 
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
 };
 
 static sint8 inline READ_S1(ByteCode* bytes, uint32& offset) {

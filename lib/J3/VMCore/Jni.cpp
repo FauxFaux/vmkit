@@ -176,7 +176,7 @@ jthrowable ExceptionOccurred(JNIEnv *env) {
   
   BEGIN_JNI_EXCEPTION
 
-	mvm::gc* obj = mut->getPendingException();
+	vmkit::gc* obj = mut->getPendingException();
   llvm_gcroot(obj, 0);
   if (obj == NULL) RETURN_FROM_JNI(NULL);
   jthrowable res = (jthrowable)JavaThread::j3Thread(mut)->pushJNIRef(obj);

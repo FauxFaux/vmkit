@@ -20,7 +20,7 @@
 
 #define declare_gcroot(type, name) type name; llvm_gcroot(name, 0); name
 
-namespace mvm {
+namespace vmkit {
 
 class BumpPtrAllocator {
 private:
@@ -89,11 +89,11 @@ public:
 /// JITInfo - This class can be derived from to hold private JIT-specific
 /// information. Objects of type are accessed/created with
 /// <Class>::getInfo and destroyed when the <Class> object is destroyed.
-struct JITInfo : public mvm::PermanentObject {
+struct JITInfo : public vmkit::PermanentObject {
   virtual ~JITInfo() {}
   virtual void clear() {}
 };
 
-} // end namespace mvm
+} // end namespace vmkit
 
 #endif // MVM_ALLOCATOR_H

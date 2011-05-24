@@ -46,7 +46,7 @@ using namespace j3;
 
 typedef void (*static_init_t)(JnjvmClassLoader*);
 
-JnjvmBootstrapLoader::JnjvmBootstrapLoader(mvm::BumpPtrAllocator& Alloc,
+JnjvmBootstrapLoader::JnjvmBootstrapLoader(vmkit::BumpPtrAllocator& Alloc,
 																					 Jnjvm* vm,
                                            JavaCompiler* Comp) : 
 	JnjvmClassLoader(Alloc, vm) {
@@ -70,7 +70,7 @@ JnjvmBootstrapLoader::JnjvmBootstrapLoader(mvm::BumpPtrAllocator& Alloc,
   }
 }
 
-JnjvmClassLoader::JnjvmClassLoader(mvm::BumpPtrAllocator& Alloc,
+JnjvmClassLoader::JnjvmClassLoader(vmkit::BumpPtrAllocator& Alloc,
                                    JavaObject* loader,
                                    VMClassLoader* vmdata,
 																	 Jnjvm* v) : allocator(Alloc) {
@@ -88,7 +88,7 @@ JnjvmClassLoader::JnjvmClassLoader(mvm::BumpPtrAllocator& Alloc,
   strings = new(allocator, "StringList") StringList();
 
   vmdata->JCL = this;
-  mvm::Collector::objectReferenceNonHeapWriteBarrier((mvm::gc**)&javaLoader, (mvm::gc*)loader);
+  vmkit::Collector::objectReferenceNonHeapWriteBarrier((vmkit::gc**)&javaLoader, (vmkit::gc*)loader);
 
   JavaMethod* meth = vm->upcalls->loadInClassLoader;
   loadClassMethod = 
@@ -104,7 +104,7 @@ void JnjvmClassLoader::setCompiler(JavaCompiler* Comp) {
 
 ClassBytes* JnjvmBootstrapLoader::openName(const UTF8* utf8) {
   ClassBytes* res = 0;
-  mvm::ThreadAllocator threadAllocator;
+  vmkit::ThreadAllocator threadAllocator;
 
   char* asciiz = (char*)threadAllocator.Allocate(utf8->size + 1);
   for (sint32 i = 0; i < utf8->size; ++i) 
@@ -303,7 +303,7 @@ UserCommonClass* JnjvmClassLoader::loadClassFromUserUTF8(const UTF8* name,
   if (name->size == 0) {
     return 0;
   } else if (name->elements[0] == I_TAB) {
-    mvm::ThreadAllocator threadAllocator;
+    vmkit::ThreadAllocator threadAllocator;
     bool prim = false;
     UTF8* holder = (UTF8*)threadAllocator.Allocate(
         sizeof(UTF8) + name->size * sizeof(uint16));
@@ -326,7 +326,7 @@ UserCommonClass* JnjvmClassLoader::loadClassFromAsciiz(const char* asciiz,
                                                        bool doResolve,
                                                        bool doThrow) {
   const UTF8* name = hashUTF8->lookupAsciiz(asciiz);
-  mvm::ThreadAllocator threadAllocator;
+  vmkit::ThreadAllocator threadAllocator;
   UserCommonClass* result = NULL;
   if (!name) name = vm->bootstrapLoader->hashUTF8->lookupAsciiz(asciiz);
   if (!name) {
@@ -361,7 +361,7 @@ JnjvmClassLoader::loadClassFromJavaString(JavaString* str, bool doResolve,
                                           bool doThrow) {
   
   llvm_gcroot(str, 0);
-  mvm::ThreadAllocator allocator; 
+  vmkit::ThreadAllocator allocator; 
   UTF8* name = (UTF8*)allocator.Allocate(sizeof(UTF8) + str->count * sizeof(uint16));
  
   name->size = str->count;
@@ -397,7 +397,7 @@ UserCommonClass* JnjvmClassLoader::lookupClassFromJavaString(JavaString* str) {
   llvm_gcroot(str, 0);
   llvm_gcroot(value, 0);
   value = JavaString::getValue(str);
-  mvm::ThreadAllocator allocator; 
+  vmkit::ThreadAllocator allocator; 
   
   UTF8* name = (UTF8*)allocator.Allocate(sizeof(UTF8) + str->count * sizeof(uint16));
   name->size = str->count;
@@ -459,7 +459,7 @@ UserClassArray* JnjvmClassLoader::constructArray(const UTF8* name) {
 
 UserClass* JnjvmClassLoader::constructClass(const UTF8* name,
                                             ClassBytes* bytes) {
-	mvm::gc* excp = NULL;
+	vmkit::gc* excp = NULL;
   llvm_gcroot(excp, 0);
   UserClass* res = NULL;
   lock.lock();
@@ -485,13 +485,13 @@ UserClass* JnjvmClassLoader::constructClass(const UTF8* name,
       classes->lock.unlock();
       assert(success && "Could not add class in map");
     } CATCH {
-			mvm::Thread* mut = mvm::Thread::get();
+			vmkit::Thread* mut = vmkit::Thread::get();
       excp = mut->getPendingException();
       mut->clearPendingException();    
     } END_CATCH;
   }
   if (excp != NULL) {
-    mvm::Thread::get()->setPendingException(excp)->throwIt();
+    vmkit::Thread::get()->setPendingException(excp)->throwIt();
   }
   lock.unlock();
 
@@ -682,7 +682,7 @@ JnjvmClassLoader::getJnjvmLoaderFromJavaObject(JavaObject* jloader, Jnjvm* vm) {
       (VMClassLoader*)(upcalls->vmdataClassLoader->getInstanceObjectField(jloader));
     if (!vmdata) {
       vmdata = VMClassLoader::allocate(vm);
-      mvm::BumpPtrAllocator* A = new mvm::BumpPtrAllocator();
+      vmkit::BumpPtrAllocator* A = new vmkit::BumpPtrAllocator();
       JCL = new(*A, "Class loader") JnjvmClassLoader(*A, jloader, vmdata, vm);
       upcalls->vmdataClassLoader->setInstanceObjectField(jloader, (JavaObject*)vmdata);
     }
@@ -706,7 +706,7 @@ const UTF8* JnjvmClassLoader::readerConstructUTF8(const uint16* buf,
 
 JnjvmClassLoader::~JnjvmClassLoader() {
 
-	mvm::Thread::get()->vmkit->removeMethodInfos(TheCompiler);
+	vmkit::Thread::get()->vmkit->removeMethodInfos(TheCompiler);
 
   if (classes) {
     classes->~ClassMap();
@@ -752,7 +752,7 @@ JavaString** JnjvmClassLoader::UTF8ToStr(const UTF8* val) {
 
 void JnjvmBootstrapLoader::analyseClasspathEnv(const char* str) {
   ClassBytes* bytes = NULL;
-  mvm::ThreadAllocator threadAllocator;
+  vmkit::ThreadAllocator threadAllocator;
   if (str != 0) {
     unsigned int len = strlen(str);
     char* buf = (char*)threadAllocator.Allocate((len + 1) * sizeof(char));
@@ -806,7 +806,7 @@ const UTF8* JnjvmClassLoader::constructArrayName(uint32 steps,
   uint32 pos = steps;
   bool isTab = (className->elements[0] == I_TAB ? true : false);
   uint32 n = steps + len + (isTab ? 0 : 2);
-  mvm::ThreadAllocator allocator;
+  vmkit::ThreadAllocator allocator;
   uint16* buf = (uint16*)allocator.Allocate(n * sizeof(uint16));
     
   for (uint32 i = 0; i < steps; i++) {
@@ -871,15 +871,15 @@ intptr_t JnjvmClassLoader::nativeLookup(JavaMethod* meth, bool& j3,
   return res;
 }
 
-class JavaStaticMethodInfo : public mvm::CamlMethodInfo {
+class JavaStaticMethodInfo : public vmkit::CamlMethodInfo {
 public:
   virtual void print(void* ip, void* addr);
   virtual bool isHighLevelMethod() {
     return true;
   }
   
-  JavaStaticMethodInfo(mvm::CamlMethodInfo* super, void* ip, JavaMethod* M) :
-    mvm::CamlMethodInfo(super->CF) {
+  JavaStaticMethodInfo(vmkit::CamlMethodInfo* super, void* ip, JavaMethod* M) :
+    vmkit::CamlMethodInfo(super->CF) {
     MetaInfo = M;
     Owner = M->classDef->classLoader->getCompiler();
   }
@@ -887,7 +887,7 @@ public:
 
 void JavaStaticMethodInfo::print(void* ip, void* addr) {
   void* new_ip = NULL;
-  if (ip) new_ip = mvm::MethodInfo::isStub(ip, addr);
+  if (ip) new_ip = vmkit::MethodInfo::isStub(ip, addr);
   JavaMethod* meth = (JavaMethod*)MetaInfo;
   fprintf(stderr, "; %p in %s.%s", new_ip,
           UTF8Buffer(meth->classDef->name).cString(),
@@ -927,7 +927,7 @@ void JnjvmClassLoader::insertAllMethodsInVM() {
 void JnjvmClassLoader::loadLibFromJar(const char* name,
                                       const char* file) {
 
-  mvm::ThreadAllocator threadAllocator;
+  vmkit::ThreadAllocator threadAllocator;
   char* soName = (char*)threadAllocator.Allocate(
       strlen(name) + strlen(DYLD_EXTENSION));
   const char* ptr = strrchr(name, '/');
@@ -945,7 +945,7 @@ void JnjvmClassLoader::loadLibFromJar(const char* name,
 }
 
 void JnjvmClassLoader::loadLibFromFile(const char* name) {
-  mvm::ThreadAllocator threadAllocator;
+  vmkit::ThreadAllocator threadAllocator;
   assert(classes->map.size() == 0);
   char* soName = (char*)threadAllocator.Allocate(
       strlen(name) + strlen(DYLD_EXTENSION));
@@ -1042,7 +1042,7 @@ extern "C" intptr_t vmjcNativeLoader(JavaMethod* meth) {
   sint32 mnlen = jniConsName->size;
   sint32 mtlen = jniConsType->size;
 
-  mvm::ThreadAllocator threadAllocator;
+  vmkit::ThreadAllocator threadAllocator;
   char* buf = (char*)threadAllocator.Allocate(
       3 + JNI_NAME_PRE_LEN + 1 + ((mnlen + clen + mtlen) << 3));
   intptr_t res = meth->classDef->classLoader->nativeLookup(meth, j3, buf);

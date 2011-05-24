@@ -220,23 +220,23 @@ DEF_TABLE_MASK(METHOD_GenericParam, 4,
   TYPE_OR_METHODDEF(CONSTANT_GENERIC_PARAM_OWNER)
   STRING(CONSTANT_GENERIC_PARAM_NAME))
 
-void Header::print(mvm::PrintBuffer* buf) const {
+void Header::print(vmkit::PrintBuffer* buf) const {
   buf->write("Header<>");
 }
 
-void Section::print(mvm::PrintBuffer* buf) const {
+void Section::print(vmkit::PrintBuffer* buf) const {
   buf->write("Section<>");
 }
 
-void Table::print(mvm::PrintBuffer* buf) const {
+void Table::print(vmkit::PrintBuffer* buf) const {
   buf->write("Table<>");
 }
 
-void Stream::print(mvm::PrintBuffer* buf) const {
+void Stream::print(vmkit::PrintBuffer* buf) const {
   buf->write("Table<>");
 }
 
-void Assembly::print(mvm::PrintBuffer* buf) const {
+void Assembly::print(vmkit::PrintBuffer* buf) const {
   buf->write("Assembly<");
   name->print(buf);
   buf->write(">");
@@ -374,7 +374,7 @@ VMGenericClass* Assembly::constructGenericClass(const UTF8* name,
   }
   buf[i] = '>';
   const UTF8* genName = VMThread::get()->getVM()->bufToUTF8(buf, size);
-  //printf("%s\n", mvm::PrintBuffer(genName).cString());
+  //printf("%s\n", vmkit::PrintBuffer(genName).cString());
   
   ClassNameCmp CC(genName, nameSpace);
   VMGenericClass* cl = (VMGenericClass*) loadedNameClasses->lookupOrCreate(CC, this, genClassDup);
@@ -463,8 +463,8 @@ VMMethod* Assembly::constructMethod(VMClass* cl, const UTF8* name,
   return meth;
 }
 
-Assembly::Assembly(mvm::BumpPtrAllocator &allocator, N3 *vm, const UTF8 *name) : allocator(allocator) {
-	this->lockVar = new mvm::LockRecursive();
+Assembly::Assembly(vmkit::BumpPtrAllocator &allocator, N3 *vm, const UTF8 *name) : allocator(allocator) {
+	this->lockVar = new vmkit::LockRecursive();
   this->loadedNameClasses =  new(allocator, "ClassNameMap")   ClassNameMap();
   this->loadedTokenClasses = new(allocator, "ClassTokenMap")  ClassTokenMap();
   this->loadedTokenMethods = new(allocator, "MethodTokenMap") MethodTokenMap();
@@ -668,7 +668,7 @@ void Section::read(Reader* reader, N3* vm) {
   characteristics   = reader->readU4();
 }
 
-void Header::read(mvm::BumpPtrAllocator &allocator, Reader* reader, N3* vm) {
+void Header::read(vmkit::BumpPtrAllocator &allocator, Reader* reader, N3* vm) {
   uint32 start = reader->cursor;
   signature = reader->readU4();
   major = reader->readU2();
@@ -835,8 +835,8 @@ int Assembly::resolve(int doResolve, const char *ext) {
 		lockVar->lock();
 		if(!isRead) {
 			Reader* reader = newReader(bytes);
-			PRINT_DEBUG(N3_LOAD, 1, LIGHT_GREEN, "Reading %s::%s", mvm::PrintBuffer(vm).cString(),
-									mvm::PrintBuffer(this).cString());
+			PRINT_DEBUG(N3_LOAD, 1, LIGHT_GREEN, "Reading %s::%s", vmkit::PrintBuffer(vm).cString(),
+									vmkit::PrintBuffer(this).cString());
 
 			textSection =  new(allocator, "Section") Section();
 			rsrcSection =  new(allocator, "Section") Section();
@@ -883,7 +883,7 @@ int Assembly::resolve(int doResolve, const char *ext) {
 
 int Assembly::open(const char *ext) {
 	lockVar->lock();
-	mvm::PrintBuffer _asciiz = mvm::PrintBuffer(name);
+	vmkit::PrintBuffer _asciiz = vmkit::PrintBuffer(name);
 	const char* asciiz = _asciiz.cString();
 	uint32 alen = strlen(asciiz);
 

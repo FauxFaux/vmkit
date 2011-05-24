@@ -25,14 +25,14 @@
 
 #include "types.h"
 
-namespace mvm {
+namespace vmkit {
 	class UTF8;
 	class UTF8Map;
 }
 
 namespace n3 {
-using mvm::UTF8;
-using mvm::UTF8Map;
+using vmkit::UTF8;
+using vmkit::UTF8Map;
 class ArrayObject;
 class Assembly;
 class AssemblyMap;
@@ -52,15 +52,15 @@ class VMThread;
 class ArrayChar;
 class CLIString;
 
-class ThreadSystem : public mvm::PermanentObject {
+class ThreadSystem : public vmkit::PermanentObject {
 public:
 	ThreadSystem();
 
   uint16 nonDaemonThreads;
-  mvm::Lock* nonDaemonLock;
-  mvm::Cond* nonDaemonVar;
+  vmkit::Lock* nonDaemonLock;
+  vmkit::Cond* nonDaemonVar;
 
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
 };
 
 class ClArgumentsInfo {
@@ -78,7 +78,7 @@ public:
 };
 
 
-class N3 : public mvm::VirtualMachine {
+class N3 : public vmkit::VirtualMachine {
 public:
 	// instance fields
   const char*              name;
@@ -93,19 +93,19 @@ public:
 
   UTF8Map*                 hashUTF8;
 
-  mvm::Lock*               protectModule;
+  vmkit::Lock*               protectModule;
   FunctionMap*             functions;
 
-  mvm::BaseIntrinsics*     module;
+  vmkit::BaseIntrinsics*     module;
   llvm::Module*            LLVMModule;
   N3ModuleProvider*        TheModuleProvider;
 
 	// constructors / destructors
-	N3(mvm::BumpPtrAllocator &allocator, const char *name);
+	N3(vmkit::BumpPtrAllocator &allocator, const char *name);
   ~N3();
 
 	// virtual methods
-  virtual void print(mvm::PrintBuffer* buf) const;
+  virtual void print(vmkit::PrintBuffer* buf) const;
   virtual void TRACER;
   virtual void runApplication(int argc, char** argv);
   virtual void compile(const char* name);

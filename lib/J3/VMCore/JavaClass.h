@@ -73,7 +73,7 @@ public:
 /// Attribut - This class represents JVM attributes to Java class, methods and
 /// fields located in the .class file.
 ///
-class Attribut : public mvm::PermanentObject {
+class Attribut : public vmkit::PermanentObject {
 public:
   
   /// name - The name of the attribut. These are specified in the JVM book.
@@ -156,7 +156,7 @@ public:
 /// object that stays in memory has a reference to the class. Same for
 /// super or interfaces.
 ///
-class CommonClass : public mvm::PermanentObject {
+class CommonClass : public vmkit::PermanentObject {
 public:
   
 //===----------------------------------------------------------------------===//
@@ -356,7 +356,7 @@ public:
   static UserCommonClass* resolvedImplClass(JavaObject* delegatee,
                                             bool doClinit);
 #ifdef USE_GC_BOEHM
-  void* operator new(size_t sz, mvm::BumpPtrAllocator& allocator) {
+  void* operator new(size_t sz, vmkit::BumpPtrAllocator& allocator) {
     return GC_MALLOC(sz);
   }
 #endif
@@ -441,7 +441,7 @@ public:
   
   /// ownerClass - Who is initializing this class.
   ///
-  mvm::Thread* ownerClass;
+  vmkit::Thread* ownerClass;
   
   /// bytes - The .class file of this class.
   ///
@@ -501,13 +501,13 @@ public:
 
   /// getOwnerClass - Get the thread that is currently initializing the class.
   ///
-  mvm::Thread* getOwnerClass() const {
+  vmkit::Thread* getOwnerClass() const {
     return ownerClass;
   }
 
   /// setOwnerClass - Set the thread that is currently initializing the class.
   ///
-  void setOwnerClass(mvm::Thread* th) {
+  void setOwnerClass(vmkit::Thread* th) {
     ownerClass = th;
   }
  
@@ -824,7 +824,7 @@ public:
   
 };
 
-class CodeLineInfo : public mvm::PermanentObject {
+class CodeLineInfo : public vmkit::PermanentObject {
 public:
   uintptr_t address;
   uint16 bytecodeIndex;
@@ -836,7 +836,7 @@ public:
 
 /// JavaMethod - This class represents Java methods.
 ///
-class JavaMethod : public mvm::PermanentObject {
+class JavaMethod : public vmkit::PermanentObject {
 private:
 
   /// _signature - The signature of this method. Null if not resolved.
@@ -1107,7 +1107,7 @@ public:
 
 /// JavaField - This class represents a Java field.
 ///
-class JavaField  : public mvm::PermanentObject {
+class JavaField  : public vmkit::PermanentObject {
 private:
   /// _signature - The signature of the field. Null if not resolved.
   ///
@@ -1254,7 +1254,7 @@ public:
     if (val != NULL) assert(val->getVirtualTable());
     assert(classDef->isResolved());
     JavaObject** ptr = (JavaObject**)((uint64)classDef->getStaticInstance() + ptrOffset);
-    mvm::Collector::objectReferenceNonHeapWriteBarrier((mvm::gc**)ptr, (mvm::gc*)val);
+    vmkit::Collector::objectReferenceNonHeapWriteBarrier((vmkit::gc**)ptr, (vmkit::gc*)val);
   }
 
   JavaObject* getInstanceObjectField(JavaObject* obj) {
@@ -1270,7 +1270,7 @@ public:
     if (val != NULL) assert(val->getVirtualTable());
     assert(classDef->isResolved());
     JavaObject** ptr = (JavaObject**)((uint64)obj + ptrOffset);
-    mvm::Collector::objectReferenceWriteBarrier((mvm::gc*)obj, (mvm::gc**)ptr, (mvm::gc*)val);
+    vmkit::Collector::objectReferenceWriteBarrier((vmkit::gc*)obj, (vmkit::gc**)ptr, (vmkit::gc*)val);
   }
   
   bool isReference() {

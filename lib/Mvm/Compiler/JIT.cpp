@@ -55,7 +55,7 @@
 #define SELF_HANDLE 0
 #endif
 
-using namespace mvm;
+using namespace vmkit;
 using namespace llvm;
 
 
@@ -67,7 +67,7 @@ cl::opt<bool> EmitDebugInfo("emit-debug-info",
                   cl::desc("Emit debugging information"),
                   cl::init(false));
 
-namespace mvm {
+namespace vmkit {
   namespace llvm_runtime {
     #include "LLVMRuntime.inc"
   }
@@ -91,7 +91,7 @@ public:
     assert(F.getParent() == MvmModule::globalModule);
     assert(F.hasGC());
     // We know the last GC info is for this method.
-    GCStrategy::iterator I = mvm::MvmModule::TheGCStrategy->end();
+    GCStrategy::iterator I = vmkit::MvmModule::TheGCStrategy->end();
     I--;
     DEBUG(errs() << (*I)->getFunction().getName() << '\n');
     DEBUG(errs() << F.getName() << '\n');
@@ -100,7 +100,7 @@ public:
     llvm::GCFunctionInfo* GFI = *I;
     JITMethodInfo* MI = new(*MvmModule::Allocator, "MvmJITMethodInfo")
         MvmJITMethodInfo(GFI, &F, MvmModule::executionEngine);
-    MI->addToVMKit(mvm::Thread::get()->vmkit, (JIT*)MvmModule::executionEngine);
+    MI->addToVMKit(vmkit::Thread::get()->vmkit, (JIT*)MvmModule::executionEngine);
   }
 };
 
@@ -135,7 +135,7 @@ typedef void (*BootHeapType)(intptr_t initial, intptr_t max);
 
 void MvmModule::initialise(CodeGenOpt::Level level, Module* M,
                            TargetMachine* T) {
-  mvm::linkVmkitGC();
+  vmkit::linkVmkitGC();
   
   llvm_start_multithreaded();
   
@@ -194,7 +194,7 @@ BaseIntrinsics::BaseIntrinsics(llvm::Module* module) {
       (init_inline_t)(uintptr_t)dlsym(SELF_HANDLE, MMTkSymbol);
   if (init_inline != NULL) init_inline(module);
 
-  mvm::llvm_runtime::makeLLVMModuleContents(module);
+  vmkit::llvm_runtime::makeLLVMModuleContents(module);
 
   // Type declaration
   ptrType = PointerType::getUnqual(Type::getInt8Ty(Context));
@@ -242,9 +242,9 @@ BaseIntrinsics::BaseIntrinsics(llvm::Module* module) {
   constantDoubleMinusInfinity = ConstantFP::get(Type::getDoubleTy(Context), MinDouble);
   constantDoubleMinusZero = ConstantFP::get(Type::getDoubleTy(Context), -0.0);
   constantFloatMinusZero = ConstantFP::get(Type::getFloatTy(Context), -0.0f);
-  constantThreadIDMask = ConstantInt::get(pointerSizeType, mvm::Thread::IDMask);
+  constantThreadIDMask = ConstantInt::get(pointerSizeType, vmkit::Thread::IDMask);
   constantStackOverflowMask = 
-    ConstantInt::get(pointerSizeType, mvm::Thread::StackOverflowMask);
+    ConstantInt::get(pointerSizeType, vmkit::Thread::StackOverflowMask);
   constantFatMask = ConstantInt::get(pointerSizeType, 
       pointerSizeType == Type::getInt32Ty(Context) ? 0x80000000 : 0x8000000000000000LL);
   constantPtrOne = ConstantInt::get(pointerSizeType, 1);
@@ -342,8 +342,8 @@ const llvm::TargetData* MvmModule::TheTargetData;
 llvm::GCStrategy* MvmModule::TheGCStrategy;
 llvm::Module *MvmModule::globalModule;
 llvm::ExecutionEngine* MvmModule::executionEngine;
-mvm::LockRecursive MvmModule::protectEngine;
-mvm::BumpPtrAllocator* MvmModule::Allocator;
+vmkit::LockRecursive MvmModule::protectEngine;
+vmkit::BumpPtrAllocator* MvmModule::Allocator;
 //unsigned MvmModule::MetadataTypeKind;
 
 uint64 MvmModule::getTypeSize(const llvm::Type* type) {
@@ -420,7 +420,7 @@ StandardCompileOpts("std-compile-opts",
 static llvm::cl::list<const llvm::PassInfo*, bool, llvm::PassNameParser>
 PassList(llvm::cl::desc("Optimizations available:"));
 
-namespace mvm {
+namespace vmkit {
   llvm::FunctionPass* createInlineMallocPass();
 }
 

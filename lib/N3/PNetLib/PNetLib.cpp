@@ -324,7 +324,7 @@ extern "C" void System_String_Copy_5(PNetString* dest, sint32 destPos,
 		declare_gcroot(ArrayChar*, array) = VMThread::get()->getVM()->bufToArray(buf, dest->length);
 		dest->value  = array;
 	}
-	//		printf("---> %s\n", mvm::PrintBuffer(VMThread::get()->getVM()->arrayToUTF8(dest->value)).cString());
+	//		printf("---> %s\n", vmkit::PrintBuffer(VMThread::get()->getVM()->arrayToUTF8(dest->value)).cString());
 }
 
 extern "C" void System_Threading_Monitor_Enter(VMObject* obj) {
@@ -555,7 +555,7 @@ extern "C" VMObject* System_Reflection_Assembly_LoadFromName(PNetString* str, si
   Assembly* ass = vm->constructAssembly(vm->arrayToUTF8(value));
 
 	if(!ass->resolve(1, "dll"))
-		vm->error("unfound assembly %s\n", mvm::PrintBuffer(value).cString());
+		vm->error("unfound assembly %s\n", vmkit::PrintBuffer(value).cString());
 
   error = 0;
 	declare_gcroot(VMObject*, delegatee) = ass->getAssemblyDelegatee();
@@ -665,7 +665,7 @@ extern "C" VMObject* System_Reflection_Assembly_GetType(VMObject* obj, PNetStrin
 	llvm_gcroot(str, 0);
   Assembly* ass = ASSEMBLY_VALUE(obj);
   declare_gcroot(const ArrayChar*, array) = str->value;
-	mvm::PrintBuffer pb(array);
+	vmkit::PrintBuffer pb(array);
   char* asciiz = pb.cString();
   char* index = (char*)sys_memrchr(asciiz, '.', strlen(asciiz));
   N3* vm = ass->vm;
@@ -748,7 +748,7 @@ extern "C" VMObject* System_Reflection_ClrType_GetMemberImpl(VMObject* Type, PNe
 extern "C" VMObject* System_Reflection_ClrHelpers_GetSemantics(uintptr_t item, uint32 attributes, bool nonPublic) {
 	if (attributes == METHOD_SEMANTIC_ATTRIBUTES_GETTER) {
 		Property* prop = (Property*)item;
-		mvm::PrintBuffer _asciiz(prop->name);
+		vmkit::PrintBuffer _asciiz(prop->name);
 		const char* asciiz = _asciiz.cString();
 		char* buf = (char*)alloca(strlen(asciiz) + 5);
 		sprintf(buf, "get_%s", asciiz);
@@ -822,7 +822,7 @@ extern "C" VMObject* System_Reflection_ClrMethod_Invoke(VMObject* Method, VMObje
 
   if ((obj != 0) && virt) {
     if (!(obj->classOf->isAssignableFrom(type))) {
-      VMThread::get()->getVM()->illegalArgumentException(mvm::PrintBuffer(meth->name).cString());
+      VMThread::get()->getVM()->illegalArgumentException(vmkit::PrintBuffer(meth->name).cString());
     }
     verifyNull(obj);
   }

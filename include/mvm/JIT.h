@@ -38,7 +38,7 @@ namespace llvm {
   class Type;
 }
 
-namespace mvm {
+namespace vmkit {
 
 class LockRecursive;
 
@@ -192,10 +192,10 @@ public:
 class MvmModule {
 public:
    static llvm::GCStrategy* TheGCStrategy;
-   static mvm::LockRecursive protectEngine;
+   static vmkit::LockRecursive protectEngine;
    static llvm::Module *globalModule;
    static const llvm::TargetData* TheTargetData;
-   static mvm::BumpPtrAllocator* Allocator;
+   static vmkit::BumpPtrAllocator* Allocator;
    static llvm::ExecutionEngine* executionEngine;
    //static unsigned MetadataTypeKind;
 
@@ -236,6 +236,6 @@ public:
   }
 };
 
-} // end namespace mvm
+} // end namespace vmkit
 
 #endif // MVM_JIT_H

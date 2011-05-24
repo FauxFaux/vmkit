@@ -38,7 +38,7 @@ jint len) {
   assert(src->getVirtualTable());
   assert(dst->getVirtualTable());
 
-	mvm::Thread* mut = mvm::Thread::get();
+	vmkit::Thread* mut = vmkit::Thread::get();
   Jnjvm *vm = JavaThread::j3Thread(mut)->getJVM();
 
   if (src == NULL || dst == NULL) {

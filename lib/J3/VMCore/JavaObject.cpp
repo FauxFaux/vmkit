@@ -21,21 +21,21 @@
 
 using namespace j3;
 
-static const int hashCodeIncrement = mvm::GCBitMask + 1;
+static const int hashCodeIncrement = vmkit::GCBitMask + 1;
 uint16_t JavaObject::hashCodeGenerator = hashCodeIncrement;
-static const uint64_t HashMask = ((1 << mvm::HashBits) - 1) << mvm::GCBits;
+static const uint64_t HashMask = ((1 << vmkit::HashBits) - 1) << vmkit::GCBits;
 
 
 /// hashCode - Return the hash code of this object.
 uint32_t JavaObject::hashCode(JavaObject* self) {
   llvm_gcroot(self, 0);
-  if (!mvm::MovesObject) return (uint32_t)(long)self;
+  if (!vmkit::MovesObject) return (uint32_t)(long)self;
   assert(HashMask != 0);
-  assert(mvm::HashBits != 0);
+  assert(vmkit::HashBits != 0);
 
   uintptr_t header = self->header;
   uintptr_t GCBits;
-	GCBits = header & mvm::GCBitMask;
+	GCBits = header & vmkit::GCBitMask;
   uintptr_t val = header & HashMask;
   if (val != 0) {
     return val ^ (uintptr_t)getClass(self);
@@ -49,7 +49,7 @@ uint32_t JavaObject::hashCode(JavaObject* self) {
     val = hashCodeIncrement;
     hashCodeGenerator += hashCodeIncrement;
   }
-  assert(val > mvm::GCBitMask);
+  assert(val > vmkit::GCBitMask);
   assert(val <= HashMask);
 
   do {
@@ -61,7 +61,7 @@ uint32_t JavaObject::hashCode(JavaObject* self) {
   } while (true);
 
   assert((self->header & HashMask) != 0);
-  assert(GCBits == (self->header & mvm::GCBitMask));
+  assert(GCBits == (self->header & vmkit::GCBitMask));
   return (self->header & HashMask) ^ (uintptr_t)getClass(self);
 }
 
@@ -70,7 +70,7 @@ void JavaObject::waitIntern(
     JavaObject* self, struct timeval* info, bool timed) {
   llvm_gcroot(self, 0);
   JavaThread* thread = JavaThread::get();
-  mvm::LockSystem& table = thread->getJVM()->lockSystem;
+  vmkit::LockSystem& table = thread->getJVM()->lockSystem;
 
   if (!owner(self)) {
     thread->getJVM()->illegalMonitorStateException(self);
@@ -98,7 +98,7 @@ void JavaObject::timedWait(JavaObject* self, struct timeval& info) {
 void JavaObject::notify(JavaObject* self) {
   llvm_gcroot(self, 0);
   JavaThread* thread = JavaThread::get();
-  mvm::LockSystem& table = thread->getJVM()->lockSystem;
+  vmkit::LockSystem& table = thread->getJVM()->lockSystem;
 
   if (!owner(self)) {
     thread->getJVM()->illegalMonitorStateException(self);
@@ -110,7 +110,7 @@ void JavaObject::notify(JavaObject* self) {
 void JavaObject::notifyAll(JavaObject* self) {
   llvm_gcroot(self, 0);
   JavaThread* thread = JavaThread::get();
-  mvm::LockSystem& table = thread->getJVM()->lockSystem;
+  vmkit::LockSystem& table = thread->getJVM()->lockSystem;
 
   if (!owner(self)) {
     thread->getJVM()->illegalMonitorStateException(self);
@@ -121,22 +121,22 @@ void JavaObject::notifyAll(JavaObject* self) {
 
 void JavaObject::overflowThinLock(JavaObject* self) {
   llvm_gcroot(self, 0);
-  mvm::ThinLock::overflowThinLock(self, self->getJVM()->lockSystem);
+  vmkit::ThinLock::overflowThinLock(self, self->getJVM()->lockSystem);
 }
 
 void JavaObject::acquire(JavaObject* self) {
   llvm_gcroot(self, 0);
-  mvm::ThinLock::acquire(self, self->getJVM()->lockSystem);
+  vmkit::ThinLock::acquire(self, self->getJVM()->lockSystem);
 }
 
 void JavaObject::release(JavaObject* self) {
   llvm_gcroot(self, 0);
-  mvm::ThinLock::release(self, self->getJVM()->lockSystem);
+  vmkit::ThinLock::release(self, self->getJVM()->lockSystem);
 }
 
 bool JavaObject::owner(JavaObject* self) {
   llvm_gcroot(self, 0);
-  return mvm::ThinLock::owner(self, self->getJVM()->lockSystem);
+  return vmkit::ThinLock::owner(self, self->getJVM()->lockSystem);
 }
 
 void JavaObject::decapsulePrimitive(JavaObject* obj, jvalue* buf,

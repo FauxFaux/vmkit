@@ -21,7 +21,7 @@ using namespace n3;
 const sint32 VMArray::MaxArraySize = 268435455;
 
 #define DEFINE_ARRAY_PRINT(name, type, do_root, printer, pre, sep, post) \
-	void Array##name::do_print(const Array##name *self, mvm::PrintBuffer *buf) { \
+	void Array##name::do_print(const Array##name *self, vmkit::PrintBuffer *buf) { \
 		llvm_gcroot(self, 0);																								\
 	  buf->write(pre);																										\
 	  for(int i=0; i<self->size; i++) {																		\

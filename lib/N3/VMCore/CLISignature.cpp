@@ -182,7 +182,7 @@ static VMCommonClass* METHOD_ElementTypeArray(uint32 op, Assembly* ass,
   uint32 numSizes = ass->uncompressSignature(offset);
 
   if (numSizes != 0) {
-    printf("type = %s\n", mvm::PrintBuffer(cl).cString());
+    printf("type = %s\n", vmkit::PrintBuffer(cl).cString());
     VMThread::get()->getVM()->error("implement me");
   }
 

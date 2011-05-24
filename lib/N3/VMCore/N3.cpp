@@ -84,27 +84,27 @@ DECLARE_EXCEPTION(ClassNotFoundException);
 
 #undef DECLARE_EXCEPTION
 
-void ThreadSystem::print(mvm::PrintBuffer* buf) const {
+void ThreadSystem::print(vmkit::PrintBuffer* buf) const {
   buf->write("ThreadSystem<>");
 }
 
 ThreadSystem::ThreadSystem() {
   nonDaemonThreads = 1;
-  nonDaemonLock = new mvm::LockNormal();
-  nonDaemonVar  = new mvm::Cond();
+  nonDaemonLock = new vmkit::LockNormal();
+  nonDaemonVar  = new vmkit::Cond();
 }
 
-N3::N3(mvm::BumpPtrAllocator &allocator, const char *name) : mvm::VirtualMachine(allocator) {
+N3::N3(vmkit::BumpPtrAllocator &allocator, const char *name) : vmkit::VirtualMachine(allocator) {
   this->module =            0;
   this->TheModuleProvider = 0;
 	this->name =              name;
 
-  this->scanner =           new mvm::UnpreciseStackScanner(); 
+  this->scanner =           new vmkit::UnpreciseStackScanner(); 
   this->LLVMModule =        new llvm::Module(name, llvm::getGlobalContext());
-  this->module =            new mvm::BaseIntrinsics(this->LLVMModule);
+  this->module =            new vmkit::BaseIntrinsics(this->LLVMModule);
 
-  this->LLVMModule->setDataLayout(mvm::MvmModule::executionEngine->getTargetData()->getStringRepresentation());
-  this->protectModule =     new mvm::LockNormal();
+  this->LLVMModule->setDataLayout(vmkit::MvmModule::executionEngine->getTargetData()->getStringRepresentation());
+  this->protectModule =     new vmkit::LockNormal();
 
   this->functions =         new(allocator, "FunctionMap") FunctionMap();
   this->loadedAssemblies =  new(allocator, "AssemblyMap") AssemblyMap();
@@ -181,12 +181,12 @@ void N3::error(const char* name, const char* fmt, ...) {
 
 using namespace n3;
 
-void N3::print(mvm::PrintBuffer* buf) const {
+void N3::print(vmkit::PrintBuffer* buf) const {
   buf->write("N3 virtual machine<>");
 }
 
 static Assembly* assemblyDup(const UTF8*& name, N3* vm) {
-	mvm::BumpPtrAllocator *a = new mvm::BumpPtrAllocator();
+	vmkit::BumpPtrAllocator *a = new vmkit::BumpPtrAllocator();
   return new(*a, "Assembly") Assembly(*a, vm, name);
 }
 
@@ -204,7 +204,7 @@ VMMethod* N3::lookupFunction(Function* F) {
 
 
 N3* N3::allocateBootstrap() {
-  mvm::BumpPtrAllocator *a = new mvm::BumpPtrAllocator();
+  vmkit::BumpPtrAllocator *a = new vmkit::BumpPtrAllocator();
   N3 *vm= new(*a, "VM") N3(*a, "bootstrapN3");
   
   vm->hashUTF8 =         new(vm->allocator, "UTF8Map")     UTF8Map(vm->allocator);
@@ -216,7 +216,7 @@ N3* N3::allocateBootstrap() {
 
 
 N3* N3::allocate(const char* name, N3* parent) {
-  mvm::BumpPtrAllocator *a = new mvm::BumpPtrAllocator();
+  vmkit::BumpPtrAllocator *a = new vmkit::BumpPtrAllocator();
   N3 *vm= new(*a, "VM") N3(*a, name);
 
   vm->hashUTF8 = parent->hashUTF8;
@@ -307,7 +307,7 @@ void N3::runMain(int argc, char** argv) {
     
     bootstrapThread = VMThread::TheThread;
     bootstrapThread->MyVM = this;
-    bootstrapThread->start((void (*)(mvm::Thread*))mainCLIStart);
+    bootstrapThread->start((void (*)(vmkit::Thread*))mainCLIStart);
 
   } else {
     --(threadSystem->nonDaemonThreads);
@@ -330,7 +330,7 @@ void N3::mainCLIStart(VMThread* th) {
     vm->executeAssembly(info.assembly, args);
   }catch(...) {
     declare_gcroot(VMObject*, exc) = th->ooo_pendingException;
-    printf("N3 caught %s\n", mvm::PrintBuffer(exc).cString());
+    printf("N3 caught %s\n", vmkit::PrintBuffer(exc).cString());
   }
 
   vm->threadSystem->nonDaemonLock->lock();

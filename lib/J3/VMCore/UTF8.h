@@ -16,16 +16,16 @@
 #include "mvm/PrintBuffer.h"
 
 namespace j3 {
-	using mvm::UTF8;
-	using mvm::UTF8Map;
+	using vmkit::UTF8;
+	using vmkit::UTF8Map;
 
 /// UTF8Buffer - Helper class to create char* buffers suitable for
 /// printf.
 ///
-class UTF8Buffer : public mvm::PrintBuffer {
+class UTF8Buffer : public vmkit::PrintBuffer {
 public:
   /// UTF8Buffer - Create a buffer with the following UTF8.
-  UTF8Buffer(const UTF8* val) : mvm::PrintBuffer(val) {}
+  UTF8Buffer(const UTF8* val) : vmkit::PrintBuffer(val) {}
 
   /// toCompileName - Change the utf8 following JNI conventions.
   ///

@@ -15,7 +15,7 @@
 
 #define gc_allocator std::allocator
 
-namespace mvm {
+namespace vmkit {
 
 class GCVirtualTable : public CommonVirtualTable {
 public:

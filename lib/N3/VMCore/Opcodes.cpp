@@ -104,7 +104,7 @@ static inline double readDouble(uint8* bytecode, uint32& i) {
 
 
 extern "C" void n3PrintExecution(char* opcode, VMMethod* meth) {
-  fprintf(stderr, "executing %s %s\n", mvm::PrintBuffer(meth).cString(), opcode);
+  fprintf(stderr, "executing %s %s\n", vmkit::PrintBuffer(meth).cString(), opcode);
 }
 
 
@@ -159,7 +159,7 @@ void convertValue(Value*& val, const Type* t1, BasicBlock* currentBlock) {
 }
 
 static void store(Value* val, Value* local, bool vol, 
-                  BasicBlock* currentBlock, mvm::BaseIntrinsics* module) {
+                  BasicBlock* currentBlock, vmkit::BaseIntrinsics* module) {
   const Type* contained = local->getType()->getContainedType(0);
   if (contained->isSingleValueType()) {
     if (val->getType() != contained) {
@@ -167,7 +167,7 @@ static void store(Value* val, Value* local, bool vol,
     }
     new StoreInst(val, local, vol, currentBlock);
   } else if (isa<PointerType>(val->getType())) {
-    uint64 size = mvm::MvmModule::getTypeSize(contained);
+    uint64 size = vmkit::MvmModule::getTypeSize(contained);
         
     std::vector<Value*> params;
     params.push_back(new BitCastInst(local, PointerType::getUnqual(Type::getInt8Ty(getGlobalContext())), "", currentBlock));
@@ -180,12 +180,12 @@ static void store(Value* val, Value* local, bool vol,
   }
 }
 
-static Value* load(Value* val, const char* name, BasicBlock* currentBlock, mvm::BaseIntrinsics* module) {
+static Value* load(Value* val, const char* name, BasicBlock* currentBlock, vmkit::BaseIntrinsics* module) {
   const Type* contained = val->getType()->getContainedType(0);
   if (contained->isSingleValueType()) {
     return new LoadInst(val, name, currentBlock);
   } else {
-    uint64 size = mvm::MvmModule::getTypeSize(contained);
+    uint64 size = vmkit::MvmModule::getTypeSize(contained);
     Value* ret = new AllocaInst(contained, "", currentBlock); 
     std::vector<Value*> params;
     params.push_back(new BitCastInst(ret, PointerType::getUnqual(Type::getInt8Ty(getGlobalContext())), "", currentBlock));
@@ -205,7 +205,7 @@ void CLIJit::compileOpcodes(uint8* bytecodes, uint32 codeLength, VMGenericClass*
     if (bytecodes[i] != 0xFE) {
       PRINT_DEBUG(N3_COMPILE, 1, COLOR_NORMAL, "\t[at %5x] %-5d ", i,
                   bytecodes[i]);
-      PRINT_DEBUG(N3_COMPILE, 1, LIGHT_BLUE, "compiling %s::", mvm::PrintBuffer(compilingMethod).cString());
+      PRINT_DEBUG(N3_COMPILE, 1, LIGHT_BLUE, "compiling %s::", vmkit::PrintBuffer(compilingMethod).cString());
       PRINT_DEBUG(N3_COMPILE, 1, LIGHT_CYAN, OpcodeNames[bytecodes[i]]);
       PRINT_DEBUG(N3_COMPILE, 1, LIGHT_BLUE, "\n");
     }
@@ -1303,7 +1303,7 @@ void CLIJit::compileOpcodes(uint8* bytecodes, uint32 codeLength, VMGenericClass*
         }
         
         
-        uint64 size = mvm::MvmModule::getTypeSize(type->naturalType);
+        uint64 size = vmkit::MvmModule::getTypeSize(type->naturalType);
         
         std::vector<Value*> params;
         params.push_back(new BitCastInst(ptr, PointerType::getUnqual(Type::getInt8Ty(getGlobalContext())), "", currentBlock));
@@ -1803,7 +1803,7 @@ void CLIJit::compileOpcodes(uint8* bytecodes, uint32 codeLength, VMGenericClass*
         Value* ptr = GetElementPtrInst::Create(obj, ptrs.begin(), ptrs.end(), "", 
                                            currentBlock);
 
-        uint64 size = mvm::MvmModule::getTypeSize(type->naturalType);
+        uint64 size = vmkit::MvmModule::getTypeSize(type->naturalType);
         
         std::vector<Value*> params;
         params.push_back(new BitCastInst(val, PointerType::getUnqual(Type::getInt8Ty(getGlobalContext())), "", currentBlock));
@@ -1825,7 +1825,7 @@ void CLIJit::compileOpcodes(uint8* bytecodes, uint32 codeLength, VMGenericClass*
       case 0xFE : {
         PRINT_DEBUG(N3_COMPILE, 1, COLOR_NORMAL, "\t[at %5x] %-5d ", i,
                     bytecodes[i + 1]);
-        PRINT_DEBUG(N3_COMPILE, 1, LIGHT_BLUE, "compiling %s::", mvm::PrintBuffer(compilingMethod).cString());
+        PRINT_DEBUG(N3_COMPILE, 1, LIGHT_BLUE, "compiling %s::", vmkit::PrintBuffer(compilingMethod).cString());
         PRINT_DEBUG(N3_COMPILE, 1, LIGHT_CYAN, OpcodeNamesFE[bytecodes[i + 1]]);
         PRINT_DEBUG(N3_COMPILE, 1, LIGHT_BLUE, "\n");
 
@@ -1953,7 +1953,7 @@ void CLIJit::compileOpcodes(uint8* bytecodes, uint32 codeLength, VMGenericClass*
             VMCommonClass* type = assembly->loadType(vm, token, true, false, false,
                                                      true, genClass, genMethod);
             if (type->super == MSCorlib::pValue) {
-              uint64 size = mvm::MvmModule::getTypeSize(type->naturalType);
+              uint64 size = vmkit::MvmModule::getTypeSize(type->naturalType);
         
               std::vector<Value*> params;
               params.push_back(new BitCastInst(pop(), module->ptrType, "",
@@ -2021,7 +2021,7 @@ void CLIJit::exploreOpcodes(uint8* bytecodes, uint32 codeLength) {
     if (bytecodes[i] != 0xFE) {
       PRINT_DEBUG(N3_COMPILE, 1, COLOR_NORMAL, "\t[at %5x] %-5d ", i,
                   bytecodes[i]);
-      PRINT_DEBUG(N3_COMPILE, 1, LIGHT_BLUE, "exploring %s::", mvm::PrintBuffer(compilingMethod).cString());
+      PRINT_DEBUG(N3_COMPILE, 1, LIGHT_BLUE, "exploring %s::", vmkit::PrintBuffer(compilingMethod).cString());
       PRINT_DEBUG(N3_COMPILE, 1, LIGHT_CYAN, OpcodeNames[bytecodes[i]]);
       PRINT_DEBUG(N3_COMPILE, 1, LIGHT_BLUE, "\n");
     }
@@ -2465,7 +2465,7 @@ void CLIJit::exploreOpcodes(uint8* bytecodes, uint32 codeLength) {
       
         PRINT_DEBUG(N3_COMPILE, 1, COLOR_NORMAL, "\t[at %5x] %-5d ", i,
                     bytecodes[i + 1]);
-        PRINT_DEBUG(N3_COMPILE, 1, LIGHT_BLUE, "exploring %s::", mvm::PrintBuffer(compilingMethod).cString());
+        PRINT_DEBUG(N3_COMPILE, 1, LIGHT_BLUE, "exploring %s::", vmkit::PrintBuffer(compilingMethod).cString());
         PRINT_DEBUG(N3_COMPILE, 1, LIGHT_CYAN, OpcodeNamesFE[bytecodes[i + 1]]);
         PRINT_DEBUG(N3_COMPILE, 1, LIGHT_BLUE, "\n");
       

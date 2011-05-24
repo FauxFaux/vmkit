@@ -7,28 +7,28 @@ namespace p3 {
 
 class P3Reader;
 
-class P3 : public mvm::VirtualMachine {
+class P3 : public vmkit::VirtualMachine {
 public:
   /// P3 - default constructor
   ///
-	P3(mvm::BumpPtrAllocator& alloc, mvm::VMKit* vmkit);
+	P3(vmkit::BumpPtrAllocator& alloc, vmkit::VMKit* vmkit);
 
 
   /// finalizeObject - invoke the finalizer of an object
   ///
-	virtual void finalizeObject(mvm::gc* obj);
+	virtual void finalizeObject(vmkit::gc* obj);
 
   /// getReferentPtr - return the referent of a reference
   ///
-	virtual mvm::gc** getReferent(mvm::gc* ref);
+	virtual vmkit::gc** getReferent(vmkit::gc* ref);
 
   /// setReferentPtr - set the referent of a reference
   ///
-	virtual void setReferent(mvm::gc* ref, mvm::gc* val);
+	virtual void setReferent(vmkit::gc* ref, vmkit::gc* val);
 
   /// enqueueReference - enqueue the reference
   ///
-	virtual bool enqueueReference(mvm::gc* _obj);
+	virtual bool enqueueReference(vmkit::gc* _obj);
 
   /// tracer - Trace this virtual machine's GC-objects. 
 	///    Called once by vm. If you have GC-objects in a thread specific data, redefine the tracer of your VMThreadData.
@@ -37,12 +37,12 @@ public:
 
   /// getObjectSize - Get the size of this object. Used by copying collectors.
   ///
-  virtual size_t getObjectSize(mvm::gc* object);
+  virtual size_t getObjectSize(vmkit::gc* object);
 
   /// getObjectTypeName - Get the type of this object. Used by the GC for
   /// debugging purposes.
   ///
-  virtual const char* getObjectTypeName(mvm::gc* object);
+  virtual const char* getObjectTypeName(vmkit::gc* object);
 
 	/// runApplicationImpl - code executed after a runApplication in a vmkit thread
 	///

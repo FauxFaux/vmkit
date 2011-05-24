@@ -78,7 +78,7 @@ struct ltarray16
 
 template<class Key, class Container, class Compare, class Meta, class TLock,
          class IsGC>
-class LockedMap : public mvm::PermanentObject {
+class LockedMap : public vmkit::PermanentObject {
 public:
   typedef typename std::map<const Key, Container, Compare>::iterator iterator;
   typedef Container (*funcCreate)(Key& V, Meta meta);
@@ -152,11 +152,11 @@ public:
 
 class ClassMap : 
   public LockedMap<const UTF8*, UserCommonClass*, ltutf8, JnjvmClassLoader*,
-                   mvm::LockRecursive, MapNoGC > {
+                   vmkit::LockRecursive, MapNoGC > {
 
 #ifdef USE_GC_BOEHM
 public:
-  void* operator new(size_t sz, mvm::BumpPtrAllocator& allocator) {
+  void* operator new(size_t sz, vmkit::BumpPtrAllocator& allocator) {
     return GC_MALLOC(sz);
   }
 #endif
@@ -164,16 +164,16 @@ public:
 
 class StringMap :
   public LockedMap<const ArrayUInt16*, JavaString*, ltarray16, Jnjvm*,
-                   mvm::LockNormal, MapWithGC> {
+                   vmkit::LockNormal, MapWithGC> {
 
 public:
   void insert(JavaString* str);
 
 };
 
-class TypeMap : public mvm::PermanentObject {
+class TypeMap : public vmkit::PermanentObject {
 public:
-  mvm::LockNormal lock;
+  vmkit::LockNormal lock;
   
   std::map<const UTF8*, Typedef*, ltutf8> map;
   typedef std::map<const UTF8*, Typedef*, ltutf8>::iterator iterator;
@@ -189,9 +189,9 @@ public:
   }
 };
 
-class SignMap : public mvm::PermanentObject {
+class SignMap : public vmkit::PermanentObject {
 public:
-  mvm::LockNormal lock;
+  vmkit::LockNormal lock;
   
   std::map<const UTF8*, Signdef*, ltutf8> map;
   typedef std::map<const UTF8*, Signdef*, ltutf8>::iterator iterator;

@@ -18,15 +18,15 @@
 
 
 #if 0
-#define dprintf(...) do { printf("[%p] CollectionRV: ", (void*)mvm::Thread::get()); printf(__VA_ARGS__); } while(0)
+#define dprintf(...) do { printf("[%p] CollectionRV: ", (void*)vmkit::Thread::get()); printf(__VA_ARGS__); } while(0)
 #else
 #define dprintf(...)
 #endif
 
-using namespace mvm;
+using namespace vmkit;
 
 void CollectionRV::another_mark() {
-	VMKit *vmkit = mvm::Thread::get()->vmkit;
+	VMKit *vmkit = vmkit::Thread::get()->vmkit;
   assert(th->getLastSP() != NULL);
   assert(nbJoined < vmkit->NumberOfThreads);
   nbJoined++;
@@ -37,7 +37,7 @@ void CollectionRV::another_mark() {
 }
 
 void CollectionRV::waitEndOfRV() {
-  mvm::Thread* th = mvm::Thread::get();
+  vmkit::Thread* th = vmkit::Thread::get();
   assert(th->getLastSP() != NULL);
 
   while (th->doYield) {
@@ -49,7 +49,7 @@ void CollectionRV::waitRV() {
   // Add myself.
   nbJoined++;
 
-  while (nbJoined != mvm::Thread::get()->vmkit->numberOfRunningThreads) {
+  while (nbJoined != vmkit::Thread::get()->vmkit->numberOfRunningThreads) {
     condInitiator.wait(&_lockRV);
   } 
 }
@@ -57,10 +57,10 @@ void CollectionRV::waitRV() {
 void CooperativeCollectionRV::synchronize() {
 	dprintf("synchronize\n");
   assert(nbJoined == 0);
-  mvm::Thread* self = mvm::Thread::get();
+  vmkit::Thread* self = vmkit::Thread::get();
   // Lock thread lock, so that we can traverse the thread list safely. This will
   // be released on finishRV.
-	mvm::VMKit* vmkit = self->vmkit;
+	vmkit::VMKit* vmkit = self->vmkit;
 
   assert(initiator == NULL);
   initiator = self;
@@ -98,8 +98,8 @@ void CooperativeCollectionRV::synchronize() {
 
 void UncooperativeCollectionRV::synchronize() { 
   assert(nbJoined == 0);
-  mvm::Thread* self = mvm::Thread::get();
-	mvm::VMKit* vmkit = self->vmkit;
+  vmkit::Thread* self = vmkit::Thread::get();
+	vmkit::VMKit* vmkit = self->vmkit;
 
   // Lock thread lock, so that we can traverse the thread list safely. This will
   // be released on finishRV.
@@ -123,7 +123,7 @@ void UncooperativeCollectionRV::synchronize() {
 
 
 void UncooperativeCollectionRV::join() {
-  mvm::Thread* th = mvm::Thread::get();
+  vmkit::Thread* th = vmkit::Thread::get();
   th->inRV = true;
 
   lockRV();
@@ -138,7 +138,7 @@ void UncooperativeCollectionRV::join() {
 }
 
 void CooperativeCollectionRV::join() {
-  mvm::Thread* th = mvm::Thread::get();
+  vmkit::Thread* th = vmkit::Thread::get();
   assert(th->doYield && "No yield");
   assert((th->getLastSP() == NULL) && "SP present in cooperative code");
 
@@ -156,7 +156,7 @@ void CooperativeCollectionRV::join() {
 }
 
 void CooperativeCollectionRV::joinBeforeUncooperative() {
-  mvm::Thread* th = mvm::Thread::get();
+  vmkit::Thread* th = vmkit::Thread::get();
   assert((th->getLastSP() != NULL) &&
          "SP not set before entering uncooperative code");
 
@@ -176,7 +176,7 @@ void CooperativeCollectionRV::joinBeforeUncooperative() {
 }
 
 void CooperativeCollectionRV::joinAfterUncooperative(void* SP) {
-  mvm::Thread* th = mvm::Thread::get();
+  vmkit::Thread* th = vmkit::Thread::get();
   assert((th->getLastSP() == NULL) &&
          "SP set after entering uncooperative code");
 
@@ -198,17 +198,17 @@ void CooperativeCollectionRV::joinAfterUncooperative(void* SP) {
 }
 
 extern "C" void conditionalSafePoint() {
-  mvm::Thread* th = mvm::Thread::get();
+  vmkit::Thread* th = vmkit::Thread::get();
   th->vmkit->rendezvous.join();
 }
 
 void CooperativeCollectionRV::finishRV() {
   lockRV();
   
-  assert(mvm::Thread::get() == initiator);
-	mvm::VMKit* vmkit = initiator->vmkit;
+  assert(vmkit::Thread::get() == initiator);
+	vmkit::VMKit* vmkit = initiator->vmkit;
 
-  for(mvm::Thread* cur=vmkit->runningThreads.next(); cur!=&vmkit->runningThreads; cur=cur->next()) {
+  for(vmkit::Thread* cur=vmkit->runningThreads.next(); cur!=&vmkit->runningThreads; cur=cur->next()) {
     assert(cur->doYield && "Inconsistent state");
     assert(cur->joinedRV && "Inconsistent state");
     cur->doYield = false;
@@ -222,7 +222,7 @@ void CooperativeCollectionRV::finishRV() {
   condEndRV.broadcast();
   initiator = NULL;
   unlockRV();
-  mvm::Thread::get()->inRV = false;
+  vmkit::Thread::get()->inRV = false;
 }
 
 void CooperativeCollectionRV::prepareForJoin() {
@@ -231,7 +231,7 @@ void CooperativeCollectionRV::prepareForJoin() {
 
 void UncooperativeCollectionRV::finishRV() {
   lockRV();
-  mvm::Thread* initiator = mvm::Thread::get();
+  vmkit::Thread* initiator = vmkit::Thread::get();
   assert(nbJoined == initiator->vmkit->NumberOfThreads && "Inconsistent state");
   nbJoined = 0;
   condEndRV.broadcast();
@@ -248,7 +248,7 @@ void UncooperativeCollectionRV::joinBeforeUncooperative() {
 }
 
 static void siggcHandler(int) {
-  mvm::Thread* th = mvm::Thread::get();
+  vmkit::Thread* th = vmkit::Thread::get();
   th->vmkit->rendezvous.join();
 }
 

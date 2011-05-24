@@ -34,7 +34,7 @@
 using namespace n3;
 
 N3* N3::bootstrapVM = 0;
-mvm::Lock* VMObject::globalLock = 0;
+vmkit::Lock* VMObject::globalLock = 0;
 
 VMCommonClass*         VMClassArray::SuperArray = 0;
 std::vector<VMClass*>  VMClassArray::InterfacesArray;
@@ -142,7 +142,7 @@ VMThread* VMThread::TheThread = 0;
 static void initialiseStatics() {
   CLIJit::initialise();
 
-  VMObject::globalLock = new mvm::LockNormal();
+  VMObject::globalLock = new vmkit::LockNormal();
 
   N3* vm = N3::bootstrapVM = N3::allocateBootstrap();
   VMThread::TheThread = new VMThread(0, vm);
@@ -229,7 +229,7 @@ static void initialiseStatics() {
 }
 
 
-mvm::CompilationUnit* mvm::VirtualMachine::initialiseCLIVM() {
+vmkit::CompilationUnit* vmkit::VirtualMachine::initialiseCLIVM() {
   if (!N3::bootstrapVM) {
     initialiseVT();
     initialiseStatics();
@@ -245,7 +245,7 @@ void N3::compile(const char* argv) {
   assert(0 && "This virtual machine does not perform static compilation yet!\n");
 }
 
-mvm::VirtualMachine* mvm::VirtualMachine::createCLIVM(mvm::CompilationUnit* C) {
+vmkit::VirtualMachine* vmkit::VirtualMachine::createCLIVM(vmkit::CompilationUnit* C) {
   N3* vm = N3::allocate("", N3::bootstrapVM);
   return vm;
 }

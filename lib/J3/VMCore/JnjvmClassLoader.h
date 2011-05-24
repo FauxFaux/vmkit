@@ -51,7 +51,7 @@ class ZipArchive;
 /// its own tables (signatures, UTF8, types) which are mapped to a single
 /// table for non-isolate environments.
 ///
-class JnjvmClassLoader : public mvm::PermanentObject {
+class JnjvmClassLoader : public vmkit::PermanentObject {
 public:
   /// vm - my vm
   ///
@@ -76,7 +76,7 @@ private:
   /// JnjvmClassLoader - Allocate a user-defined class loader. Called on
   /// first use of a Java class loader.
   ///
-  JnjvmClassLoader(mvm::BumpPtrAllocator& Alloc, JavaObject* loader, VMClassLoader* vmdata, Jnjvm* vm);
+  JnjvmClassLoader(vmkit::BumpPtrAllocator& Alloc, JavaObject* loader, VMClassLoader* vmdata, Jnjvm* vm);
 
   /// lookupComponentName - Try to find the component name of the given array
   /// name. If the component name is not in the table of UTF8s and holder
@@ -87,7 +87,7 @@ private:
 protected:
   
 	friend class Jnjvm;
-  JnjvmClassLoader(mvm::BumpPtrAllocator& Alloc, Jnjvm* v) : allocator(Alloc) { vm = v; }
+  JnjvmClassLoader(vmkit::BumpPtrAllocator& Alloc, Jnjvm* v) : allocator(Alloc) { vm = v; }
   
   /// TheCompiler - The Java compiler for this class loader.
   ///
@@ -107,14 +107,14 @@ protected:
 
   /// lock - Lock when loading classes.
   ///
-  mvm::LockRecursive lock;
+  vmkit::LockRecursive lock;
 
 public:
   
   /// allocator - Reference to the memory allocator, which will allocate UTF8s,
   /// signatures and types.
   ///
-  mvm::BumpPtrAllocator& allocator;
+  vmkit::BumpPtrAllocator& allocator;
  
   /// getClasses - Returns the classes this class loader has loaded.
   ///
@@ -343,7 +343,7 @@ public:
   /// createBootstrapLoader - Creates the bootstrap loader, first thing
   /// to do before any execution of a JVM. 
   ///
-  JnjvmBootstrapLoader(mvm::BumpPtrAllocator& Alloc, Jnjvm* vm, JavaCompiler* Comp);
+  JnjvmBootstrapLoader(vmkit::BumpPtrAllocator& Alloc, Jnjvm* vm, JavaCompiler* Comp);
   
   /// nativeHandle - Non-null handle if boot classes were static compiled in
   /// a dynamic library
@@ -406,7 +406,7 @@ public:
 
 #define MAXIMUM_STRINGS 100
 
-class StringList : public mvm::PermanentObject {
+class StringList : public vmkit::PermanentObject {
   friend class JnjvmClassLoader;
   friend class Jnjvm;
 
@@ -430,7 +430,7 @@ public:
       return next->addString(JCL, obj);
     } else {
       JCL->lock.lock();
-      mvm::Collector::objectReferenceNonHeapWriteBarrier((mvm::gc**)&(strings[length]), (mvm::gc*)obj);
+      vmkit::Collector::objectReferenceNonHeapWriteBarrier((vmkit::gc**)&(strings[length]), (vmkit::gc*)obj);
       JavaString** res = &strings[length++];
       JCL->lock.unlock();
       return res;

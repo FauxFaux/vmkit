@@ -14,7 +14,7 @@
 #include <csignal>
 #include <cstdio>
 
-using namespace mvm;
+using namespace vmkit;
 
 #if defined(__MACH__) && defined(__i386__)
 #include "ucontext.h"
@@ -46,7 +46,7 @@ void sigsegvHandler(int n, siginfo_t *_info, void *context) {
 #endif
 #endif
 
-  mvm::Thread* th = mvm::Thread::get();
+  vmkit::Thread* th = vmkit::Thread::get();
   if (addr > (uintptr_t)th->getThreadID() && addr < (uintptr_t)th->baseSP) {
     fprintf(stderr, "Stack overflow in VM code or in JNI code. If it is from\n"
                     "the VM, it is either from the JIT, the GC or the runtime."

@@ -17,18 +17,18 @@
 #include <cassert>
 #include <map>
 
-namespace mvm {
+namespace vmkit {
 
 /// VirtualMachine - This class is the root of virtual machine classes. It
 /// defines what a VM should be.
 ///
-class VirtualMachine : public mvm::PermanentObject {
+class VirtualMachine : public vmkit::PermanentObject {
 private:
 	friend class VMKit;
-	VirtualMachine(mvm::BumpPtrAllocator &Alloc) : allocator(Alloc) {}
+	VirtualMachine(vmkit::BumpPtrAllocator &Alloc) : allocator(Alloc) {}
 
 protected:
-  VirtualMachine(mvm::BumpPtrAllocator &Alloc, mvm::VMKit* vmk);
+  VirtualMachine(vmkit::BumpPtrAllocator &Alloc, vmkit::VMKit* vmk);
 
 public:
   virtual ~VirtualMachine();
@@ -36,11 +36,11 @@ public:
   /// allocator - Bump pointer allocator to allocate permanent memory
   /// related to this VM.
   ///
-  mvm::BumpPtrAllocator& allocator;
+  vmkit::BumpPtrAllocator& allocator;
 
 	/// vmkit - a pointer to vmkit that contains information on all the vms
 	///
-	mvm::VMKit* vmkit;
+	vmkit::VMKit* vmkit;
 
 	/// vmID - id of the vm
 	size_t vmID;
@@ -77,19 +77,19 @@ public:
 
   /// finalizeObject - invoke the finalizer of a java object
   ///
-	virtual void finalizeObject(mvm::gc* obj) = 0;
+	virtual void finalizeObject(vmkit::gc* obj) = 0;
 
   /// getReferentPtr - return the referent of a reference
   ///
-	virtual mvm::gc** getReferent(mvm::gc* ref) = 0;
+	virtual vmkit::gc** getReferent(vmkit::gc* ref) = 0;
 
   /// setReferentPtr - set the referent of a reference
   ///
-	virtual void setReferent(mvm::gc* ref, mvm::gc* val) = 0;
+	virtual void setReferent(vmkit::gc* ref, vmkit::gc* val) = 0;
 
   /// enqueueReference - enqueue the reference
   ///
-	virtual bool enqueueReference(mvm::gc* _obj) = 0;
+	virtual bool enqueueReference(vmkit::gc* _obj) = 0;
 
   /// tracer - Trace this virtual machine's GC-objects. 
 	///    Called once by vm. If you have GC-objects in a thread specific data, redefine the tracer of your VMThreadData.
@@ -106,5 +106,5 @@ public:
   virtual const char* getObjectTypeName(gc* object) { return "An object"; }
 };
 
-} // end namespace mvm
+} // end namespace vmkit
 #endif // MVM_VIRTUALMACHINE_H

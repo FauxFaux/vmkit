@@ -282,7 +282,7 @@ llvm::Function* JavaJIT::nativeCompile(intptr_t natPtr) {
   sint32 mnlen = jniConsName->size;
   sint32 mtlen = jniConsType->size;
 
-  mvm::ThreadAllocator allocator;
+  vmkit::ThreadAllocator allocator;
   char* functionName = (char*)allocator.Allocate(
       3 + JNI_NAME_PRE_LEN + ((mnlen + clen + mtlen) << 3));
   
@@ -350,7 +350,7 @@ llvm::Function* JavaJIT::nativeCompile(intptr_t natPtr) {
   Value* oldCLIN = new AllocaInst(PointerType::getUnqual(Type::getInt32Ty(*llvmContext)), "",
                                   currentBlock);
   
-  Constant* sizeF = ConstantInt::get(Type::getInt32Ty(*llvmContext), sizeof(mvm::KnownFrame));
+  Constant* sizeF = ConstantInt::get(Type::getInt32Ty(*llvmContext), sizeof(vmkit::KnownFrame));
   Value* Frame = new AllocaInst(Type::getInt8Ty(*llvmContext), sizeF, "", currentBlock);
   
   uint32 nargs = func->arg_size() + 1 + (stat ? 1 : 0); 
@@ -531,7 +531,7 @@ void JavaJIT::monitorEnter(Value* obj) {
   Value* lock = new LoadInst(lockPtr, "", currentBlock);
   lock = new PtrToIntInst(lock, intrinsics->pointerSizeType, "", currentBlock);
   Value* NonLockBitsMask = ConstantInt::get(intrinsics->pointerSizeType,
-                                            mvm::ThinLock::NonLockBitsMask);
+                                            vmkit::ThinLock::NonLockBitsMask);
 
   lock = BinaryOperator::CreateAnd(lock, NonLockBitsMask, "", currentBlock);
 
@@ -581,7 +581,7 @@ void JavaJIT::monitorExit(Value* obj) {
                             "", currentBlock);
   Value* lock = new LoadInst(lockPtr, "", currentBlock);
   Value* NonLockBitsMask = ConstantInt::get(
-      intrinsics->pointerSizeType, mvm::ThinLock::NonLockBitsMask);
+      intrinsics->pointerSizeType, vmkit::ThinLock::NonLockBitsMask);
 
   Value* lockedMask = BinaryOperator::CreateAnd(
       lock, NonLockBitsMask, "", currentBlock);
@@ -1293,7 +1293,7 @@ Value* JavaJIT::verifyAndComputePtr(Value* obj, Value* index,
 void JavaJIT::makeArgs(FunctionType::param_iterator it,
                        uint32 index, std::vector<Value*>& Args, uint32 nb) {
   Args.reserve(nb + 2);
-  mvm::ThreadAllocator threadAllocator;
+  vmkit::ThreadAllocator threadAllocator;
   Value** args = (Value**)threadAllocator.Allocate(nb*sizeof(Value*));
   sint32 start = nb - 1;
   for (sint32 i = start; i >= 0; --i) {
@@ -1826,7 +1826,7 @@ void JavaJIT::setStaticField(uint16 index) {
     convertValue(val, type, currentBlock, false);
   }
   
-  if (mvm::Collector::needsNonHeapWriteBarrier() && type == intrinsics->JavaObjectType) {
+  if (vmkit::Collector::needsNonHeapWriteBarrier() && type == intrinsics->JavaObjectType) {
     ptr = new BitCastInst(ptr, intrinsics->ptrPtrType, "", currentBlock);
     val = new BitCastInst(val, intrinsics->ptrType, "", currentBlock);
     Value* args[2] = { ptr, val };
@@ -1883,7 +1883,7 @@ void JavaJIT::getStaticField(uint16 index) {
           JavaObject* val = field->getStaticObjectField();
           JnjvmClassLoader* JCL = field->classDef->classLoader;
           Value* V = TheCompiler->getFinalObject(val, sign->assocClass(JCL));
-          CommonClass* cl = mvm::Collector::begOf(val) ?
+          CommonClass* cl = vmkit::Collector::begOf(val) ?
               JavaObject::getClass(val) : NULL;
           push(V, false, cl);
         } else {
@@ -1931,7 +1931,7 @@ void JavaJIT::setVirtualField(uint16 index) {
     convertValue(val, type, currentBlock, false);
   }
   
-  if (mvm::Collector::needsWriteBarrier() && type == intrinsics->JavaObjectType) {
+  if (vmkit::Collector::needsWriteBarrier() && type == intrinsics->JavaObjectType) {
     ptr = new BitCastInst(ptr, intrinsics->ptrPtrType, "", currentBlock);
     val = new BitCastInst(val, intrinsics->ptrType, "", currentBlock);
     object = new LoadInst(object, "", currentBlock);

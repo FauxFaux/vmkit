@@ -60,7 +60,7 @@ JavaObject* src) {
         if (field.isReference()) {
           tmp = field.getInstanceObjectField(src);
           JavaObject** ptr = field.getInstanceObjectFieldPtr(res);
-          mvm::Collector::objectReferenceWriteBarrier((mvm::gc*)res, (mvm::gc**)ptr, (mvm::gc*)tmp);
+          vmkit::Collector::objectReferenceWriteBarrier((vmkit::gc*)res, (vmkit::gc**)ptr, (vmkit::gc*)tmp);
         } else if (field.isLong()) {
           field.setInstanceLongField(res, field.getInstanceLongField(src));
         } else if (field.isDouble()) {

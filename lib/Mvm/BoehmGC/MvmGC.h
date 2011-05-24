@@ -23,7 +23,7 @@
 #define MARK_AND_TRACE markAndTrace()
 #define CALL_TRACER tracer()
 
-namespace mvm {
+namespace vmkit {
     class Thread;
 }
 
@@ -32,7 +32,7 @@ extern "C" void * GC_dlopen(const char *path, int mode) throw ();
 #define  gc_new(Class)  __gc_new(Class::VT) Class
 #define __gc_new new
 
-namespace mvm {
+namespace vmkit {
 class collectable : public gcRoot {
 public:
 
@@ -100,9 +100,9 @@ public:
     GC_gcollect();
   }
   
-  static void inject_my_thread(mvm::Thread*);
+  static void inject_my_thread(vmkit::Thread*);
   
-  static void remove_my_thread(mvm::Thread*) {}
+  static void remove_my_thread(vmkit::Thread*) {}
   static Collector* allocate() { return 0; }
 
   static gc* begOf(const void *obj) {

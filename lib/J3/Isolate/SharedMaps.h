@@ -31,7 +31,7 @@ public:
   static VirtualTable* VT;
   
   SharedClassByteMap() {
-    lock = mvm::Lock::allocNormal();
+    lock = vmkit::Lock::allocNormal();
   }
 
   ~SharedClassByteMap() {
@@ -47,7 +47,7 @@ class SharedClassNameMap :
 public:
   
   SharedClassNameMap() {
-    lock = mvm::Lock::allocNormal();
+    lock = vmkit::Lock::allocNormal();
   }
 
   ~SharedClassNameMap() {

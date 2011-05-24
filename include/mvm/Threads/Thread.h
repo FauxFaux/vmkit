@@ -20,21 +20,21 @@
 #ifdef RUNTIME_DWARF_EXCEPTIONS
   #define TRY try
   #define CATCH catch(...)
-  #define IGNORE catch(...) { mvm::Thread::get()->clearPendingException(); }
+  #define IGNORE catch(...) { vmkit::Thread::get()->clearPendingException(); }
   #define END_CATCH
 #else
   #include <csetjmp>
   #if defined(__MACH__)
-    #define TRY { mvm::ExceptionBuffer __buffer__; if (!_setjmp(__buffer__.buffer))
+    #define TRY { vmkit::ExceptionBuffer __buffer__; if (!_setjmp(__buffer__.buffer))
   #else
-    #define TRY { mvm::ExceptionBuffer __buffer__; if (!setjmp(__buffer__.buffer))
+    #define TRY { vmkit::ExceptionBuffer __buffer__; if (!setjmp(__buffer__.buffer))
   #endif
   #define CATCH else
-  #define IGNORE else { mvm::Thread::get()->clearPendingException(); }}
+  #define IGNORE else { vmkit::Thread::get()->clearPendingException(); }}
   #define END_CATCH }
 #endif
 
-namespace mvm {
+namespace vmkit {
 
 class gc;
 class MethodInfo;
@@ -178,7 +178,7 @@ public:
 	gc* pendingException;                                  // 4 - intrinsic
   
 	/// vmkit - a (shortcut) pointer to vmkit that contains information of all the vms
-	mvm::VMKit* vmkit;                                     // 5
+	vmkit::VMKit* vmkit;                                     // 5
 
   /// baseSP - The base stack pointer.
   void* baseSP;                                          // 6
@@ -200,7 +200,7 @@ private:
 
 public:
   /// routine - The function to invoke when the thread starts.
-  void (*routine)(mvm::Thread*);                         // 11
+  void (*routine)(vmkit::Thread*);                         // 11
 
   /// lastKnownFrame - The last frame that we know of, before resuming to JNI.
   KnownFrame* lastKnownFrame;                            // 12
@@ -249,7 +249,7 @@ public:
   
   /// start - Start the execution of a thread.
   ///
-  virtual int start(void (*fct)(mvm::Thread*));
+  virtual int start(void (*fct)(vmkit::Thread*));
   
   uint64_t getThreadID() {
     return (uint64_t)this;
@@ -266,7 +266,7 @@ private:
   /// internalThreadStart - The implementation sepcific thread starter
   /// function.
   ///
-  static void internalThreadStart(mvm::Thread* th);
+  static void internalThreadStart(vmkit::Thread* th);
 
 public:
  
@@ -401,9 +401,9 @@ public:
   void** addr;
   void*  ip;
   KnownFrame* frame;
-  mvm::Thread* thread;
+  vmkit::Thread* thread;
 
-  StackWalker(mvm::Thread* th) __attribute__ ((noinline));
+  StackWalker(vmkit::Thread* th) __attribute__ ((noinline));
   void operator++();
   void* operator*();
   MethodInfo* get();
@@ -411,5 +411,5 @@ public:
 };
 
 
-} // end namespace mvm
+} // end namespace vmkit
 #endif // MVM_THREAD_H

@@ -16,7 +16,7 @@
 
 #include "mvm/Threads/Thread.h"
 
-namespace mvm {
+namespace vmkit {
 
 class gc;
 
@@ -39,7 +39,7 @@ private:
 protected:
   /// owner - Which thread is currently holding the lock?
   ///
-  mvm::Thread* owner;
+  vmkit::Thread* owner;
 
   /// internalLock - The lock implementation of the platform.
   ///
@@ -69,7 +69,7 @@ public:
 
   /// getOwner - Get the thread that is holding the lock.
   ///
-  mvm::Thread* getOwner();
+  vmkit::Thread* getOwner();
   
 };
 
@@ -78,7 +78,7 @@ class LockNormal : public Lock {
   friend class Cond;
 private:
   virtual void unsafeLock(int n) {
-    owner = mvm::Thread::get();
+    owner = vmkit::Thread::get();
   }
   
   virtual int unsafeUnlock() {
@@ -104,7 +104,7 @@ private:
 
   virtual void unsafeLock(int a) {
     n = a;
-    owner = mvm::Thread::get();
+    owner = vmkit::Thread::get();
   }
   
   virtual int unsafeUnlock() {
@@ -159,7 +159,7 @@ public:
     }
     
     while (__sync_val_compare_and_swap(&locked, 0, 1))
-      mvm::Thread::yield();
+      vmkit::Thread::yield();
   }
 
   void lock() { acquire(); }
@@ -173,6 +173,6 @@ public:
 };
 
 
-} // end namespace mvm
+} // end namespace vmkit
 
 #endif // MVM_LOCKS_H

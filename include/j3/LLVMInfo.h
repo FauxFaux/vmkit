@@ -36,7 +36,7 @@ public:
   uint8_t logSizeInBytesConstant;
 };
 
-class LLVMClassInfo : public mvm::JITInfo {
+class LLVMClassInfo : public vmkit::JITInfo {
   friend class JavaAOTCompiler;
   friend class JavaJITCompiler;
   friend class JavaLLVMCompiler;
@@ -75,7 +75,7 @@ public:
   }
 };
 
-class LLVMMethodInfo : public mvm::JITInfo {
+class LLVMMethodInfo : public vmkit::JITInfo {
 private:
   /// Compiler - The compiler for this method info.
   JavaLLVMCompiler* Compiler;
@@ -108,7 +108,7 @@ public:
 };
 
 
-class LLVMFieldInfo : public mvm::JITInfo {
+class LLVMFieldInfo : public vmkit::JITInfo {
 private:
   /// Compiler - The compiler for this field info.
   JavaLLVMCompiler* Compiler;
@@ -130,7 +130,7 @@ public:
   }
 };
 
-class LLVMSignatureInfo : public mvm::JITInfo {
+class LLVMSignatureInfo : public vmkit::JITInfo {
 private:
   /// Compiler - The compiler for this signature info.
   JavaLLVMCompiler* Compiler;

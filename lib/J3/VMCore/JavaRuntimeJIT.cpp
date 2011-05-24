@@ -53,7 +53,7 @@ extern "C" void* j3InterfaceLookup(UserClass* caller, uint32 index) {
   // exception check. Therefore, we trick LLVM to check the return value of the
   // function.
 #define hack_check(type)																							\
-		mvm::gc* obj = mvm::Thread::get()->getPendingException();					\
+		vmkit::gc* obj = vmkit::Thread::get()->getPendingException();					\
 		if (obj) return (type)obj;
 
 	hack_check(void*);
@@ -281,7 +281,7 @@ extern "C" JavaObject* j3MultiCallNew(UserClassArray* cl, uint32 len, ...) {
 
   va_list ap;
   va_start(ap, len);
-  mvm::ThreadAllocator allocator;
+  vmkit::ThreadAllocator allocator;
   sint32* dims = (sint32*)allocator.Allocate(sizeof(sint32) * len);
   for (uint32 i = 0; i < len; ++i){
     dims[i] = va_arg(ap, int);
@@ -331,15 +331,15 @@ extern "C" void j3EndJNI(uint32** oldLRN) {
 
 extern "C" void* j3StartJNI(uint32* localReferencesNumber,
                             uint32** oldLocalReferencesNumber,
-                            mvm::KnownFrame* Frame) 
+                            vmkit::KnownFrame* Frame) 
   __attribute__((noinline));
 
 // Never throws. Does not call Java code. Can not yied a GC.
 extern "C" void* j3StartJNI(uint32* localReferencesNumber,
                             uint32** oldLocalReferencesNumber,
-                            mvm::KnownFrame* Frame) {
+                            vmkit::KnownFrame* Frame) {
 
-	mvm::Thread* mut = mvm::Thread::get();
+	vmkit::Thread* mut = vmkit::Thread::get();
   JavaThread* th   = JavaThread::j3Thread(mut);
  
   *oldLocalReferencesNumber = th->currentAddedReferences;
@@ -367,7 +367,7 @@ extern "C" void j3JavaObjectRelease(JavaObject* obj) {
 // Does not call any Java code. Can not yield a GC.
 extern "C" void j3ThrowException(JavaObject* obj) {
   llvm_gcroot(obj, 0);
-  return mvm::Thread::get()->setPendingException(obj)->throwIt();
+  return vmkit::Thread::get()->setPendingException(obj)->throwIt();
 }
 
 // Creates a Java object and then throws it.
@@ -556,16 +556,16 @@ extern "C" void* j3StringLookup(UserClass* cl, uint32 index) {
 
 extern "C" void* j3ResolveVirtualStub(JavaObject* obj) {
   llvm_gcroot(obj, 0);
-	mvm::Thread *mut = mvm::Thread::get();
+	vmkit::Thread *mut = vmkit::Thread::get();
   UserCommonClass* cl = JavaObject::getClass(obj);
   void* result = NULL;
   
   BEGIN_NATIVE_EXCEPTION(1)
 
   // Lookup the caller of this class.
-  mvm::StackWalker Walker(mut);
+  vmkit::StackWalker Walker(mut);
   ++Walker; // Remove the stub.
-  mvm::MethodInfo* MI = Walker.get();
+  vmkit::MethodInfo* MI = Walker.get();
   assert(MI->isHighLevelMethod() && "Wrong stack trace");
   JavaMethod* meth = (JavaMethod*)MI->MetaInfo;
   void* ip = *Walker;
@@ -618,15 +618,15 @@ extern "C" void* j3ResolveVirtualStub(JavaObject* obj) {
 }
 
 extern "C" void* j3ResolveStaticStub() {
-	mvm::Thread *mut = mvm::Thread::get();
+	vmkit::Thread *mut = vmkit::Thread::get();
   void* result = NULL;
   
   BEGIN_NATIVE_EXCEPTION(1)
 
   // Lookup the caller of this class.
-  mvm::StackWalker Walker(mut);
+  vmkit::StackWalker Walker(mut);
   ++Walker; // Remove the stub.
-  mvm::MethodInfo* MI = Walker.get();
+  vmkit::MethodInfo* MI = Walker.get();
   assert(MI->isHighLevelMethod() && "Wrong stack trace");
   JavaMethod* caller = (JavaMethod*)MI->MetaInfo;
   void* ip = *Walker;
@@ -656,15 +656,15 @@ extern "C" void* j3ResolveStaticStub() {
 }
 
 extern "C" void* j3ResolveSpecialStub() {
-	mvm::Thread *mut = mvm::Thread::get();
+	vmkit::Thread *mut = vmkit::Thread::get();
   void* result = NULL;
   
   BEGIN_NATIVE_EXCEPTION(1)
 
   // Lookup the caller of this class.
-  mvm::StackWalker Walker(mut);
+  vmkit::StackWalker Walker(mut);
   ++Walker; // Remove the stub.
-  mvm::MethodInfo* MI = Walker.get();
+  vmkit::MethodInfo* MI = Walker.get();
   assert(MI->isHighLevelMethod() && "Wrong stack trace");
   JavaMethod* caller = (JavaMethod*)MI->MetaInfo;
   void* ip = *Walker;
@@ -720,20 +720,20 @@ extern "C" void* j3ResolveInterface(JavaObject* obj, JavaMethod* meth, uint32_t 
 }
 
 extern "C" void j3PrintMethodStart(JavaMethod* meth) {
-  fprintf(stderr, "[%p] executing %s.%s\n", (void*)mvm::Thread::get(),
+  fprintf(stderr, "[%p] executing %s.%s\n", (void*)vmkit::Thread::get(),
           UTF8Buffer(meth->classDef->name).cString(),
           UTF8Buffer(meth->name).cString());
 }
 
 extern "C" void j3PrintMethodEnd(JavaMethod* meth) {
-  fprintf(stderr, "[%p] return from %s.%s\n", (void*)mvm::Thread::get(),
+  fprintf(stderr, "[%p] return from %s.%s\n", (void*)vmkit::Thread::get(),
           UTF8Buffer(meth->classDef->name).cString(),
           UTF8Buffer(meth->name).cString());
 }
 
 extern "C" void j3PrintExecution(uint32 opcode, uint32 index,
                                     JavaMethod* meth) {
-  fprintf(stderr, "[%p] executing %s.%s %s at %d\n", (void*)mvm::Thread::get(),
+  fprintf(stderr, "[%p] executing %s.%s %s at %d\n", (void*)vmkit::Thread::get(),
          UTF8Buffer(meth->classDef->name).cString(),
          UTF8Buffer(meth->name).cString(),
          OpcodeNames[opcode], index);

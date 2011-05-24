@@ -64,7 +64,7 @@ GenericValue VMMethod::invokeGeneric(std::vector<llvm::GenericValue>& args) {
 	// at this step, we must not launch the gc because objects arguments are somewhere in the stack a copying collector
 	// can not know where they are
 	assert(code);									// compiling a method can trigger a gc
-	return mvm::MvmModule::executionEngine->runFunction(methPtr, args);
+	return vmkit::MvmModule::executionEngine->runFunction(methPtr, args);
 }
 
 GenericValue VMMethod::invokeGeneric(va_list ap) {																		
@@ -183,7 +183,7 @@ ON_VOID(DEFINE_INVOKE_VOID, _F_NTE)
 //     }
 //   }
   
-//   return mvm::MvmModule::executionEngine->runFunction(func, args);
+//   return vmkit::MvmModule::executionEngine->runFunction(func, args);
 // }
 
 // GenericValue VMMethod::operator()(VMObject* obj, va_list ap) {
@@ -230,7 +230,7 @@ ON_VOID(DEFINE_INVOKE_VOID, _F_NTE)
 //     }
 //   }
       
-//   return mvm::MvmModule::executionEngine->runFunction(func, args);
+//   return vmkit::MvmModule::executionEngine->runFunction(func, args);
 // }
 
 
@@ -256,7 +256,7 @@ ON_VOID(DEFINE_INVOKE_VOID, _F_NTE)
 //     classDef->resolveType(true, true, NULL);
   
 //   Function* func = compiledPtr(NULL);
-//   return mvm::MvmModule::executionEngine->runFunction(func, args);
+//   return vmkit::MvmModule::executionEngine->runFunction(func, args);
 // }
 
 GlobalVariable* VMCommonClass::llvmVar() {

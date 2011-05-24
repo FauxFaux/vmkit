@@ -38,14 +38,14 @@ static void throwStoppedBundleException() {
 }
 
 
-static mvm::LockNormal lock;
-static mvm::Cond cond;
-static mvm::Thread* initiator = 0;
+static vmkit::LockNormal lock;
+static vmkit::Cond cond;
+static vmkit::Thread* initiator = 0;
 static bool Finished = true;
 
 void terminationHandler(int) {
   void** addr = (void**)__builtin_frame_address(0);
-  mvm::Thread* th = mvm::Thread::get();
+  vmkit::Thread* th = vmkit::Thread::get();
   JnjvmClassLoader* stoppedBundle = 
     (JnjvmClassLoader*)(th->stoppingService->CU);
   void* baseSP = th->baseSP;
@@ -80,7 +80,7 @@ void terminationHandler(int) {
 
   }
 
-  if (mvm::Thread::get() != initiator) {
+  if (vmkit::Thread::get() != initiator) {
     lock.lock();
     while (!Finished)
       cond.wait(&lock);
@@ -101,12 +101,12 @@ void Jnjvm::stopService() {
 
   JnjvmClassLoader* bundle = (JnjvmClassLoader*)CU;
   bundle->getIsolate()->status = 1;
-  mvm::Thread* th = mvm::Thread::get();
+  vmkit::Thread* th = vmkit::Thread::get();
   th->stoppingService = this;
   initiator = th;
-  for(mvm::Thread* cur = (mvm::Thread*)th->next(); cur != th;
-      cur = (mvm::Thread*)cur->next()) {
-    mvm::VirtualMachine* executingVM = cur->MyVM;
+  for(vmkit::Thread* cur = (vmkit::Thread*)th->next(); cur != th;
+      cur = (vmkit::Thread*)cur->next()) {
+    vmkit::VirtualMachine* executingVM = cur->MyVM;
     assert(executingVM && "Thread with no VM!");
     cur->stoppingService = this;
     uint32 res = cur->kill(SIGUSR1);
@@ -118,7 +118,7 @@ void Jnjvm::stopService() {
   terminationHandler(0);
    
   llvm::TargetJITInfo& TJI = 
-    ((llvm::JIT*)mvm::MvmModule::executionEngine)->getJITInfo();
+    ((llvm::JIT*)vmkit::MvmModule::executionEngine)->getJITInfo();
   for (ClassMap::iterator i = bundle->getClasses()->map.begin(), 
        e = bundle->getClasses()->map.end(); i!= e; ++i) {
     Class* cl = i->second->asClass();

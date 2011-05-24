@@ -43,7 +43,7 @@
 using namespace llvm;
 using namespace n3;
 
-void ExceptionBlockDesc::print(mvm::PrintBuffer* buf) const {
+void ExceptionBlockDesc::print(vmkit::PrintBuffer* buf) const {
   buf->write("Exception<>");
 }
 
@@ -236,7 +236,7 @@ N3VirtualTable* CLIJit::makeArrayVT(VMClassArray* cl) {
     
   }
   
-  void* tracer = mvm::MvmModule::executionEngine->getPointerToGlobal(func);
+  void* tracer = vmkit::MvmModule::executionEngine->getPointerToGlobal(func);
   ((void**)res)[VT_TRACER_OFFSET] = tracer;
   cl->virtualTracer = func;
 #endif
@@ -261,7 +261,7 @@ N3VirtualTable* CLIJit::makeVT(VMClass* cl, bool stat) {
 																														(uintptr_t)0, 
 																														(uintptr_t)VMObject::_trace, 
 																														(uintptr_t)VMObject::_print, 
-																														(uintptr_t)mvm::Object::default_hashCode) : 
+																														(uintptr_t)vmkit::Object::default_hashCode) : 
 		(cl->super ? 
 		 new(cl->assembly->allocator, cl->vtSize) N3VirtualTable(VMObject::getN3VirtualTable(((VMClass *)cl->super)->virtualInstance), 
 																														 n, 
@@ -270,7 +270,7 @@ N3VirtualTable* CLIJit::makeVT(VMClass* cl, bool stat) {
 																														 (uintptr_t)0, 
 																														 (uintptr_t)VMObject::_trace, 
 																														 (uintptr_t)VMObject::_print, 
-																														 (uintptr_t)mvm::Object::default_hashCode));
+																														 (uintptr_t)vmkit::Object::default_hashCode));
 		
 
 #ifdef WITH_TRACER  
@@ -310,7 +310,7 @@ N3VirtualTable* CLIJit::makeVT(VMClass* cl, bool stat) {
   traceClass(cl, block, realArg, fields, (cl->super == MSCorlib::pValue && !stat));
   ReturnInst::Create(getGlobalContext(), block);
 
-  void* tracer = mvm::MvmModule::executionEngine->getPointerToGlobal(func);
+  void* tracer = vmkit::MvmModule::executionEngine->getPointerToGlobal(func);
   ((void**)res)[VT_TRACER_OFFSET] = tracer;
   
   if (!stat) {
@@ -480,7 +480,7 @@ Instruction* CLIJit::lowerMathOps(VMMethod* meth,
 
 Instruction* CLIJit::invokeInline(VMMethod* meth, 
                                   std::vector<Value*>& args, VMGenericClass* genClass, VMGenericMethod* genMethod) {  
-	mvm::BumpPtrAllocator *a = new mvm::BumpPtrAllocator();
+	vmkit::BumpPtrAllocator *a = new vmkit::BumpPtrAllocator();
   CLIJit* jit = new(*a, "CLIJit") CLIJit(*a);
   jit->module = meth->classDef->vm->module;
   jit->compilingClass = meth->classDef; 
@@ -511,7 +511,7 @@ void CLIJit::invoke(uint32 value, VMGenericClass* genClass, VMGenericMethod* gen
     } else if (meth->name == vm->asciizToUTF8("Address")) {
       func = 2;
     } else {
-      vm->error("implement me %s", mvm::PrintBuffer(meth->name).cString());
+      vm->error("implement me %s", vmkit::PrintBuffer(meth->name).cString());
     }
       
     VMClassArray* type = (VMClassArray*)meth->classDef;
@@ -633,7 +633,7 @@ void CLIJit::invokeNew(uint32 value, VMGenericClass* genClass, VMGenericMethod* 
     
   Value* obj = 0;
   if (type->isPointer) {
-    VMThread::get()->getVM()->error("implement me %s", mvm::PrintBuffer(type).cString());
+    VMThread::get()->getVM()->error("implement me %s", vmkit::PrintBuffer(type).cString());
   } else if (type->isArray) {
     VMClassArray* arrayType = (VMClassArray*)type;
     Value* valCl = new LoadInst(arrayType->llvmVar(), "", currentBlock);
@@ -652,7 +652,7 @@ void CLIJit::invokeNew(uint32 value, VMGenericClass* genClass, VMGenericMethod* 
 
   } else if (type->super == MSCorlib::pValue || type->super == MSCorlib::pEnum) {
     obj = new AllocaInst(type->naturalType, "", currentBlock);
-    uint64 size = mvm::MvmModule::getTypeSize(type->naturalType);
+    uint64 size = vmkit::MvmModule::getTypeSize(type->naturalType);
         
     std::vector<Value*> params;
     params.push_back(new BitCastInst(obj, module->ptrType, "", currentBlock));
@@ -759,7 +759,7 @@ void CLIJit::setVirtualField(uint32 value, bool isVolatile, VMGenericClass* genC
   
   if (field->signature->super == MSCorlib::pValue &&
       field->signature->virtualFields.size() > 1) {
-    uint64 size = mvm::MvmModule::getTypeSize(field->signature->naturalType);
+    uint64 size = vmkit::MvmModule::getTypeSize(field->signature->naturalType);
         
     std::vector<Value*> params;
     params.push_back(new BitCastInst(ptr, PointerType::getUnqual(Type::getInt8Ty(getGlobalContext())), "", currentBlock));
@@ -937,7 +937,7 @@ Function* CLIJit::invokeDelegate() {
 
 Function* CLIJit::compileIntern() {
   PRINT_DEBUG(N3_COMPILE, 1, COLOR_NORMAL, "intern compile %s\n",
-              mvm::PrintBuffer(compilingMethod).cString());
+              vmkit::PrintBuffer(compilingMethod).cString());
 
   if (compilingClass->subclassOf(MSCorlib::pDelegate)) {
     const UTF8* name = compilingMethod->name;
@@ -945,14 +945,14 @@ Function* CLIJit::compileIntern() {
     else if (name == N3::invokeName) return invokeDelegate();
     else VMThread::get()->getVM()->error("implement me");
   } else {
-    VMThread::get()->getVM()->error("implement me %s", mvm::PrintBuffer(compilingClass).cString());
+    VMThread::get()->getVM()->error("implement me %s", vmkit::PrintBuffer(compilingClass).cString());
   }
   return 0;
 }
 
 Function* CLIJit::compileNative(VMGenericMethod* genMethod) {
   PRINT_DEBUG(N3_COMPILE, 1, COLOR_NORMAL, "native compile %s\n",
-              mvm::PrintBuffer(compilingMethod).cString());
+              vmkit::PrintBuffer(compilingMethod).cString());
     
   const FunctionType *funcType = compilingMethod->getSignature(genMethod);
   
@@ -1176,7 +1176,7 @@ static void printArgs(std::vector<llvm::Value*> args, BasicBlock* insertAt) {
 
 Function* CLIJit::compileFatOrTiny(VMGenericClass* genClass, VMGenericMethod* genMethod) {
   PRINT_DEBUG(N3_COMPILE, 1, COLOR_NORMAL, "tiny or fat compile %s\n",
-              mvm::PrintBuffer(compilingMethod).cString());
+              vmkit::PrintBuffer(compilingMethod).cString());
   uint32 offset = compilingMethod->offsetInTextSection;
 	ByteCode* bytes = compilingClass->assembly->bytes;
   uint8 header = READ_U1(bytes, offset);
@@ -1255,7 +1255,7 @@ Function* CLIJit::compileFatOrTiny(VMGenericClass* genClass, VMGenericMethod* ge
         new StoreInst(Constant::getNullValue(cl->naturalType), alloc, false,
                       currentBlock);
       } else {
-        uint64 size = mvm::MvmModule::getTypeSize(cl->naturalType);
+        uint64 size = vmkit::MvmModule::getTypeSize(cl->naturalType);
         
         std::vector<Value*> params;
         params.push_back(new BitCastInst(alloc, module->ptrType, "",
@@ -1302,7 +1302,7 @@ Function* CLIJit::compileFatOrTiny(VMGenericClass* genClass, VMGenericMethod* ge
     } else if (compilingMethod->structReturn) {
       const Type* lastType = 
         funcType->getContainedType(funcType->getNumContainedTypes() - 1);
-      uint64 size = mvm::MvmModule::getTypeSize(lastType->getContainedType(0));
+      uint64 size = vmkit::MvmModule::getTypeSize(lastType->getContainedType(0));
       Value* obj = --llvmFunction->arg_end();
       std::vector<Value*> params;
       params.push_back(new BitCastInst(obj, module->ptrType, "",
@@ -1338,11 +1338,11 @@ Function* CLIJit::compileFatOrTiny(VMGenericClass* genClass, VMGenericMethod* ge
     new UnreachableInst(getGlobalContext(), unifiedUnreachable);
   }
   
-  mvm::MvmModule::runPasses(llvmFunction, VMThread::get()->perFunctionPasses);
+  vmkit::MvmModule::runPasses(llvmFunction, VMThread::get()->perFunctionPasses);
   
   if (nbe == 0 && codeLen < 50) {
     PRINT_DEBUG(N3_COMPILE, 1, COLOR_NORMAL, "%s can be inlined\n",
-                mvm::PrintBuffer(compilingMethod).cString());
+                vmkit::PrintBuffer(compilingMethod).cString());
     compilingMethod->canBeInlined = true;
   }
   
@@ -1354,7 +1354,7 @@ Instruction* CLIJit::inlineCompile(Function* parentFunction, BasicBlock*& curBB,
                                    std::vector<Value*>& args, VMGenericClass* genClass, VMGenericMethod* genMethod) {
   
   PRINT_DEBUG(N3_COMPILE, 1, COLOR_NORMAL, "tiny or fat inline compile %s\n",
-              mvm::PrintBuffer(compilingMethod).cString());
+              vmkit::PrintBuffer(compilingMethod).cString());
   uint32 offset = compilingMethod->offsetInTextSection;
   ByteCode* bytes = compilingClass->assembly->bytes;
   uint8 header = READ_U1(bytes, offset);
@@ -1432,7 +1432,7 @@ Instruction* CLIJit::inlineCompile(Function* parentFunction, BasicBlock*& curBB,
         new StoreInst(Constant::getNullValue(cl->naturalType), alloc, false,
                       currentBlock);
       } else {
-        uint64 size = mvm::MvmModule::getTypeSize(cl->naturalType);
+        uint64 size = vmkit::MvmModule::getTypeSize(cl->naturalType);
         
         std::vector<Value*> params;
         params.push_back(new BitCastInst(alloc, module->ptrType, "",
@@ -1467,14 +1467,14 @@ Instruction* CLIJit::inlineCompile(Function* parentFunction, BasicBlock*& curBB,
   
   PRINT_DEBUG(N3_COMPILE, 1, COLOR_NORMAL,
               "end tiny or fat inline compile %s\n",
-              mvm::PrintBuffer(compilingMethod).cString());
+              vmkit::PrintBuffer(compilingMethod).cString());
   
   return endNode;
 }
 
 
 Function* CLIJit::compile(VMClass* cl, VMMethod* meth) {
-	mvm::BumpPtrAllocator *a = new mvm::BumpPtrAllocator();
+	vmkit::BumpPtrAllocator *a = new vmkit::BumpPtrAllocator();
   CLIJit* jit = new(*a, "CLIJit") CLIJit(*a);
   jit->compilingClass = cl; 
   jit->compilingMethod = meth;
@@ -1491,7 +1491,7 @@ Function* CLIJit::compile(VMClass* cl, VMMethod* meth) {
   }
 
 	delete a;
-	//	printf("Compiling: %s\n", mvm::PrintBuffer(meth).cString());
+	//	printf("Compiling: %s\n", vmkit::PrintBuffer(meth).cString());
   return func;
 }
 
@@ -1502,7 +1502,7 @@ llvm::Function *VMMethod::compiledPtr(VMGenericMethod* genMethod) {
     classDef->aquire();
     if (methPtr == 0) {
       methPtr = Function::Create(getSignature(genMethod), GlobalValue::ExternalWeakLinkage,
-                                 mvm::PrintBuffer(this).cString(), classDef->vm->getLLVMModule());
+                                 vmkit::PrintBuffer(this).cString(), classDef->vm->getLLVMModule());
       classDef->vm->functions->hash(methPtr, this);
     }
     classDef->release();
@@ -1518,7 +1518,7 @@ VMMethod* CLIJit::getMethod(llvm::Function* F) {
 void VMField::initField(VMObject* obj) {
   VMField* field = this;
   Constant* offset = field->offset;
-  const TargetData* targetData = mvm::MvmModule::executionEngine->getTargetData();
+  const TargetData* targetData = vmkit::MvmModule::executionEngine->getTargetData();
   bool stat = isStatic(field->flags);
   const Type* clType = stat ? field->classDef->staticType :
                               field->classDef->virtualType;
@@ -1535,9 +1535,9 @@ void CLIJit::initialise() {
 }
 
 void CLIJit::initialiseAppDomain(N3* vm) {
-  mvm::MvmModule::protectEngine.lock();
-  mvm::MvmModule::executionEngine->addModule(vm->getLLVMModule());
-  mvm::MvmModule::protectEngine.unlock();
+  vmkit::MvmModule::protectEngine.lock();
+  vmkit::MvmModule::executionEngine->addModule(vm->getLLVMModule());
+  vmkit::MvmModule::protectEngine.unlock();
 }
 
 namespace n3 { 
@@ -1549,9 +1549,9 @@ namespace n3 {
 
 void CLIJit::initialiseBootstrapVM(N3* vm) {
   Module* module = vm->getLLVMModule();
-  mvm::MvmModule::protectEngine.lock();
-  mvm::MvmModule::executionEngine->addModule(module);
-  mvm::MvmModule::protectEngine.unlock();
+  vmkit::MvmModule::protectEngine.lock();
+  vmkit::MvmModule::executionEngine->addModule(module);
+  vmkit::MvmModule::protectEngine.unlock();
     
   n3::llvm_runtime::makeLLVMModuleContents(module);
 
@@ -1745,7 +1745,7 @@ Value* CLIJit::invoke(Value *F, const char* Name,
 
 
 
-namespace mvm {
+namespace vmkit {
 llvm::FunctionPass* createEscapeAnalysisPass(llvm::Function*, llvm::Function*);
 llvm::FunctionPass* createLowerArrayLengthPass();
 }
@@ -1757,7 +1757,7 @@ static void addPass(FunctionPassManager *PM, Pass *P) {
 }
 
 void AddStandardCompilePasses(FunctionPassManager *PM) {
-  llvm::MutexGuard locked(mvm::MvmModule::executionEngine->lock);
+  llvm::MutexGuard locked(vmkit::MvmModule::executionEngine->lock);
   // LLVM does not allow calling functions from other modules in verifier
   //PM->add(llvm::createVerifierPass());                  // Verify that input is correct
   
@@ -1791,5 +1791,5 @@ void AddStandardCompilePasses(FunctionPassManager *PM) {
   addPass(PM, createAggressiveDCEPass());        // Delete dead instructions
   addPass(PM, createCFGSimplificationPass());    // Merge & remove BBs
 
-  addPass(PM, mvm::createLowerArrayLengthPass());
+  addPass(PM, vmkit::createLowerArrayLengthPass());
 }

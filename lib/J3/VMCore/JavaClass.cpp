@@ -264,9 +264,9 @@ JavaObject* UserClassArray::doNew(sint32 n) {
   UserCommonClass* cl = baseClass();
   uint32 logSize = cl->isPrimitive() ? 
     cl->asPrimitiveClass()->logSize : (sizeof(JavaObject*) == 8 ? 3 : 2);
-	mvm::VirtualTable* VT = virtualVT;
+	vmkit::VirtualTable* VT = virtualVT;
   uint32 size = sizeof(JavaObject) + sizeof(ssize_t) + (n << logSize);
-  res = (JavaObject*)mvm::gc::operator new(size, VT);
+  res = (JavaObject*)vmkit::gc::operator new(size, VT);
   JavaArray::setSize(res, n);
   return res;
 }
@@ -450,7 +450,7 @@ JavaObject* UserClass::doNew() {
           this == classLoader->bootstrapLoader->upcalls->newClass)
          && "Uninitialized class when allocating.");
   assert(getVirtualVT() && "No VT\n");
-  res = (JavaObject*)mvm::gc::operator new(getVirtualSize(), getVirtualVT());
+  res = (JavaObject*)vmkit::gc::operator new(getVirtualSize(), getVirtualVT());
 
   return res;
 }
@@ -576,7 +576,7 @@ void JavaField::InitStaticField(JavaObject* val) {
   void* obj = classDef->getStaticInstance();
   assert(isReference());
   JavaObject** ptr = (JavaObject**)((uint64)obj + ptrOffset);
-  mvm::Collector::objectReferenceNonHeapWriteBarrier((mvm::gc**)ptr, (mvm::gc*)val);
+  vmkit::Collector::objectReferenceNonHeapWriteBarrier((vmkit::gc**)ptr, (vmkit::gc*)val);
 }
 
 void JavaField::InitStaticField(double val) {
@@ -804,7 +804,7 @@ void Class::makeVT() {
     }
   }
 
-  mvm::BumpPtrAllocator& allocator = classLoader->allocator;
+  vmkit::BumpPtrAllocator& allocator = classLoader->allocator;
   virtualVT = new(allocator, virtualTableSize) JavaVirtualTable(this);
 }
 
@@ -828,7 +828,7 @@ static void computeMirandaMethods(Class* current,
 
 void Class::readMethods(Reader& reader) {
   uint16 nbMethods = reader.readU2();
-  mvm::ThreadAllocator allocator;
+  vmkit::ThreadAllocator allocator;
   if (isAbstract(access)) {
     virtualMethods = (JavaMethod*)
       allocator.Allocate(nbMethods * sizeof(JavaMethod));
@@ -884,7 +884,7 @@ void Class::readClass() {
   
   PRINT_DEBUG(JNJVM_LOAD, 0, COLOR_NORMAL, "; ", 0);
   PRINT_DEBUG(JNJVM_LOAD, 0, LIGHT_GREEN, "reading ", 0);
-  PRINT_DEBUG(JNJVM_LOAD, 0, COLOR_NORMAL, "%s\n", mvm::PrintBuffer(this).cString());
+  PRINT_DEBUG(JNJVM_LOAD, 0, COLOR_NORMAL, "%s\n", vmkit::PrintBuffer(this).cString());
 
   Reader reader(bytes);
   uint32 magic;
@@ -1032,7 +1032,7 @@ JavaObject* CommonClass::setDelegatee(JavaObject* val) {
   JavaObject** obj = &(delegatee[0]);
   classLoader->lock.lock();
   if (*obj == NULL) {
-    mvm::Collector::objectReferenceNonHeapWriteBarrier((mvm::gc**)obj, (mvm::gc*)val);
+    vmkit::Collector::objectReferenceNonHeapWriteBarrier((vmkit::gc**)obj, (vmkit::gc*)val);
   }
   classLoader->lock.unlock();
   return getDelegatee();
@@ -1398,7 +1398,7 @@ JavaVirtualTable::JavaVirtualTable(Class* C) {
       outOfDepth = 1;
     }
 
-    mvm::BumpPtrAllocator& allocator = C->classLoader->allocator;
+    vmkit::BumpPtrAllocator& allocator = C->classLoader->allocator;
     secondaryTypes = (JavaVirtualTable**)
       allocator.Allocate(sizeof(JavaVirtualTable*) * nbSecondaryTypes,
                          "Secondary types");  
@@ -1525,7 +1525,7 @@ JavaVirtualTable::JavaVirtualTable(ClassArray* C) {
         if (intf || depth != getDisplayLength()) addSuper = 1;
       }
         
-      mvm::BumpPtrAllocator& allocator = JCL->allocator;
+      vmkit::BumpPtrAllocator& allocator = JCL->allocator;
 
       if (!newSecondaryTypes) {
         if (base->nbInterfaces || addSuper) {
@@ -1632,7 +1632,7 @@ JavaVirtualTable::JavaVirtualTable(ClassArray* C) {
       offset = getCacheIndex() + 2;
       nbSecondaryTypes = 2;
       
-      mvm::BumpPtrAllocator& allocator = JCL->allocator;
+      vmkit::BumpPtrAllocator& allocator = JCL->allocator;
       secondaryTypes = (JavaVirtualTable**)
         allocator.Allocate(sizeof(JavaVirtualTable*) * nbSecondaryTypes,
                            "Secondary types");

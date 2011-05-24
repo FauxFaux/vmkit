@@ -38,7 +38,7 @@ JavaLLVMLazyJITCompiler::~JavaLLVMLazyJITCompiler() {
 }
 
 void* JavaLLVMLazyJITCompiler::loadMethod(void* handle, const char* symbol) {
-  Function* F = mvm::MvmModule::globalModule->getFunction(symbol);
+  Function* F = vmkit::MvmModule::globalModule->getFunction(symbol);
   if (F) {
     void* res = executionEngine->getPointerToFunctionOrStub(F);
     return res;
@@ -81,7 +81,7 @@ Value* JavaLLVMLazyJITCompiler::addCallback(Class* cl, uint16 index,
   
   Function* F = 0;
   LLVMSignatureInfo* LSI = getSignatureInfo(sign);
-  mvm::ThreadAllocator allocator;
+  vmkit::ThreadAllocator allocator;
   
   const UTF8* name = cl->name;
   char* key = (char*)allocator.Allocate(name->size + 16);
@@ -114,24 +114,24 @@ bool LLVMMaterializer::Materialize(GlobalValue *GV, std::string *ErrInfo) {
   // JIT lock and get the global vmkit lock to be thread-safe.
   // This prevents jitting the function while someone else is doing it.
   Comp->executionEngine->lock.release(); 
-  mvm::MvmModule::protectIR();
+  vmkit::MvmModule::protectIR();
 
   // Don't use hasNotBeenReadFromBitcode: materializeFunction is called
   // by the pass manager, and we don't want another thread to JIT the
   // function while all passes have not been run.
   if (!(F->isDeclaration())) {
-    mvm::MvmModule::unprotectIR();
+    vmkit::MvmModule::unprotectIR();
     // TODO: Is this still valid?
     // Reacquire and go back to the JIT function.
-    // mvm::MvmModule::executionEngine->lock.acquire();
+    // vmkit::MvmModule::executionEngine->lock.acquire();
     return false;
   }
 
   if (Comp->executionEngine->getPointerToGlobalIfAvailable(F)) {
-    mvm::MvmModule::unprotectIR(); 
+    vmkit::MvmModule::unprotectIR(); 
     // TODO: Is this still valid?
     // Reacquire and go back to the JIT function.
-    // mvm::MvmModule::executionEngine->lock.acquire();
+    // vmkit::MvmModule::executionEngine->lock.acquire();
     return false;
   }
   
@@ -159,11 +159,11 @@ bool LLVMMaterializer::Materialize(GlobalValue *GV, std::string *ErrInfo) {
     assert(meth->classDef->isInitializing() && "Class not ready");
   }
 
-  mvm::MvmModule::unprotectIR();
+  vmkit::MvmModule::unprotectIR();
   
   // TODO: Is this still valid?
   // Reacquire to go back to the JIT function.
-  // mvm::MvmModule::executionEngine->lock.acquire();
+  // vmkit::MvmModule::executionEngine->lock.acquire();
   
   if (F->isDeclaration())
     Comp->executionEngine->updateGlobalMapping(F, val);

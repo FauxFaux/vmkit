@@ -41,7 +41,7 @@
 using namespace j3;
 using namespace llvm;
 
-class JavaJITMethodInfo : public mvm::JITMethodInfo {
+class JavaJITMethodInfo : public vmkit::JITMethodInfo {
 public:
   virtual void print(void* ip, void* addr);
   virtual bool isHighLevelMethod() {
@@ -50,7 +50,7 @@ public:
   
   JavaJITMethodInfo(llvm::GCFunctionInfo* GFI,
                     JavaMethod* m) :
-      mvm::JITMethodInfo(GFI) {
+      vmkit::JITMethodInfo(GFI) {
     MetaInfo = m;
     Owner = m->classDef->classLoader->getCompiler();
   }
@@ -338,7 +338,7 @@ void JavaJITCompiler::setMethod(Function* func, void* ptr, const char* name) {
 }
 
 void* JavaJITCompiler::materializeFunction(JavaMethod* meth) {
-  mvm::MvmModule::protectIR();
+  vmkit::MvmModule::protectIR();
   Function* func = parseFunction(meth);
   void* res = executionEngine->getPointerToGlobal(func);
  
@@ -346,8 +346,8 @@ void* JavaJITCompiler::materializeFunction(JavaMethod* meth) {
     llvm::GCFunctionInfo* GFI = &(GCInfo->getFunctionInfo(*func));
     assert((GFI != NULL) && "No GC information");
   
-		mvm::VMKit* vmkit = mvm::Thread::get()->vmkit;
-    mvm::JITMethodInfo* MI = 
+		vmkit::VMKit* vmkit = vmkit::Thread::get()->vmkit;
+    vmkit::JITMethodInfo* MI = 
       new(allocator, "JavaJITMethodInfo") JavaJITMethodInfo(GFI, meth);
     MI->addToVMKit(vmkit, (JIT*)executionEngine);
 
@@ -356,7 +356,7 @@ void* JavaJITCompiler::materializeFunction(JavaMethod* meth) {
     if (infoLength == 0) {
       meth->codeInfo = NULL;
     } else {
-      mvm::BumpPtrAllocator& JavaAlloc = meth->classDef->classLoader->allocator;
+      vmkit::BumpPtrAllocator& JavaAlloc = meth->classDef->classLoader->allocator;
       CodeLineInfo* infoTable =
         new(JavaAlloc, "CodeLineInfo") CodeLineInfo[infoLength];
       uint32_t index = 0;
@@ -378,25 +378,25 @@ void* JavaJITCompiler::materializeFunction(JavaMethod* meth) {
   }
     // Now that it's compiled, we don't need the IR anymore
   func->deleteBody();
-  mvm::MvmModule::unprotectIR();
+  vmkit::MvmModule::unprotectIR();
   return res;
 }
 
 void* JavaJITCompiler::GenerateStub(llvm::Function* F) {
-  mvm::MvmModule::protectIR();
+  vmkit::MvmModule::protectIR();
   void* res = executionEngine->getPointerToGlobal(F);
   
   llvm::GCFunctionInfo* GFI = &(GCInfo->getFunctionInfo(*F));
   assert((GFI != NULL) && "No GC information");
   
-	mvm::VMKit* vmkit = mvm::Thread::get()->vmkit;
-  mvm::JITMethodInfo* MI = 
-    new(allocator, "JITMethodInfo") mvm::MvmJITMethodInfo(GFI, F, this);
+	vmkit::VMKit* vmkit = vmkit::Thread::get()->vmkit;
+  vmkit::JITMethodInfo* MI = 
+    new(allocator, "JITMethodInfo") vmkit::MvmJITMethodInfo(GFI, F, this);
   MI->addToVMKit(vmkit, (JIT*)executionEngine);
   
   // Now that it's compiled, we don't need the IR anymore
   F->deleteBody();
-  mvm::MvmModule::unprotectIR();
+  vmkit::MvmModule::unprotectIR();
   return res;
 }
 
@@ -404,10 +404,10 @@ void* JavaJITCompiler::GenerateStub(llvm::Function* F) {
 extern "C" int StartJnjvmWithJIT(int argc, char** argv, char* mainClass) {
   llvm::llvm_shutdown_obj X; 
 
-  mvm::BumpPtrAllocator Allocator;
-	mvm::VMKit* vmkit = new(Allocator, "VMKit") mvm::VMKit(Allocator);
+  vmkit::BumpPtrAllocator Allocator;
+	vmkit::VMKit* vmkit = new(Allocator, "VMKit") vmkit::VMKit(Allocator);
 
-  mvm::ThreadAllocator thallocator;
+  vmkit::ThreadAllocator thallocator;
   char** newArgv = (char**)thallocator.Allocate((argc + 1) * sizeof(char*));
   memcpy(newArgv + 1, argv, argc * sizeof(void*));
   newArgv[0] = newArgv[1];

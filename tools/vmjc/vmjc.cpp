@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
     if (!TargetTriple.empty())
       TheModule->setTargetTriple(TargetTriple);
     else
-      TheModule->setTargetTriple(mvm::MvmModule::getHostTriple());
+      TheModule->setTargetTriple(vmkit::MvmModule::getHostTriple());
 
 #if 0
     // explicitly specified an architecture to compile for.
@@ -168,12 +168,12 @@ int main(int argc, char **argv) {
                              getStringRepresentation());
 
 
-    mvm::VMKit::initialise(CodeGenOpt::Default, TheModule, &Target);
+    vmkit::VMKit::initialise(CodeGenOpt::Default, TheModule, &Target);
 #endif
   }
 
-  mvm::BumpPtrAllocator allocator;
-	mvm::VMKit* vmkit = new(allocator, "VMKit") mvm::VMKit(allocator);
+  vmkit::BumpPtrAllocator allocator;
+	vmkit::VMKit* vmkit = new(allocator, "VMKit") vmkit::VMKit(allocator);
 
   JavaAOTCompiler* Comp = new JavaAOTCompiler("AOT");
 

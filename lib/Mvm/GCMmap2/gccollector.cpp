@@ -11,7 +11,7 @@
 #include "mvm/VMKit.h"
 #include "mvm/SystemThreads.h"
 
-using namespace mvm;
+using namespace vmkit;
 
 GCAllocator   *Collector::allocator = 0;
 SpinLock      Collector::_globalLock;
@@ -41,10 +41,10 @@ void Collector::do_collect() {
 
   unused_nodes->attrape(used_nodes);
 
-  mvm::Thread* th = mvm::Thread::get();
+  vmkit::Thread* th = vmkit::Thread::get();
 	if(th->vmkit->startCollection()) {
 
-		mvm::Thread* tcur = th;
+		vmkit::Thread* tcur = th;
 
 		// (1) Trace VMKit.
 		th->vmkit->tracer(0);
@@ -53,7 +53,7 @@ void Collector::do_collect() {
 		do {
 			tcur->scanStack(0);
 			tcur->tracer(0);
-			tcur = (mvm::Thread*)tcur->next();
+			tcur = (vmkit::Thread*)tcur->next();
 		} while (tcur != th);
 
 		// (3) Trace stack objects.

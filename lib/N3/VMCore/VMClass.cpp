@@ -32,7 +32,7 @@
 
 using namespace n3;
 
-void VMCommonClass::print(mvm::PrintBuffer* buf) const {
+void VMCommonClass::print(vmkit::PrintBuffer* buf) const {
   buf->write("CLIType<");
   nameSpace->print(buf);
   buf->write("::");
@@ -61,7 +61,7 @@ bool VMCommonClass::ownerClass() {
 }
 
 
-void VMClass::print(mvm::PrintBuffer* buf) const {
+void VMClass::print(vmkit::PrintBuffer* buf) const {
   buf->write("CLIType<");
   nameSpace->print(buf);
   buf->write("::");
@@ -69,7 +69,7 @@ void VMClass::print(mvm::PrintBuffer* buf) const {
   buf->write(">");
 }
 
-void VMClassArray::print(mvm::PrintBuffer* buf) const {
+void VMClassArray::print(vmkit::PrintBuffer* buf) const {
   buf->write("CLITypeArray<");
   nameSpace->print(buf);
   buf->write("::");
@@ -77,7 +77,7 @@ void VMClassArray::print(mvm::PrintBuffer* buf) const {
   buf->write(">");
 }
 
-void VMClassPointer::print(mvm::PrintBuffer* buf) const {
+void VMClassPointer::print(vmkit::PrintBuffer* buf) const {
   buf->write("CLITypePointer<");
   nameSpace->print(buf);
   buf->write("::");
@@ -85,7 +85,7 @@ void VMClassPointer::print(mvm::PrintBuffer* buf) const {
   buf->write(">");
 }
 
-void VMMethod::print(mvm::PrintBuffer* buf) const {
+void VMMethod::print(vmkit::PrintBuffer* buf) const {
   buf->write("CLIMethod<");
   classDef->nameSpace->print(buf);
   buf->write(".");
@@ -111,7 +111,7 @@ void VMMethod::print(mvm::PrintBuffer* buf) const {
   buf->write(">");
 }
 
-void VMGenericMethod::print(mvm::PrintBuffer* buf) const {
+void VMGenericMethod::print(vmkit::PrintBuffer* buf) const {
   buf->write("CLIGenericMethod<");
   classDef->nameSpace->print(buf);
   buf->write(".");
@@ -137,7 +137,7 @@ void VMGenericMethod::print(mvm::PrintBuffer* buf) const {
   buf->write(">");
 }
 
-void VMField::print(mvm::PrintBuffer* buf) const {
+void VMField::print(vmkit::PrintBuffer* buf) const {
   buf->write("CLIField<");
   classDef->nameSpace->print(buf);
   buf->write(".");
@@ -147,13 +147,13 @@ void VMField::print(mvm::PrintBuffer* buf) const {
   buf->write(">");
 }
   
-void Param::print(mvm::PrintBuffer* buf) const {
+void Param::print(vmkit::PrintBuffer* buf) const {
   buf->write("CLIParam<");
   name->print(buf);
   buf->write(">");
 }
 
-void Property::print(mvm::PrintBuffer* buf) const {
+void Property::print(vmkit::PrintBuffer* buf) const {
   buf->write("Property def with name <");
   name->print(buf);
   buf->write(">");
@@ -161,8 +161,8 @@ void Property::print(mvm::PrintBuffer* buf) const {
 
 
 void VMCommonClass::initialise(N3* vm, bool isArray) {
-  this->lockVar = new mvm::LockRecursive();
-  this->condVar = new mvm::Cond();
+  this->lockVar = new vmkit::LockRecursive();
+  this->condVar = new vmkit::Cond();
   this->ooo_delegatee = 0;
   this->status = hashed;
   this->vm = vm;
@@ -173,7 +173,7 @@ void VMCommonClass::initialise(N3* vm, bool isArray) {
 }
 
 const UTF8* VMClassArray::constructArrayName(const UTF8* name, uint32 dims) {
-	mvm::PrintBuffer _asciiz(name);
+	vmkit::PrintBuffer _asciiz(name);
   const char* asciiz = _asciiz.cString();
   char* res = (char*)alloca(strlen(asciiz) + (dims * 2) + 1);
   sprintf(res, asciiz);
@@ -186,7 +186,7 @@ const UTF8* VMClassArray::constructArrayName(const UTF8* name, uint32 dims) {
 }
 
 const UTF8* VMClassPointer::constructPointerName(const UTF8* name, uint32 dims) {
-	mvm::PrintBuffer _asciiz(name);
+	vmkit::PrintBuffer _asciiz(name);
   const char* asciiz = _asciiz.cString();
   char* res = (char*)alloca(strlen(asciiz) + (dims * 2) + 1);
   sprintf(res, asciiz);
@@ -223,7 +223,7 @@ void VMCommonClass::loadParents(VMGenericClass* genClass, VMGenericMethod* genMe
 typedef void (*clinit_t)(void);
 
 void VMCommonClass::clinitClass(VMGenericMethod* genMethod) {
-	//	printf("----- clinit: %s\n", mvm::PrintBuffer::objectToString(this));
+	//	printf("----- clinit: %s\n", vmkit::PrintBuffer::objectToString(this));
   VMCommonClass* cl = this; 
   if (cl->status < ready) {
     cl->aquire();
@@ -249,13 +249,13 @@ void VMCommonClass::clinitClass(VMGenericMethod* genMethod) {
       
       PRINT_DEBUG(N3_LOAD, 0, COLOR_NORMAL, "%s", "; ");
       PRINT_DEBUG(N3_LOAD, 0, LIGHT_GREEN, "%s", "clinit ");
-      PRINT_DEBUG(N3_LOAD, 0, COLOR_NORMAL, "%s::%s\n", mvm::PrintBuffer(this).cString(),
-                  mvm::PrintBuffer(cl).cString());
+      PRINT_DEBUG(N3_LOAD, 0, COLOR_NORMAL, "%s::%s\n", vmkit::PrintBuffer(this).cString(),
+                  vmkit::PrintBuffer(cl).cString());
       
       if (meth) {
         llvm::Function* pred = meth->compiledPtr(genMethod);
         clinit_t res = (clinit_t)
-          (intptr_t)mvm::MvmModule::executionEngine->getPointerToGlobal(pred);
+          (intptr_t)vmkit::MvmModule::executionEngine->getPointerToGlobal(pred);
         res();
       }
 
@@ -295,7 +295,7 @@ void VMClass::resolveStaticFields(VMGenericMethod* genMethod) {
 
   N3VirtualTable* VT = CLIJit::makeVT(cl, true);
 
-  uint64 size = mvm::MvmModule::getTypeSize(cl->staticType->getContainedType(0));
+  uint64 size = vmkit::MvmModule::getTypeSize(cl->staticType->getContainedType(0));
   cl->staticInstance = (VMObject*)gc::operator new(size, VT);
 	VMObject::initialise(cl->staticInstance, cl);
 
@@ -404,7 +404,7 @@ void VMClassPointer::makeType() {
 }
 
 void VMCommonClass::resolveVirtual(VMGenericClass* genClass, VMGenericMethod *genMethod) {
-	//	printf("Resolve virtual: %s\n", mvm::PrintBuffer::objectToString(this));
+	//	printf("Resolve virtual: %s\n", vmkit::PrintBuffer::objectToString(this));
   VMCommonClass* cl = this;
   
   if (cl->status < virtual_resolved) {
@@ -419,9 +419,9 @@ void VMCommonClass::resolveVirtual(VMGenericClass* genClass, VMGenericMethod *ge
       if (cl->isArray) {
         VMClassArray* arrayCl = (VMClassArray*)cl;
         VMCommonClass* baseClass =  arrayCl->baseClass;
-				//				printf("Resolveing base class: %s\n", mvm::PrintBuffer::objectToString(baseClass));
+				//				printf("Resolveing base class: %s\n", vmkit::PrintBuffer::objectToString(baseClass));
         baseClass->resolveType(false, false, genMethod);
-				//  			printf("Resolveing base class: %s done\n", mvm::PrintBuffer::objectToString(baseClass));
+				//  			printf("Resolveing base class: %s done\n", vmkit::PrintBuffer::objectToString(baseClass));
         arrayCl->makeType();
         cl->status = virtual_resolved;
       } else if (cl->isPointer) {
@@ -457,7 +457,7 @@ void VMCommonClass::resolveVT() {
 	if (cl->isArray) {
 		VMClassArray* arrayCl = (VMClassArray*)cl;
 		arrayCl->baseClass->resolveVT();
-		//		printf("Making vt of %s\n", mvm::PrintBuffer(this).cString());
+		//		printf("Making vt of %s\n", vmkit::PrintBuffer(this).cString());
 		arrayCl->arrayVT = CLIJit::makeArrayVT(arrayCl);
 	} else if (cl->isPointer) {
 	} else {
@@ -474,10 +474,10 @@ void VMCommonClass::resolveVT() {
         (*i)->offsetInVt = cl->vtSize++;
 			}
 
-			//			printf("Making vt of %s with %d elements\n", mvm::PrintBuffer(this).cString(), cl->vtSize);
+			//			printf("Making vt of %s with %d elements\n", vmkit::PrintBuffer(this).cString(), cl->vtSize);
 			N3VirtualTable* VT = CLIJit::makeVT(cl, false);
   
-			uint64 size = mvm::MvmModule::getTypeSize(cl->virtualType->getContainedType(0));
+			uint64 size = vmkit::MvmModule::getTypeSize(cl->virtualType->getContainedType(0));
 			cl->virtualInstance = (VMObject*)gc::operator new(size, VT);
 			VMObject::initialise(cl->virtualInstance, cl);
 			
@@ -491,13 +491,13 @@ void VMCommonClass::resolveVT() {
 }
 
 void VMCommonClass::resolveType(bool stat, bool clinit, VMGenericMethod* genMethod) {
-	//	printf("Resolve type: %s %d %d\n", mvm::PrintBuffer::objectToString(this), stat, clinit);
+	//	printf("Resolve type: %s %d %d\n", vmkit::PrintBuffer::objectToString(this), stat, clinit);
   resolveVirtual(static_cast<VMGenericClass*>(this), genMethod);
   if (stat) resolveStatic(clinit, genMethod);
 }
 
 void VMCommonClass::resolveStatic(bool clinit, VMGenericMethod* genMethod) {
-	//	printf("Resolve static: %s %d\n", mvm::PrintBuffer::objectToString(this), clinit);
+	//	printf("Resolve static: %s %d\n", vmkit::PrintBuffer::objectToString(this), clinit);
   VMCommonClass* cl = this;
   if (cl->status < static_resolved) {
     cl->aquire();
@@ -506,7 +506,7 @@ void VMCommonClass::resolveStatic(bool clinit, VMGenericMethod* genMethod) {
       cl->release();
     } else if (status < virtual_resolved) {
       cl->release();
-			//			printf("Will throw an exception: %s....\n", mvm::PrintBuffer::objectToString(this));
+			//			printf("Will throw an exception: %s....\n", vmkit::PrintBuffer::objectToString(this));
 			//			((char *)0)[0] = 22;
       VMThread::get()->getVM()->unknownError("try to resolve static of a not virtual-resolved class");
     } else if (status == virtual_resolved) {
@@ -582,7 +582,7 @@ VMMethod* VMCommonClass::lookupMethod(const UTF8* name,
   if (!res) {
     VMThread::get()->getVM()->error(N3::MissingMethodException, 
                                "unable to find %s in %s",
-                               mvm::PrintBuffer(name).cString(), mvm::PrintBuffer(this).cString());
+                               vmkit::PrintBuffer(name).cString(), vmkit::PrintBuffer(this).cString());
   }
   return res;
 }
@@ -629,20 +629,20 @@ VMField* VMCommonClass::lookupField(const UTF8* name, VMCommonClass* type,
   if (!res) {
     VMThread::get()->getVM()->error(N3::MissingFieldException, 
                                "unable to find %s in %s",
-                               mvm::PrintBuffer(name).cString(), mvm::PrintBuffer(this).cString());
+                               vmkit::PrintBuffer(name).cString(), vmkit::PrintBuffer(this).cString());
   }
   return res;
 }
 
 VMObject* VMClass::initialiseObject(VMObject* obj) {
-  uint64 size = mvm::MvmModule::getTypeSize(virtualType->getContainedType(0));
+  uint64 size = vmkit::MvmModule::getTypeSize(virtualType->getContainedType(0));
   memcpy(obj, virtualInstance, size);
   return obj;
 }
 
 VMObject* VMClass::doNew() {
   if (status < inClinit) resolveType(true, true, NULL);
-  uint64 size = mvm::MvmModule::getTypeSize(virtualType->getContainedType(0));
+  uint64 size = vmkit::MvmModule::getTypeSize(virtualType->getContainedType(0));
   declare_gcroot(VMObject*, res) = (VMObject*)gc::operator new(size, VMObject::getN3VirtualTable(virtualInstance));
   memcpy(res, virtualInstance, size);
   return res;
@@ -650,7 +650,7 @@ VMObject* VMClass::doNew() {
 
 VMObject* VMClassArray::doNew(uint32 nb) {
   if (status < inClinit) resolveType(true, true, NULL);
-  uint64 size = mvm::MvmModule::getTypeSize(baseClass->naturalType);
+  uint64 size = vmkit::MvmModule::getTypeSize(baseClass->naturalType);
   declare_gcroot(VMArray*, res) = (VMArray*)gc::operator new(size * nb + sizeof(VMObject) + sizeof(sint32), arrayVT);
   memset(res->elements, 0, size * nb);
 	VMObject::initialise(res, this);
@@ -796,14 +796,14 @@ VMMethod *VMMethod::compileToNative(VMGenericMethod* genMethod) {
   
 		llvm::Function *methPtr = compiledPtr(genMethod);
 		void* res = 
-			mvm::MvmModule::executionEngine->getPointerToGlobalIfAvailable(methPtr);
+			vmkit::MvmModule::executionEngine->getPointerToGlobalIfAvailable(methPtr);
 		if (res == 0) {
 			classDef->aquire();
 			res = 
-				mvm::MvmModule::executionEngine->getPointerToGlobalIfAvailable(methPtr);
+				vmkit::MvmModule::executionEngine->getPointerToGlobalIfAvailable(methPtr);
 			if (res == 0) {
 				CLIJit::compile(classDef, this);
-				void* res = mvm::MvmModule::executionEngine->getPointerToGlobal(methPtr);
+				void* res = vmkit::MvmModule::executionEngine->getPointerToGlobal(methPtr);
 				code = res;
 				// N3* vm = VMThread::get()->getVM();
 				// vm->addMethodInFunctionMap(this, res);
@@ -893,7 +893,7 @@ bool VMMethod::signatureEqualsGeneric(std::vector<VMCommonClass*> & args) {
 	return true;
 }
 
-void VMGenericClass::print(mvm::PrintBuffer* buf) const {
+void VMGenericClass::print(vmkit::PrintBuffer* buf) const {
   buf->write("GenCLIType<");
   nameSpace->print(buf);
   buf->write("::");

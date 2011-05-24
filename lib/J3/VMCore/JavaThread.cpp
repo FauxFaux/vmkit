@@ -19,7 +19,7 @@
 
 using namespace j3;
 
-JavaThread::JavaThread(Jnjvm* vm, mvm::Thread* mut) : mvm::VMThreadData(vm, mut) {
+JavaThread::JavaThread(Jnjvm* vm, vmkit::Thread* mut) : vmkit::VMThreadData(vm, mut) {
   jniEnv = vm->jniEnv;
   localJNIRefs = new JNILocalReferences();
   currentAddedReferences = NULL;
@@ -27,11 +27,11 @@ JavaThread::JavaThread(Jnjvm* vm, mvm::Thread* mut) : mvm::VMThreadData(vm, mut)
   vmThread = NULL;
 }
 
-JavaThread* JavaThread::j3Thread(mvm::Thread* mut) {
+JavaThread* JavaThread::j3Thread(vmkit::Thread* mut) {
 	return (JavaThread*)mut->vmData;
 }
 
-JavaThread* JavaThread::associate(Jnjvm* vm, mvm::Thread* mut) {
+JavaThread* JavaThread::associate(Jnjvm* vm, vmkit::Thread* mut) {
 	JavaThread *th   = new JavaThread(vm, mut);
 	mut->allVmsData[vm->vmID] = th;
 	mut->attach(vm);
@@ -63,10 +63,10 @@ void JavaThread::endJNI() {
 }
 
 uint32 JavaThread::getJavaFrameContext(void** buffer) {
-  mvm::StackWalker Walker(mut);
+  vmkit::StackWalker Walker(mut);
   uint32 i = 0;
 
-  while (mvm::MethodInfo* MI = Walker.get()) {
+  while (vmkit::MethodInfo* MI = Walker.get()) {
     if (MI->isHighLevelMethod()) {
       JavaMethod* M = (JavaMethod*)MI->MetaInfo;
       buffer[i++] = M;
@@ -77,10 +77,10 @@ uint32 JavaThread::getJavaFrameContext(void** buffer) {
 }
 
 JavaMethod* JavaThread::getCallingMethodLevel(uint32 level) {
-  mvm::StackWalker Walker(mut);
+  vmkit::StackWalker Walker(mut);
   uint32 index = 0;
 
-  while (mvm::MethodInfo* MI = Walker.get()) {
+  while (vmkit::MethodInfo* MI = Walker.get()) {
     if (MI->isHighLevelMethod()) {
       if (index == level) {
         return (JavaMethod*)MI->MetaInfo;
@@ -103,9 +103,9 @@ JavaObject* JavaThread::getNonNullClassLoader() {
   JavaObject* obj = 0;
   llvm_gcroot(obj, 0);
   
-  mvm::StackWalker Walker(mut);
+  vmkit::StackWalker Walker(mut);
 
-  while (mvm::MethodInfo* MI = Walker.get()) {
+  while (vmkit::MethodInfo* MI = Walker.get()) {
     if (MI->isHighLevelMethod() == 1) {
       JavaMethod* meth = (JavaMethod*)MI->MetaInfo;
       JnjvmClassLoader* loader = meth->classDef->classLoader;
@@ -119,16 +119,16 @@ JavaObject* JavaThread::getNonNullClassLoader() {
 
 
 void JavaThread::printJavaBacktrace() {
-  mvm::StackWalker Walker(mut);
+  vmkit::StackWalker Walker(mut);
 
-  while (mvm::MethodInfo* MI = Walker.get()) {
+  while (vmkit::MethodInfo* MI = Walker.get()) {
     if (MI->isHighLevelMethod())
       MI->print(Walker.ip, Walker.addr);
     ++Walker;
   }
 }
 
-mvm::gc** JNILocalReferences::addJNIReference(JavaThread* th, mvm::gc* obj) {
+vmkit::gc** JNILocalReferences::addJNIReference(JavaThread* th, vmkit::gc* obj) {
   llvm_gcroot(obj, 0);
   
   if (length == MAXIMUM_REFERENCES) {

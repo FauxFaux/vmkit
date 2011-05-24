@@ -24,11 +24,11 @@ void marker(void*) {
 }
 
 int main(int argc, char **argv) {
-  mvm::Collector::initialise();
+  vmkit::Collector::initialise();
 #ifdef MULTIPLE_GC
-  mvm::Thread::get()->GC->destroy();
+  vmkit::Thread::get()->GC->destroy();
 #else
-  mvm::Collector::destroy();
+  vmkit::Collector::destroy();
 #endif
   return 0;
 }

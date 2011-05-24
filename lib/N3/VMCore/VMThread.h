@@ -27,7 +27,7 @@ class VMGenericClass;
 class VMObject;
 class VMGenericMethod;
 
-class VMThread : public mvm::MutatorThread {
+class VMThread : public vmkit::MutatorThread {
 public:
   VMObject* ooo_appThread;
   
@@ -35,8 +35,8 @@ public:
     return (N3*)MyVM;
   }
   
-  mvm::Lock*   lock;
-  mvm::Cond*   varcond;
+  vmkit::Lock*   lock;
+  vmkit::Cond*   varcond;
   VMObject*    ooo_pendingException;
   void*        internalPendingException;
   unsigned int interruptFlag;
@@ -46,7 +46,7 @@ public:
   static const unsigned int StateWaiting;
   static const unsigned int StateInterrupted;
 
-  virtual void print(mvm::PrintBuffer *buf) const;
+  virtual void print(vmkit::PrintBuffer *buf) const;
   virtual void TRACER;
   ~VMThread();
   VMThread(VMObject *thread, N3 *vm);
