@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MVM_VIRTUALMACHINE_H
-#define MVM_VIRTUALMACHINE_H
+#ifndef VMKIT_VIRTUALMACHINE_H
+#define VMKIT_VIRTUALMACHINE_H
 
 #include "vmkit/Allocator.h"
 #include "vmkit/CollectionRV.h"
@@ -107,4 +107,4 @@ public:
 };
 
 } // end namespace vmkit
-#endif // MVM_VIRTUALMACHINE_H
+#endif // VMKIT_VIRTUALMACHINE_H

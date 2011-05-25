@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 
 
-#ifndef MVM_MMAP_GC_H
-#define MVM_MMAP_GC_H
+#ifndef VMKIT_MMAP_GC_H
+#define VMKIT_MMAP_GC_H
 
 #include "types.h"
 #include "gcalloc.h"

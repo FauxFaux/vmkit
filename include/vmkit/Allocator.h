@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MVM_ALLOCATOR_H
-#define MVM_ALLOCATOR_H
+#ifndef VMKIT_ALLOCATOR_H
+#define VMKIT_ALLOCATOR_H
 
 #include <cstdlib>
 #include <cstring>
@@ -96,4 +96,4 @@ struct JITInfo : public vmkit::PermanentObject {
 
 } // end namespace vmkit
 
-#endif // MVM_ALLOCATOR_H
+#endif // VMKIT_ALLOCATOR_H

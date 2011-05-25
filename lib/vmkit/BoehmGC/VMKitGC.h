@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 
 
-#ifndef MVM_BOEHM_GC_H
-#define MVM_BOEHM_GC_H
+#ifndef VMKIT_BOEHM_GC_H
+#define VMKIT_BOEHM_GC_H
 
 //#define GC_REDIRECT_TO_LOCAL
 #include <stdlib.h>

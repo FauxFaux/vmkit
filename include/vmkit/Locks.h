@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MVM_LOCKS_H
-#define MVM_LOCKS_H
+#ifndef VMKIT_LOCKS_H
+#define VMKIT_LOCKS_H
 
 #include <pthread.h>
 #include <cassert>
@@ -175,4 +175,4 @@ public:
 
 } // end namespace vmkit
 
-#endif // MVM_LOCKS_H
+#endif // VMKIT_LOCKS_H

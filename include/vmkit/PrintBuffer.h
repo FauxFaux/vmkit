@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MVM_PRINTBUFFER_H
-#define MVM_PRINTBUFFER_H
+#ifndef VMKIT_PRINTBUFFER_H
+#define VMKIT_PRINTBUFFER_H
 
 #include <cstdio> // sprintf
 #include <cstring> // memcpy
@@ -208,4 +208,4 @@ public:
 
 } // end namespace vmkit
 
-#endif // MVM_PRINTBUFFER_H
+#endif // VMKIT_PRINTBUFFER_H
