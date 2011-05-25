@@ -1,1 +1,0 @@
-./configure --with-gc=mmtk --with-p3 --with-j3 --with-llvmgcc --with-gnu-classpath-libs=/Users/gthomas/vmkit/classpath-0.97.2/lib --with-gnu-classpath-glibj=/Users/gthomas/vmkit/classpath-0.97.2/lib/glibj.zip --with-llvmsrc=/Users/gthomas/vmkit/llvm/ --with-llvmobj=/Users/gthomas/vmkit/llvm

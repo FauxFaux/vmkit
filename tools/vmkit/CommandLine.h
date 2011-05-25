@@ -14,8 +14,8 @@
 
 #include <string.h>
 
-#include "mvm/Object.h"
-#include "mvm/VirtualMachine.h"
+#include "vmkit/Object.h"
+#include "vmkit/VirtualMachine.h"
 
 #if defined(__APPLE__)
 #define JNJVM_LIB "Jnjvm.dylib"
@@ -30,9 +30,9 @@
 #endif
 
 typedef int (*boot_t)();
-typedef mvm::VirtualMachine* (*create_vm_t)(mvm::Object*);
+typedef vmkit::VirtualMachine* (*create_vm_t)(vmkit::Object*);
 
-namespace mvm {
+namespace vmkit {
 
 
 struct ltstr
@@ -55,7 +55,7 @@ public:
   char _yyChar;
   
   std::map<const char*, create_vm_t, ltstr> vmlets;
-  std::map<const char*, mvm::Object*, ltstr> compilers;
+  std::map<const char*, vmkit::Object*, ltstr> compilers;
 
   CommandLine();
   
@@ -70,6 +70,6 @@ public:
 
 };
 
-} // end namespace mvm
+} // end namespace vmkit
 
 #endif // COMMAND_LINE_H

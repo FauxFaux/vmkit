@@ -18,16 +18,16 @@
 #include "llvm/Target/TargetData.h"
 
 
-#include "mvm/GC.h"
-#include "mvm/Config/config.h"
-#include "mvm/JIT.h"
-#include "mvm/VMKit.h"
-#include "mvm/VirtualMachine.h"
-#include "mvm/Threads/Thread.h"
+#include "vmkit/GC.h"
+#include "vmkit/config.h"
+#include "vmkit/JIT.h"
+#include "vmkit/VMKit.h"
+#include "vmkit/VirtualMachine.h"
+#include "vmkit/Thread.h"
 
 #include "j3/JavaJITCompiler.h"
-#include "../../lib/J3/VMCore/JnjvmClassLoader.h"
-#include "../../lib/J3/VMCore/Jnjvm.h"
+#include "../../lib/j3/VMCore/JnjvmClassLoader.h"
+#include "../../lib/j3/VMCore/Jnjvm.h"
 
 //#include "CommandLine.h"
 
@@ -66,10 +66,10 @@ int main(int argc, char** argv) {
     return 0;
   }
   
-	mvm::BumpPtrAllocator Allocator;
+	vmkit::BumpPtrAllocator Allocator;
 
-  mvm::VMKit::initialise(Fast ? CodeGenOpt::None : CodeGenOpt::Aggressive);
-	mvm::VMKit* vmkit = new(Allocator, "VMKit") mvm::VMKit(Allocator);
+  vmkit::VMKit::initialise(Fast ? CodeGenOpt::None : CodeGenOpt::Aggressive);
+	vmkit::VMKit* vmkit = new(Allocator, "VMKit") vmkit::VMKit(Allocator);
 
   if (VMToRun == RunJava) {
     JavaJITCompiler* Comp = JavaJITCompiler::CreateCompiler("JITModule");

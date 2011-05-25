@@ -17,7 +17,7 @@ namespace j3 {
 class ArrayObject;
 class Attribut;
 
-using mvm::UTF8;
+using vmkit::UTF8;
 
 class JavaAOTCompiler : public JavaLLVMCompiler {
 

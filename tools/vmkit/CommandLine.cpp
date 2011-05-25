@@ -14,10 +14,10 @@
 #include <stdlib.h>
 
 #include "CommandLine.h"
-#include "mvm/GC.h"
-#include "mvm/Threads/Thread.h"
+#include "vmkit/GC.h"
+#include "vmkit/Thread.h"
 
-using namespace mvm;
+using namespace vmkit;
 
 typedef struct thread_arg_t {
   int argc;
@@ -154,7 +154,7 @@ void CommandLine::executeInstr() {
 
   } else {
     create_vm_t func = vmlets[argv[0]];
-    mvm::Object* CU = compilers[argv[0]];
+    vmkit::Object* CU = compilers[argv[0]];
     if (!func) {
       fprintf(stderr, "\t Unknown vm %s\n", argv[0]);
     } else {

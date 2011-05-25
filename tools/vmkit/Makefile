@@ -14,18 +14,21 @@ TOOLNAME = vmkit
 
 
 ifeq ($(WITH_LLVM_GCC), 1)
+	ifeq ($(GCLIB), GCMmap2)
+		Allocator=Allocator.bc
+	endif
 
   MODULESNAME = vmkit
 
   ifeq ($(WITH_J3), 1)
-    USEDMODULES += J3.bc Classpath.bc J3Compiler.bc
+    USEDMODULES += j3.bc Classpath.bc J3Compiler.bc
   endif
 
   ifeq ($(WITH_N3_PNETLIB), 1)
     USEDMODULES += N3.bc PNetLib.bc
   endif
 
-  USEDMODULES += Allocator.bc CommonThread.bc Mvm.bc MvmCompiler.bc
+  USEDMODULES += $(Allocator) CommonThread.bc VMKit.bc VMKitCompiler.bc
 
   ifeq ($(GC_MMTK), 1)
     USEDMODULES += FinalMMTk.bc InlineMMTk.bc
@@ -38,18 +41,21 @@ ifeq ($(WITH_LLVM_GCC), 1)
 
 
 else
+	ifeq ($(GCLIB), GCMmap2)
+		Allocator=Allocator.a
+	endif
 
-  USEDLIBS += Allocator.a Mvm.a MvmCompiler.a $(GCLIB).a CommonThread.a
+  USEDLIBS += $(Allocator) VMKit.a VMKitCompiler.a $(GCLIB).a CommonThread.a
 
   ifeq ($(WITH_J3), 1)
-    USEDLIBS += J3.a Classpath.a J3.a J3Compiler.a
+    USEDLIBS += j3.a Classpath.a j3.a J3Compiler.a
   endif
 
   ifeq ($(WITH_N3_PNETLIB), 1)
     USEDLIBS += N3.a PNetLib.a
   endif
 
-  USEDLIBS += Allocator.a Mvm.a MvmCompiler.a $(GCLIB).a CommonThread.a
+  USEDLIBS += $(Allocator) VMKit.a VMKitCompiler.a $(GCLIB).a CommonThread.a
 
 endif
 

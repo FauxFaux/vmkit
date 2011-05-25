@@ -13,4 +13,4 @@ USEDLIBS = Allocator.a
 
 include $(LEVEL)/Makefile.common
 
-CXX.Flags += -I$(LEVEL)/lib/Mvm/Allocator
+CXX.Flags += -I$(LEVEL)/lib/VMKit/Allocator

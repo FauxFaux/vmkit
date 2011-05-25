@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 
 #include "debug.h"
-#include "mvm/VirtualMachine.h"
-#include "mvm/VMKit.h"
+#include "vmkit/VirtualMachine.h"
+#include "vmkit/VMKit.h"
 #include "MMTkObject.h"
 #include "MutatorThread.h"
 
@@ -18,19 +18,19 @@ namespace mmtk {
 extern "C" MMTkObject* Java_org_j3_mmtk_ActivePlan_getNextMutator__(MMTkActivePlan* A) {
   assert(A && "No active plan");
 
-	mvm::CircularBase<mvm::Thread>* mut = A->current;
+	vmkit::CircularBase<vmkit::Thread>* mut = A->current;
 
 	if(!mut)
-		mut = &mvm::Thread::get()->vmkit->runningThreads;
+		mut = &vmkit::Thread::get()->vmkit->runningThreads;
 
 	mut = mut->next();
 
-	if(mut == &mvm::Thread::get()->vmkit->runningThreads) {
+	if(mut == &vmkit::Thread::get()->vmkit->runningThreads) {
 		A->current = NULL;
 		return NULL;
 	}
 	
-	A->current = (mvm::MutatorThread*)mut;
+	A->current = (vmkit::MutatorThread*)mut;
 
   if (A->current->MutatorContext == 0) {
     return Java_org_j3_mmtk_ActivePlan_getNextMutator__(A);

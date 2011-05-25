@@ -7,20 +7,20 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mvm/GC.h"
-#include "mvm/JIT.h"
-#include "mvm/Object.h"
-#include "mvm/VirtualMachine.h"
-#include "mvm/Threads/Thread.h"
+#include "vmkit/GC.h"
+#include "vmkit/JIT.h"
+#include "vmkit/Object.h"
+#include "vmkit/VirtualMachine.h"
+#include "vmkit/Thread.h"
 
 #include "llvm/Support/ManagedStatic.h"
 
-using namespace mvm;
+using namespace vmkit;
 
 int main(int argc, char **argv, char **envp) {
   llvm::llvm_shutdown_obj X;  
     
-  MvmModule::initialise();
+  VMKitModule::initialise();
   Collector::initialise();
 
   VirtualMachine::initialiseCLIVM();

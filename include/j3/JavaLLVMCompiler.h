@@ -11,7 +11,7 @@
 #define J3_LLVM_COMPILER_H
 
 #include "j3/JavaCompiler.h"
-#include "j3/J3Intrinsics.h"
+#include "j3/JavaIntrinsics.h"
 #include "j3/LLVMInfo.h"
 
 #include "llvm/LLVMContext.h"
@@ -45,9 +45,9 @@ class JavaLLVMCompiler : public JavaCompiler {
   friend class LLVMMethodInfo;
 
 protected:
-  llvm::Module* TheModule;
-  llvm::DIBuilder* DebugFactory;  
-  J3Intrinsics JavaIntrinsics;
+  llvm::Module* theModule;
+  llvm::DIBuilder* debugFactory;  
+  JavaIntrinsics javaIntrinsics;
 
 private:  
   bool enabledException;
@@ -82,20 +82,20 @@ public:
   virtual void* GenerateStub(llvm::Function* F) = 0;
   void addJavaPasses();
   
-  llvm::DIBuilder* getDebugFactory() {
-    return DebugFactory;
+  llvm::DIBuilder* getdebugFactory() {
+    return debugFactory;
   }
 
   llvm::Module* getLLVMModule() {
-    return TheModule;
+    return theModule;
   }
   
   llvm::LLVMContext& getLLVMContext() {
-    return TheModule->getContext();
+    return theModule->getContext();
   }
 
-  J3Intrinsics* getIntrinsics() {
-    return &JavaIntrinsics;
+  JavaIntrinsics* getIntrinsics() {
+    return &javaIntrinsics;
   }
 
   bool hasExceptionsEnabled() {

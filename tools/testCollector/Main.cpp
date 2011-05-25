@@ -1,14 +1,14 @@
-//===---------------- main.cc - Mvm Garbage Collector ---------------------===//
+//===---------------- main.cc - VMKit Garbage Collector ---------------------===//
 //
-//                              Mvm
+//                              VMKit
 //
 // This file is distributed under the University of Illinois Open Source 
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
 
-#include "mvm/GC.h"
-#include "mvm/Threads/Thread.h"
+#include "vmkit/GC.h"
+#include "vmkit/Thread.h"
 #include <stdio.h>
 
 void destr(gc *me, size_t sz) {
@@ -24,11 +24,11 @@ void marker(void*) {
 }
 
 int main(int argc, char **argv) {
-  mvm::Collector::initialise();
+  vmkit::Collector::initialise();
 #ifdef MULTIPLE_GC
-  mvm::Thread::get()->GC->destroy();
+  vmkit::Thread::get()->GC->destroy();
 #else
-  mvm::Collector::destroy();
+  vmkit::Collector::destroy();
 #endif
   return 0;
 }

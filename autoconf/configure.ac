@@ -44,13 +44,13 @@ AC_PREREQ(2.59)
 
 dnl Verify that the source directory is valid. This makes sure that we are
 dnl configuring VMKit and not some other package (it validates --srcdir argument)
-AC_CONFIG_SRCDIR([lib/Mvm/Runtime/Object.cpp])
+AC_CONFIG_SRCDIR([lib/vmkit/Runtime/Object.cpp])
 
 
 dnl Quit if the source directory has already been configured.
 dnl NOTE: This relies upon undocumented autoconf behavior.
 if test ${srcdir} != "." ; then
-  if test -f ${srcdir}/include/mvm/Config/config.h ; then
+  if test -f ${srcdir}/include/vmkit/config.h ; then
     AC_MSG_ERROR([Already configured in ${srcdir}])
   fi
 fi
@@ -230,7 +230,7 @@ AC_ARG_WITH(mmtk-plan,
 )
 
 if test "x$gc" = "xboehm";  then
-  GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/Mvm/BoehmGC -DGC_THREADS"
+  GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/vmkit/BoehmGC -DGC_THREADS"
   AC_DEFINE([USE_GC_BOEHM], [1], [Using the boehm gc])
   AC_SUBST(GC_MMAP2, [0])
   AC_SUBST(GC_BOEHM, [1])
@@ -238,7 +238,7 @@ if test "x$gc" = "xboehm";  then
   GC_LIBS=BoehmGC
   case $target_os in
     *linux*)
-      GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/Mvm/BoehmGC -DUSE_GC_BOEHM -DGC_THREADS -DGC_LINUX_THREADS"
+      GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/vmkit/BoehmGC -DUSE_GC_BOEHM -DGC_THREADS -DGC_LINUX_THREADS"
     ;;
   esac
 else
@@ -249,15 +249,15 @@ else
     AC_SUBST(GC_BOEHM, [0])
     AC_SUBST(GC_MMTK, [1])
     GC_LIBS=MMTk
-    GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/Mvm/MMTk -DWITH_MMTK"
+    GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/vmkit/MMTk -DWITH_MMTK"
   else
     GC_LIBS=GCMmap2
     if test "x$gc" = "xmulti-mmap"; then
-      GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/Mvm/GCMmap2 -DWITH_TRACER -DMULTIPLE_GC -I\$(PROJ_SRC_ROOT)/lib/Mvm/Allocator"
+      GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/vmkit/GCMmap2 -DWITH_TRACER -DMULTIPLE_GC -I\$(PROJ_SRC_ROOT)/lib/vmkit/Allocator"
       AC_SUBST([GC_MULTI_MMAP], [1])
       AC_SUBST([GC_SINGLE_MMAP], [0])
     else
-      GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/Mvm/GCMmap2 -DWITH_TRACER -I\$(PROJ_SRC_ROOT)/lib/Mvm/Allocator"
+      GC_FLAGS="-I\$(PROJ_SRC_ROOT)/lib/vmkit/GCMmap2 -DWITH_TRACER -I\$(PROJ_SRC_ROOT)/lib/vmkit/Allocator"
       AC_SUBST([GC_MULTI_MMAP], [0])
       AC_SUBST([GC_SINGLE_MMAP], [1])
     fi
@@ -412,25 +412,6 @@ AC_SUBST([WITH_N3_MONO])
 AC_SUBST([monopath])
 
 AC_SUBST([WITH_N3])
-
-dnl **************************************************************************
-dnl toy vm
-dnl **************************************************************************
-AC_ARG_WITH(p3,
-       [AS_HELP_STRING(--with-p3=yes|no,
-        [Build the python virtual machine (default is no)])],
-       [[WITH_P3=$withval]],
-       [[WITH_P3=no]]
-)
-
-if test "x${WITH_P3}" = "xyes"; then
-  echo Building P3;
-  WITH_P3=1;
-else
-  WITH_P3=0;
-fi 
-
-AC_SUBST([WITH_P3])
 
 dnl===-----------------------------------------------------------------------===
 dnl===
@@ -606,7 +587,7 @@ dnl WARNING: dnl If you add or remove any of the following config headers, then
 dnl you MUST also update Makefile.rules so that the variable FilesToConfig
 dnl contains the same list of files as AC_CONFIG_HEADERS below. This ensures the
 dnl files can be updated automatically when their *.in sources change.
-AC_CONFIG_HEADERS([include/mvm/Config/config.h])
+AC_CONFIG_HEADERS([include/vmkit/config.h])
 
 dnl Verify that the source directory is valid
 AC_CONFIG_SRCDIR(["Makefile.common.in"])
@@ -614,8 +595,8 @@ AC_CONFIG_SRCDIR(["Makefile.common.in"])
 dnl Configure a common Makefile
 AC_CONFIG_FILES(Makefile.common)
 AC_CONFIG_FILES(Makefile.config)
-AC_CONFIG_FILES([lib/J3/Classpath-$classpathversion/Classpath.h])
-AC_CONFIG_FILES([lib/J3/Classpath.config])
+AC_CONFIG_FILES([lib/j3/Classpath-$classpathversion/Classpath.h])
+AC_CONFIG_FILES([lib/j3/Classpath.config])
 AC_CONFIG_FILES([tools/llcj/LinkPaths.h])
 AC_CONFIG_FILES([mmtk/java/src/org/j3/config/Selected.java])
 AC_CONFIG_FILES([mmtk/java/build.xml])

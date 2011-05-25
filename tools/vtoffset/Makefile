@@ -11,7 +11,7 @@ LEVEL = ../..
 include $(LEVEL)/Makefile.config
 
 TOOLNAME = vtoffset
-USEDLIBS = Mvm CommonThread Allocator $(GCLIB)
+USEDLIBS = VMKit CommonThread Allocator $(GCLIB)
 LINK_COMPONENTS = jit nativecodegen scalaropts instrumentation ipa ipo bitwriter
 
 include $(LEVEL)/Makefile.common

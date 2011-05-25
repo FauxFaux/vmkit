@@ -12,16 +12,16 @@
 #include <signal.h>
 #include <stdio.h>
 
-#include "mvm/GC.h"
-#include "mvm/PrintBuffer.h"
-#include "mvm/Threads/Thread.h"
-#include "mvm/Sigsegv.h"
+#include "vmkit/GC.h"
+#include "vmkit/PrintBuffer.h"
+#include "vmkit/Thread.h"
+#include "vmkit/Sigsegv.h"
 
-class Toto : public mvm::Object {
+class Toto : public vmkit::Object {
 public:
   
   static VirtualTable* VT;
-  virtual void print(mvm::PrintBuffer* buf) const {
+  virtual void print(vmkit::PrintBuffer* buf) const {
     printf("in print!\n");
   }
   virtual intptr_t hashCode() {
@@ -59,7 +59,7 @@ typedef void (*tata_t)(Tata* t);
 int main(int argc, char **argv, char **envp) {
   int base;
   
-  mvm::Object::initialise();
+  vmkit::Object::initialise();
   
   /*void* handle = sys_dlopen("libLisp.so", RTLD_LAZY | RTLD_GLOBAL);
   boot func = (boot)sys_dlsym(handle, "boot");
@@ -95,7 +95,7 @@ int main(int argc, char **argv, char **envp) {
   ptr[5](&t);
 }
 Tata* t = gc_new(Tata)();
-  mvm::Thread::exit(0);
+  vmkit::Thread::exit(0);
    
   return 0; 
 }

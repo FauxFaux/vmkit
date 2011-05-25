@@ -7,14 +7,14 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MVM_OBJECT_HEADER_H
-#define MVM_OBJECT_HEADER_H
+#ifndef VMKIT_OBJECT_HEADER_H
+#define VMKIT_OBJECT_HEADER_H
 
 #include <stdint.h>
 
-namespace mvm {
+namespace vmkit {
   static const uint32_t GCBits = 8;
   static const bool MovesObject = false;
 }
 
-#endif // MVM_OBJECT_HEADER_H
+#endif // VMKIT_OBJECT_HEADER_H

@@ -36,16 +36,16 @@
 #include "llvm/Target/TargetMachine.h"
 
 
-#include "mvm/GC.h"
-#include "mvm/JIT.h"
-#include "mvm/VMKit.h"
-#include "mvm/VirtualMachine.h"
-#include "mvm/Threads/Thread.h"
+#include "vmkit/GC.h"
+#include "vmkit/JIT.h"
+#include "vmkit/VMKit.h"
+#include "vmkit/VirtualMachine.h"
+#include "vmkit/Thread.h"
 
 #include "j3/JavaAOTCompiler.h"
 
-#include "../../lib/J3/VMCore/JnjvmClassLoader.h"
-#include "../../lib/J3/VMCore/Jnjvm.h"
+#include "../../lib/j3/VMCore/JnjvmClassLoader.h"
+#include "../../lib/j3/VMCore/Jnjvm.h"
 
 #include <iostream>
 #include <fstream>
@@ -121,12 +121,12 @@ int main(int argc, char **argv) {
 
   // Disable cross-compiling for now.
   if (false) {
-    Module* TheModule = new Module("bootstrap module",
+    Module* theModule = new Module("bootstrap module",
                                    *(new llvm::LLVMContext()));
     if (!TargetTriple.empty())
-      TheModule->setTargetTriple(TargetTriple);
+      theModule->setTargetTriple(TargetTriple);
     else
-      TheModule->setTargetTriple(mvm::MvmModule::getHostTriple());
+      theModule->setTargetTriple(vmkit::VMKitModule::getHostTriple());
 
 #if 0
     // explicitly specified an architecture to compile for.
@@ -147,7 +147,7 @@ int main(int argc, char **argv) {
     } else {
       std::string Err;
       TheTarget =
-        TargetRegistry::getClosestStaticTargetForModule(*TheModule, Err);
+        TargetRegistry::getClosestStaticTargetForModule(*theModule, Err);
       if (TheTarget == 0) {
         errs() << argv[0] << ": error auto-selecting target for module '"
                << Err << "'.  Please use the -march option to explicitly "
@@ -158,22 +158,22 @@ int main(int argc, char **argv) {
 
     std::string FeaturesStr;
     std::auto_ptr<TargetMachine>
-      target(TheTarget->createTargetMachine(*TheModule, FeaturesStr));
+      target(TheTarget->createTargetMachine(*theModule, FeaturesStr));
     assert(target.get() && "Could not allocate target machine!");
     TargetMachine &Target = *target.get();
 
     // Install information about target datalayout stuff into the module for
     // optimizer use.
-    TheModule->setDataLayout(Target.getTargetData()->
+    theModule->setDataLayout(Target.getTargetData()->
                              getStringRepresentation());
 
 
-    mvm::VMKit::initialise(CodeGenOpt::Default, TheModule, &Target);
+    vmkit::VMKit::initialise(CodeGenOpt::Default, theModule, &Target);
 #endif
   }
 
-  mvm::BumpPtrAllocator allocator;
-	mvm::VMKit* vmkit = new(allocator, "VMKit") mvm::VMKit(allocator);
+  vmkit::BumpPtrAllocator allocator;
+	vmkit::VMKit* vmkit = new(allocator, "VMKit") vmkit::VMKit(allocator);
 
   JavaAOTCompiler* Comp = new JavaAOTCompiler("AOT");
 
