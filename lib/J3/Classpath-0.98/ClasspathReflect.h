@@ -118,30 +118,38 @@ public:
 
 };
 
-class JavaObjectConstructor : public JavaObject {
+
+class JavaObjectVMConstructor : public JavaObject {
 private:
-  uint8 flag;
   JavaObjectClass* declaringClass;
   uint32 slot;
+  JavaObject* constructor;
 
 public:
-  static void staticTracer(JavaObjectConstructor* obj, uintptr_t closure) {
+  static void staticTracer(JavaObjectVMConstructor* obj, uintptr_t closure) {
     mvm::Collector::markAndTrace(obj, &obj->declaringClass, closure);
   }
   
-  static JavaMethod* getInternalMethod(JavaObjectConstructor* self) {
+  static JavaMethod* getInternalMethod(JavaObjectVMConstructor* self) {
     llvm_gcroot(self, 0);
     UserCommonClass* cls = JavaObjectClass::getClass(self->declaringClass); 
     return &(cls->asClass()->virtualMethods[self->slot]);
   }
   
-  static UserClass* getClass(JavaObjectConstructor* self) {
+  static UserClass* getClass(JavaObjectVMConstructor* self) {
     llvm_gcroot(self, 0);
     UserCommonClass* cls = JavaObjectClass::getClass(self->declaringClass); 
     return cls->asClass();
   }
 
+  static UserCommonClass* getUserCommonClass(JavaObjectVMConstructor* self) {
+    llvm_gcroot(self, 0);
+    UserCommonClass* cls = UserCommonClass::resolvedImplClass((JavaObject*)self->declaringClass, false);
+    return cls;
+  }
+
 };
+
 
 class JavaObjectVMThread : public JavaObject {
 private:

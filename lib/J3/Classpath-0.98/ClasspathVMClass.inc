@@ -1,4 +1,4 @@
-//===---- ClasspathVMClass.cpp - GNU classpath java/lang/VMClass ----------===//
+//===---- Classpathvmclass.cpp - GNU classpath java/lang/VMClass ----------===//
 //
 //                            The VMKit project
 //

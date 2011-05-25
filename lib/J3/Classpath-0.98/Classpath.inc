@@ -220,7 +220,7 @@ JNIEXPORT JavaObject* JNICALL Java_java_io_VMObjectInputStream_allocateObject(
 JNIEnv *env,
 jclass clazz,
 #endif
-JavaObject* target, JavaObject* constr, JavaObjectConstructor* cons) {
+JavaObject* target, JavaObject* constr, JavaObjectVMConstructor* cons) {
   
   JavaObject* res = 0;
   llvm_gcroot(res, 0);
@@ -233,7 +233,7 @@ JavaObject* target, JavaObject* constr, JavaObjectConstructor* cons) {
   UserClass* cl = 
     (UserClass*)UserCommonClass::resolvedImplClass(target, true);
   res = cl->doNew();
-  JavaMethod* meth = JavaObjectConstructor::getInternalMethod(cons);
+  JavaMethod* meth = JavaObjectVMConstructor::getInternalMethod(cons);
   meth->invokeIntSpecial(cl, res);
 
   END_NATIVE_EXCEPTION

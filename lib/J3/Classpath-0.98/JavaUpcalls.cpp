@@ -320,8 +320,8 @@ extern "C" void nativeJavaObjectMethodTracer(
 }
 
 extern "C" void nativeJavaObjectConstructorTracer(
-    JavaObjectConstructor* obj, uintptr_t closure) {
-  JavaObjectConstructor::staticTracer(obj, closure);
+    JavaObjectVMConstructor* obj, uintptr_t closure) {
+  JavaObjectVMConstructor::staticTracer(obj, closure);
 }
 
 extern "C" void nativeJavaObjectVMThreadTracer(
@@ -579,7 +579,7 @@ void Classpath::postInitialiseClasspath(JnjvmClassLoader* loader) {
                   "(Ljava/lang/reflect/VMConstructor;)V", ACC_VIRTUAL);
 
   constructorArrayClass =
-    UPCALL_ARRAY_CLASS(loader, "java/lang/reflect/Constructor", 1);
+    UPCALL_ARRAY_CLASS(loader, "java/lang/reflect/VMConstructor", 1);
   
   constructorArrayAnnotation =
     UPCALL_ARRAY_CLASS(loader, "java/lang/annotation/Annotation", 1);
