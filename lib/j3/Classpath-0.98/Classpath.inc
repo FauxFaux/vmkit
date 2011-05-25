@@ -334,7 +334,7 @@ JavaObject* update) {
 
   JavaObject** ptr = (JavaObject**) (((uint8 *) obj) + offset);
 
-  return mvm::Collector::objectReferenceTryCASBarrier((mvm::gc*)obj, (mvm::gc**)ptr, (mvm::gc*)expect, (mvm::gc*)update);
+  return vmkit::Collector::objectReferenceTryCASBarrier((vmkit::gc*)obj, (vmkit::gc**)ptr, (vmkit::gc*)expect, (vmkit::gc*)update);
 }
 
 // Never throws.
@@ -348,7 +348,7 @@ JavaObject* unsafe, JavaObject* obj, jlong offset, JavaObject* value) {
   llvm_gcroot(value, 0);
 
   JavaObject** ptr = (JavaObject**) (((uint8 *) obj) + offset);
-  mvm::Collector::objectReferenceWriteBarrier((mvm::gc*)obj, (mvm::gc**)ptr, (mvm::gc*)value);
+  vmkit::Collector::objectReferenceWriteBarrier((vmkit::gc*)obj, (vmkit::gc**)ptr, (vmkit::gc*)value);
 }
 
 }

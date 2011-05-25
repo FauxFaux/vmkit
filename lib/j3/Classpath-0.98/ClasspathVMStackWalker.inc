@@ -37,12 +37,12 @@ jclass clazz,
 
   BEGIN_NATIVE_EXCEPTION(0)
 
-	mvm::Thread* mut = mvm::Thread::get();
+	vmkit::Thread* mut = vmkit::Thread::get();
 	JavaThread*  th = JavaThread::j3Thread(mut);
   Jnjvm* vm = th->getJVM();
   uint32 length = mut->getFrameContextLength();
   
-  mvm::ThreadAllocator allocator;  
+  vmkit::ThreadAllocator allocator;  
   uintptr_t* buffer = (uintptr_t*)allocator.Allocate(length * sizeof(uintptr_t));
   
   uint32 finalSize = th->getJavaFrameContext((void**)buffer);

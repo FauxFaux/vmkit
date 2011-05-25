@@ -10,7 +10,7 @@
 #ifndef JNJVM_CLASSPATH_REFLECT_H
 #define JNJVM_CLASSPATH_REFLECT_H
 
-#include "mvm/GC.h"
+#include "vmkit/GC.h"
 
 #include "JavaClass.h"
 #include "JavaObject.h"
@@ -42,7 +42,7 @@ public:
   static void setProtectionDomain(JavaObjectClass* cl, JavaObject* pd) {
     llvm_gcroot(cl, 0);
     llvm_gcroot(pd, 0);
-    mvm::Collector::objectReferenceWriteBarrier(
+    vmkit::Collector::objectReferenceWriteBarrier(
         (gc*)cl, (gc**)&(cl->pd), (gc*)pd);
   }
   
@@ -52,12 +52,12 @@ public:
   }
 
   static void staticTracer(JavaObjectClass* obj, uintptr_t closure) {
-    mvm::Collector::markAndTrace(obj, &obj->pd, closure);
-    mvm::Collector::markAndTrace(obj, &obj->signers, closure);
-    mvm::Collector::markAndTrace(obj, &obj->constructor, closure);
+    vmkit::Collector::markAndTrace(obj, &obj->pd, closure);
+    vmkit::Collector::markAndTrace(obj, &obj->signers, closure);
+    vmkit::Collector::markAndTrace(obj, &obj->constructor, closure);
     if (obj->vmdata) {
       JavaObject** Obj = obj->vmdata->classLoader->getJavaClassLoaderPtr();
-      if (*Obj) mvm::Collector::markAndTraceRoot(Obj, closure);
+      if (*Obj) vmkit::Collector::markAndTraceRoot(Obj, closure);
     }
   }
 };
@@ -72,8 +72,8 @@ private:
 public:
 
   static void staticTracer(JavaObjectField* obj, uintptr_t closure) {
-    mvm::Collector::markAndTrace(obj, &obj->name, closure);
-    mvm::Collector::markAndTrace(obj, &obj->declaringClass, closure);
+    vmkit::Collector::markAndTrace(obj, &obj->name, closure);
+    vmkit::Collector::markAndTrace(obj, &obj->declaringClass, closure);
   }
 
   static JavaField* getInternalField(JavaObjectField* self) {
@@ -100,8 +100,8 @@ private:
 public:
   
   static void staticTracer(JavaObjectMethod* obj, uintptr_t closure) {
-    mvm::Collector::markAndTrace(obj, &obj->name, closure);
-    mvm::Collector::markAndTrace(obj, &obj->declaringClass, closure);
+    vmkit::Collector::markAndTrace(obj, &obj->name, closure);
+    vmkit::Collector::markAndTrace(obj, &obj->declaringClass, closure);
   }
   
   static JavaMethod* getInternalMethod(JavaObjectMethod* self) {
@@ -127,7 +127,7 @@ private:
 
 public:
   static void staticTracer(JavaObjectVMConstructor* obj, uintptr_t closure) {
-    mvm::Collector::markAndTrace(obj, &obj->declaringClass, closure);
+    vmkit::Collector::markAndTrace(obj, &obj->declaringClass, closure);
   }
   
   static JavaMethod* getInternalMethod(JavaObjectVMConstructor* self) {
@@ -164,7 +164,7 @@ public:
   }
 
   static void staticTracer(JavaObjectVMThread* obj, uintptr_t closure) {
-    mvm::Collector::markAndTrace(obj, &obj->thread, closure);
+    vmkit::Collector::markAndTrace(obj, &obj->thread, closure);
   }
 
   static void setVmdata(JavaObjectVMThread* vmthread,
@@ -188,7 +188,7 @@ public:
   static void setDetailedMessage(JavaObjectThrowable* self, JavaObject* obj) {
     llvm_gcroot(self, 0);
     llvm_gcroot(obj, 0);
-    mvm::Collector::objectReferenceWriteBarrier(
+    vmkit::Collector::objectReferenceWriteBarrier(
         (gc*)self, (gc**)&(self->detailedMessage), (gc*)obj);
   }
 
@@ -198,10 +198,10 @@ public:
     llvm_gcroot(stackTrace, 0);
 
     stackTrace = internalFillInStackTrace(self);
-    mvm::Collector::objectReferenceWriteBarrier(
+    vmkit::Collector::objectReferenceWriteBarrier(
         (gc*)self, (gc**)&(self->vmState), (gc*)stackTrace);
 
-    mvm::Collector::objectReferenceWriteBarrier(
+    vmkit::Collector::objectReferenceWriteBarrier(
         (gc*)self, (gc**)&(self->cause), (gc*)self);
 
     self->stackTrace = NULL;
@@ -219,9 +219,9 @@ public:
     llvm_gcroot(self, 0);
     llvm_gcroot(r, 0);
     llvm_gcroot(q, 0);
-    mvm::Collector::objectReferenceWriteBarrier(
+    vmkit::Collector::objectReferenceWriteBarrier(
         (gc*)self, (gc**)&(self->referent), (gc*)r);
-    mvm::Collector::objectReferenceWriteBarrier(
+    vmkit::Collector::objectReferenceWriteBarrier(
         (gc*)self, (gc**)&(self->queue), (gc*)q);
   }
 

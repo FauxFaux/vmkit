@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mvm/VMKit.h"
+#include "vmkit/VMKit.h"
 
 #include "types.h"
 
@@ -35,7 +35,7 @@ JavaObject* internalFillInStackTrace(JavaObject* throwable) {
   llvm_gcroot(vmThrowable, 0);
   llvm_gcroot(result, 0);
 
-	mvm::Thread* mut = mvm::Thread::get();
+	vmkit::Thread* mut = vmkit::Thread::get();
   uint32 length = mut->getFrameContextLength();
 
   Jnjvm* vm = JavaThread::j3Thread(mut)->getJVM();
@@ -49,7 +49,7 @@ JavaObject* internalFillInStackTrace(JavaObject* throwable) {
   }
   
   // Don't call th->getFrameContext because it is not GC-safe.
-  mvm::StackWalker Walker(mut);
+  vmkit::StackWalker Walker(mut);
   uint32_t i = 0;
 
   while (void* ip = *Walker) {
@@ -139,7 +139,7 @@ JavaObject* vmthrow, JavaObject* throwable) {
   BEGIN_NATIVE_EXCEPTION(0)
 
   Jnjvm*      vm = JavaThread::get()->getJVM();
-	mvm::VMKit* vmkit = vm->vmkit;
+	vmkit::VMKit* vmkit = vm->vmkit;
   JavaField*  field = vm->upcalls->vmDataVMThrowable;
 
   stack = field->getInstanceObjectField(vmthrow);
@@ -148,7 +148,7 @@ JavaObject* vmthrow, JavaObject* throwable) {
   // on the stack.
   sint32 index = 2;;
   while (index != JavaArray::getSize(stack)) {
-    mvm::MethodInfo* MI = vmkit->IPToMethodInfo(ArrayPtr::getElement((ArrayPtr*)stack, index));
+    vmkit::MethodInfo* MI = vmkit->IPToMethodInfo(ArrayPtr::getElement((ArrayPtr*)stack, index));
     if (!MI->isHighLevelMethod()) ++index;
     else {
       JavaMethod* meth = (JavaMethod*)MI->MetaInfo;
@@ -162,7 +162,7 @@ JavaObject* vmthrow, JavaObject* throwable) {
   sint32 size = 0;
   sint32 cur = index;
   while (cur < JavaArray::getSize(stack)) {
-    mvm::MethodInfo* MI = vmkit->IPToMethodInfo(ArrayPtr::getElement((ArrayPtr*)stack, cur));
+    vmkit::MethodInfo* MI = vmkit->IPToMethodInfo(ArrayPtr::getElement((ArrayPtr*)stack, cur));
     ++cur;
     if (MI->isHighLevelMethod()) ++size;
   }
@@ -172,7 +172,7 @@ JavaObject* vmthrow, JavaObject* throwable) {
   
   cur = 0;
   for (sint32 i = index; i < JavaArray::getSize(stack); ++i) {
-    mvm::MethodInfo* MI = vmkit->IPToMethodInfo(ArrayPtr::getElement((ArrayPtr*)stack, i));
+    vmkit::MethodInfo* MI = vmkit->IPToMethodInfo(ArrayPtr::getElement((ArrayPtr*)stack, i));
     if (MI->isHighLevelMethod()) {
       JavaMethod* meth = (JavaMethod*)MI->MetaInfo;
       ArrayObject::setElement(result, consStackElement(meth, ArrayPtr::getElement((ArrayPtr*)stack, i)), cur);

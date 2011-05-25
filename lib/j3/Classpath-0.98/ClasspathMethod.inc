@@ -99,7 +99,7 @@ JavaObject* proceedMethod(JavaObjectMethod* Meth, JavaObject* obj,
 
   JavaObject* res = 0;
   JavaObject* jexc = 0;
-	mvm::gc* exc = 0;
+	vmkit::gc* exc = 0;
   
   llvm_gcroot(res, 0);
   llvm_gcroot(Meth, 0);
@@ -117,7 +117,7 @@ JavaObject* proceedMethod(JavaObjectMethod* Meth, JavaObject* obj,
   Signdef* sign = meth->getSignature();
   sint32 size = sign->nbArguments;
 
-  mvm::ThreadAllocator allocator;
+  vmkit::ThreadAllocator allocator;
   jvalue* buf = size ?
       (jvalue*)allocator.Allocate(size * sizeof(jvalue)) : NULL;
   
@@ -166,11 +166,11 @@ JavaObject* proceedMethod(JavaObjectMethod* Meth, JavaObject* obj,
 				VAR = meth->invoke##TYPE##StaticBuf(cl, buf);										\
 			}																																	\
 		} CATCH {																														\
-      exc = mvm::Thread::get()->getPendingException();									\
+      exc = vmkit::Thread::get()->getPendingException();									\
     } END_CATCH;																												\
 																																				\
     if (exc) {																													\
-			mvm::Thread* mut = mvm::Thread::get();														\
+			vmkit::Thread* mut = vmkit::Thread::get();														\
 			jexc = Jnjvm::asJavaException(exc);																\
       if (jexc && JavaObject::getClass(jexc)->isAssignableFrom(					\
 																															 vm->upcalls->newException)) { \
