@@ -16,7 +16,6 @@
 
 #include "debug.h"
 
-
 #if 0
 #define dprintf(...) do { printf("[%p] CollectionRV: ", (void*)vmkit::Thread::get()); printf(__VA_ARGS__); } while(0)
 #else
@@ -24,6 +23,16 @@
 #endif
 
 using namespace vmkit;
+
+void CollectionRV::beginSynchronize() {
+  assert(initiator == NULL);
+  initiator = vmkit::Thread::get();
+	nbJoined = 0;
+}
+
+void CollectionRV::endSynchronize() {
+  initiator = NULL;
+}
 
 void CollectionRV::another_mark() {
 	VMKit *vmkit = vmkit::Thread::get()->vmkit;
@@ -50,20 +59,21 @@ void CollectionRV::waitRV() {
   nbJoined++;
 
   while (nbJoined != vmkit::Thread::get()->vmkit->numberOfRunningThreads) {
+		dprintf("wait...\n");
     condInitiator.wait(&_lockRV);
+		dprintf("wake up!!! %d %d\n", nbJoined, vmkit::Thread::get()->vmkit->numberOfRunningThreads);
   } 
 }
 
 void CooperativeCollectionRV::synchronize() {
 	dprintf("synchronize\n");
-  assert(nbJoined == 0);
+
   vmkit::Thread* self = vmkit::Thread::get();
   // Lock thread lock, so that we can traverse the thread list safely. This will
   // be released on finishRV.
 	vmkit::VMKit* vmkit = self->vmkit;
 
-  assert(initiator == NULL);
-  initiator = self;
+	beginSynchronize();
 
 	for(Thread* cur=vmkit->runningThreads.next(); cur!=&vmkit->runningThreads; cur=cur->next()) { 
     cur->doYield = true;
@@ -97,12 +107,13 @@ void CooperativeCollectionRV::synchronize() {
 #endif
 
 void UncooperativeCollectionRV::synchronize() { 
-  assert(nbJoined == 0);
+	dprintf("synchronize()\n");
+
   vmkit::Thread* self = vmkit::Thread::get();
 	vmkit::VMKit* vmkit = self->vmkit;
 
-  // Lock thread lock, so that we can traverse the thread list safely. This will
-  // be released on finishRV.
+	beginSynchronize();
+
 	for(Thread* cur=vmkit->runningThreads.next(); cur!=&vmkit->runningThreads; cur=cur->next()) { 
 		if(cur!=self) {
 			int res;
@@ -112,8 +123,10 @@ void UncooperativeCollectionRV::synchronize() {
 	}
   
   // And wait for other threads to finish.
+	dprintf("wait()\n");
   waitRV();
 
+	dprintf("unlock()\n");
   // Unlock, so that threads in uncooperative code that go back to cooperative
   // code can set back their lastSP.
   unlockRV();
@@ -121,13 +134,18 @@ void UncooperativeCollectionRV::synchronize() {
 
 
 void UncooperativeCollectionRV::join() {
+	dprintf("join()\n");
   vmkit::Thread* th = vmkit::Thread::get();
   th->inRV = true;
 
+	dprintf("lock()\n");
   lockRV();
+	dprintf("locked()\n");
   void* old = th->getLastSP();
   th->setLastSP(FRAME_PTR());
+	dprintf("another()\n");
   another_mark();
+	dprintf("waitEnd()\n");
   waitEndOfRV();
   th->setLastSP(old);
   unlockRV();
@@ -203,8 +221,7 @@ extern "C" void conditionalSafePoint() {
 void CooperativeCollectionRV::finishRV() {
   lockRV();
   
-  assert(vmkit::Thread::get() == initiator);
-	vmkit::VMKit* vmkit = initiator->vmkit;
+	vmkit::VMKit* vmkit = vmkit::Thread::get()->vmkit;
 
   for(vmkit::Thread* cur=vmkit->runningThreads.next(); cur!=&vmkit->runningThreads; cur=cur->next()) {
     assert(cur->doYield && "Inconsistent state");
@@ -213,28 +230,31 @@ void CooperativeCollectionRV::finishRV() {
     cur->joinedRV = false;
   }
 	
-  assert(nbJoined == initiator->vmkit->NumberOfThreads && "Inconsistent state");
-
-  nbJoined = 0;
+  assert(nbJoined == vmkit->NumberOfThreads && "Inconsistent state");
 
   condEndRV.broadcast();
-  initiator = NULL;
+	endSynchronize();
   unlockRV();
   vmkit::Thread::get()->inRV = false;
 }
 
 void CooperativeCollectionRV::prepareForJoin() {
 	/// nothing to do
+	dprintf("prepareForJoin()\n");
 }
 
 void UncooperativeCollectionRV::finishRV() {
+	dprintf("finishRV()\n");
   lockRV();
-  vmkit::Thread* initiator = vmkit::Thread::get();
-  assert(nbJoined == initiator->vmkit->NumberOfThreads && "Inconsistent state");
-  nbJoined = 0;
+	dprintf("locked()\n");
+  vmkit::Thread* th = vmkit::Thread::get();
+  assert(nbJoined == th->vmkit->NumberOfThreads && "Inconsistent state");
+
+	dprintf("broadcast()\n");
   condEndRV.broadcast();
+	endSynchronize();
   unlockRV();
-  initiator->inRV = false;
+  th->inRV = false;
 }
 
 void UncooperativeCollectionRV::joinAfterUncooperative(void* SP) {
@@ -251,6 +271,7 @@ static void siggcHandler(int) {
 }
 
 void UncooperativeCollectionRV::prepareForJoin() {
+	dprintf("set SIGGC()\n");
   // Set the SIGGC handler for uncooperative rendezvous.
   struct sigaction sa;
   sigset_t mask;
@@ -261,7 +282,7 @@ void UncooperativeCollectionRV::prepareForJoin() {
   sa.sa_flags |= SA_RESTART;
   sigaction(SIGGC, &sa, NULL);
   
-  if (nbJoined != 0) {
+  if (initiator != 0) {
     // In uncooperative mode, we may have missed a signal.
     join();
   }
