@@ -103,8 +103,6 @@ void UncooperativeCollectionRV::synchronize() {
 
   // Lock thread lock, so that we can traverse the thread list safely. This will
   // be released on finishRV.
-	printf("verify me, should maybe be removed");
-	abort();
 	for(Thread* cur=vmkit->runningThreads.next(); cur!=&vmkit->runningThreads; cur=cur->next()) { 
 		if(cur!=self) {
 			int res;

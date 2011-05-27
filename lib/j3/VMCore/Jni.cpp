@@ -90,7 +90,7 @@ jmethodID FromReflectedMethod(JNIEnv *env, jobject method) {
     jmethodID res = (jmethodID)JavaObjectMethod::getInternalMethod((JavaObjectMethod*)meth);
     RETURN_FROM_JNI(res);
   } else if (cl == upcalls->newMethod) {
-    jmethodID res = (jmethodID)JavaObjectVMConstructor::getInternalMethod((JavaObjectVMConstructor*)meth);
+    jmethodID res = (jmethodID)JavaObjectConstructor::getInternalMethod((JavaObjectConstructor*)meth);
     RETURN_FROM_JNI(res);
   }
   
