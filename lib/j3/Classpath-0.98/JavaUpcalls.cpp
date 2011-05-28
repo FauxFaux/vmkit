@@ -319,7 +319,7 @@ extern "C" void nativeJavaObjectMethodTracer(
   JavaObjectMethod::staticTracer(obj, closure);
 }
 
-extern "C" void nativeJavaObjectConstructorTracer(
+extern "C" void nativeJavaObjectVMConstructorTracer(
     JavaObjectVMConstructor* obj, uintptr_t closure) {
   JavaObjectVMConstructor::staticTracer(obj, closure);
 }
@@ -585,7 +585,7 @@ void Classpath::postInitialiseClasspath(JnjvmClassLoader* loader) {
     UPCALL_ARRAY_CLASS(loader, "java/lang/annotation/Annotation", 1);
 
   constructorSlot =
-    UPCALL_FIELD(loader, "java/lang/reflect/Constructor", "slot", "I", ACC_VIRTUAL);
+    UPCALL_FIELD(loader, "java/lang/reflect/VMConstructor", "slot", "I", ACC_VIRTUAL);
   
   initMethod =
     UPCALL_METHOD(loader, "java/lang/reflect/Method", "<init>",
@@ -900,7 +900,7 @@ void Classpath::postInitialiseClasspath(JnjvmClassLoader* loader) {
                  "Ljava/lang/Class;", ACC_VIRTUAL);
   
   constructorClass =
-    UPCALL_FIELD(loader, "java/lang/reflect/Constructor", "clazz",
+    UPCALL_FIELD(loader, "java/lang/reflect/VMConstructor", "clazz",
                  "Ljava/lang/Class;", ACC_VIRTUAL);
 
   loader->loadName(loader->asciizConstructUTF8("java/lang/String"), 
@@ -974,9 +974,9 @@ void Classpath::postInitialiseClasspath(JnjvmClassLoader* loader) {
       (uintptr_t)nativeJavaObjectClassTracer,
        "nativeJavaObjectClassTracer");
 
-  newConstructor->getVirtualVT()->setNativeTracer(
-      (uintptr_t)nativeJavaObjectConstructorTracer,
-      "nativeJavaObjectConstructorTracer");
+  newVMConstructor->getVirtualVT()->setNativeTracer(
+      (uintptr_t)nativeJavaObjectVMConstructorTracer,
+      "nativeJavaObjectVMConstructorTracer");
 
    newMethod->getVirtualVT()->setNativeTracer(
       (uintptr_t)nativeJavaObjectMethodTracer,

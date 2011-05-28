@@ -8,9 +8,9 @@
 //===----------------------------------------------------------------------===//
 
 
-#define DEBUG 10
-#define JNJVM_COMPILE 10
-#define JNJVM_EXECUTE 10
+#define DEBUG 0
+#define JNJVM_COMPILE 0
+#define JNJVM_EXECUTE 0
 
 #include <cstring>
 
