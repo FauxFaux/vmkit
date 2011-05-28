@@ -35,9 +35,11 @@ public:
   
 public: 
   CollectionRV() {
-    nbJoined = 0;
     initiator = NULL;
   }
+
+	void beginSynchronize();
+	void endSynchronize();
 
   void lockRV() { _lockRV.lock(); }
   void unlockRV() { _lockRV.unlock(); }
