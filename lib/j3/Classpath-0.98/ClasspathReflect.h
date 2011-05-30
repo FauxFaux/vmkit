@@ -90,34 +90,34 @@ public:
 
 };
 
-class JavaObjectMethod : public JavaObject {
+
+class JavaObjectVMMethod : public JavaObject {
 private:
-  uint8 flag;
   JavaObjectClass* declaringClass;
   JavaObject* name;
   uint32 slot;
+  JavaObject* method;
 
 public:
   
-  static void staticTracer(JavaObjectMethod* obj, uintptr_t closure) {
+  static void staticTracer(JavaObjectVMMethod* obj, uintptr_t closure) {
     vmkit::Collector::markAndTrace(obj, &obj->name, closure);
     vmkit::Collector::markAndTrace(obj, &obj->declaringClass, closure);
   }
   
-  static JavaMethod* getInternalMethod(JavaObjectMethod* self) {
+  static JavaMethod* getInternalMethod(JavaObjectVMMethod* self) {
     llvm_gcroot(self, 0);
     UserCommonClass* cls = JavaObjectClass::getClass(self->declaringClass); 
     return &(cls->asClass()->virtualMethods[self->slot]);
   }
   
-  static UserClass* getClass(JavaObjectMethod* self) {
+  static UserClass* getClass(JavaObjectVMMethod* self) {
     llvm_gcroot(self, 0);
     UserCommonClass* cls = JavaObjectClass::getClass(self->declaringClass); 
     return cls->asClass();
   }
 
 };
-
 
 class JavaObjectVMConstructor : public JavaObject {
 private:

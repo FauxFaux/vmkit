@@ -147,11 +147,13 @@ JavaObject* Cl,
 jboolean publicOnly) {
 
   ArrayObject* ret = 0;
-  JavaObject* tmp = 0;
+  JavaObject* newMeth = 0;
+  JavaObject* newVMMeth = 0;
   JavaString* str = 0;
   llvm_gcroot(Cl, 0);
   llvm_gcroot(ret, 0);
-  llvm_gcroot(tmp, 0);
+  llvm_gcroot(newMeth, 0);
+  llvm_gcroot(newVMMeth, 0);
   llvm_gcroot(str, 0);
 
   BEGIN_NATIVE_EXCEPTION(0)
@@ -188,10 +190,15 @@ jboolean publicOnly) {
           (!publicOnly || pub)) {
         // TODO: check parameter types
         UserClass* Meth = vm->upcalls->newMethod;
-        tmp = Meth->doNew();
+        newMeth = Meth->doNew();
+        UserClass* VMMeth = vm->upcalls->newVMMethod;
+        newVMMeth = VMMeth->doNew();
         str = vm->internalUTF8ToStr(meth->name);
-        upcalls->initMethod->invokeIntSpecial(Meth, tmp, &Cl, &str, i);
-        ArrayObject::setElement(ret, tmp, index);
+	upcalls->vmmethodClass->setInstanceObjectField(newVMMeth, Cl);
+	upcalls->vmmethodName->setInstanceObjectField(newVMMeth, str);
+	upcalls->vmmethodSlot->setInstanceInt32Field(newVMMeth, i);
+	upcalls->initMethod->invokeIntSpecial(Meth, newMeth, &newVMMeth);
+        ArrayObject::setElement(ret, newMeth, index);
         index++;
       }
     }
