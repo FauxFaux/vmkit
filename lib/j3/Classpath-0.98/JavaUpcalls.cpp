@@ -618,16 +618,23 @@ void Classpath::postInitialiseClasspath(JnjvmClassLoader* loader) {
   
   initField =
     UPCALL_METHOD(loader, "java/lang/reflect/Field", "<init>",
-                  "(Ljava/lang/Class;Ljava/lang/String;I)V", ACC_VIRTUAL);
+                  "(Ljava/lang/reflect/VMField;)V", ACC_VIRTUAL);
 
   newField =
     UPCALL_CLASS(loader, "java/lang/reflect/Field");
 
+  initVMField =
+    UPCALL_METHOD(loader, "java/lang/reflect/VMField", "<init>",
+                  "(Ljava/lang/Class;Ljava/lang/String;I)V", ACC_VIRTUAL);
+
+  newVMField =
+    UPCALL_CLASS(loader, "java/lang/reflect/VMField");
+
   fieldArrayClass =
     UPCALL_ARRAY_CLASS(loader, "java/lang/reflect/Field", 1);
   
-  fieldSlot =
-    UPCALL_FIELD(loader, "java/lang/reflect/Field", "slot", "I", ACC_VIRTUAL);
+  vmfieldSlot =
+    UPCALL_FIELD(loader, "java/lang/reflect/VMField", "slot", "I", ACC_VIRTUAL);
   
   
   classArrayClass =
@@ -906,8 +913,8 @@ void Classpath::postInitialiseClasspath(JnjvmClassLoader* loader) {
     UPCALL_METHOD(loader, "java/lang/ThreadGroup",  "uncaughtException",
                   "(Ljava/lang/Thread;Ljava/lang/Throwable;)V", ACC_VIRTUAL);
   
-  fieldClass =
-    UPCALL_FIELD(loader, "java/lang/reflect/Field", "declaringClass",
+  vmfieldClass =
+    UPCALL_FIELD(loader, "java/lang/reflect/VMField", "clazz",
                  "Ljava/lang/Class;", ACC_VIRTUAL);
   
   vmconstructorClass =

@@ -424,11 +424,13 @@ jclass clazz,
 JavaObject* Cl, jboolean publicOnly) {
 
   ArrayObject* ret = 0;
-  JavaObject* tmp = 0;
+  JavaObject* newField = 0;
+  JavaObject* newVMField = 0;
   JavaString* name = 0;
   llvm_gcroot(Cl, 0);
   llvm_gcroot(ret, 0);
-  llvm_gcroot(tmp, 0);
+  llvm_gcroot(newField, 0);
+  llvm_gcroot(newVMField, 0);
   llvm_gcroot(name, 0);
 
   BEGIN_NATIVE_EXCEPTION(0)
@@ -459,10 +461,13 @@ JavaObject* Cl, jboolean publicOnly) {
       if (!publicOnly || isPublic(field->access)) {
         // TODO: check parameter types
         UserClass* Field = vm->upcalls->newField;
-        tmp = Field->doNew();
+        newField = Field->doNew();
+        UserClass* VMField = vm->upcalls->newVMField;
+        newVMField = VMField->doNew();
         name = vm->internalUTF8ToStr(field->name);
-        vm->upcalls->initField->invokeIntSpecial(Field, tmp, &Cl, &name, i);
-        ArrayObject::setElement(ret, tmp, index);
+        vm->upcalls->initVMField->invokeIntSpecial(VMField, newVMField, &Cl, &name, i);
+        vm->upcalls->initField->invokeIntSpecial(Field, newField, &newVMField);
+        ArrayObject::setElement(ret, newField, index);
         index++;
       }
     }

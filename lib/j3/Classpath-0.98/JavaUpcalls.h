@@ -96,14 +96,16 @@ public:
   JavaMethod* initMethod;
   JavaMethod* initVMMethod;
   JavaMethod* initField;
+  JavaMethod* initVMField;
   UserClassArray* methodArrayClass;
   UserClassArray* fieldArrayClass;
   UserClass*      newMethod;
   UserClass*      newVMMethod;
   UserClass*      newField;
+  UserClass*      newVMField;
   JavaField*  vmmethodName;
   JavaField*  vmmethodSlot;
-  JavaField*  fieldSlot;
+  JavaField*  vmfieldSlot;
   UserClassArray* classArrayClass;
   JavaMethod* loadInClassLoader;
   JavaMethod* initVMThrowable;
@@ -271,7 +273,7 @@ public:
   UserClass* OfObject;
   
   JavaField* vmmethodClass;
-  JavaField* fieldClass;
+  JavaField* vmfieldClass;
   JavaField* vmconstructorClass;
   
   JavaMethod* EnqueueReference;
