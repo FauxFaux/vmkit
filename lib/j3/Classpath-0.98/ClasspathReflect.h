@@ -62,30 +62,56 @@ public:
   }
 };
 
-class JavaObjectField : public JavaObject {
+
+class JavaObjectVMField : public JavaObject {
 private:
-  uint8 flag;
-  JavaObjectClass* declaringClass;
+  JavaObjectClass* clazz;
   JavaObject* name;
   uint32 slot;
 
 public:
 
-  static void staticTracer(JavaObjectField* obj, uintptr_t closure) {
+  static void staticTracer(JavaObjectVMField* obj, uintptr_t closure) {
     vmkit::Collector::markAndTrace(obj, &obj->name, closure);
-    vmkit::Collector::markAndTrace(obj, &obj->declaringClass, closure);
+    vmkit::Collector::markAndTrace(obj, &obj->clazz, closure);
+  }
+
+  static JavaField* getInternalField(JavaObjectVMField* self) {
+    llvm_gcroot(self, 0);
+    UserCommonClass* cls = JavaObjectClass::getClass(self->clazz); 
+    return &(cls->asClass()->virtualFields[self->slot]);
+  }
+
+  static UserClass* getClass(JavaObjectVMField* self) {
+    llvm_gcroot(self, 0);
+    UserCommonClass* cls = JavaObjectClass::getClass(self->clazz); 
+    return cls->asClass();
+  }
+
+};
+
+
+class JavaObjectField : public JavaObject {
+private:
+  uint8 flag;
+  JavaObject* p;
+  JavaObjectVMField* f;
+
+public:
+
+  static void staticTracer(JavaObjectField* obj, uintptr_t closure) {
+    vmkit::Collector::markAndTrace(obj, &obj->p, closure);
+    vmkit::Collector::markAndTrace(obj, &obj->f, closure);
   }
 
   static JavaField* getInternalField(JavaObjectField* self) {
     llvm_gcroot(self, 0);
-    UserCommonClass* cls = JavaObjectClass::getClass(self->declaringClass); 
-    return &(cls->asClass()->virtualFields[self->slot]);
+    return JavaObjectVMField::getInternalField(self->f);
   }
 
   static UserClass* getClass(JavaObjectField* self) {
     llvm_gcroot(self, 0);
-    UserCommonClass* cls = JavaObjectClass::getClass(self->declaringClass); 
-    return cls->asClass();
+    return JavaObjectVMField::getClass(self->f);
   }
 
 };
