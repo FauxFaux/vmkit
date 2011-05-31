@@ -1046,7 +1046,7 @@ void Classpath::postInitialiseClasspath(JnjvmClassLoader* loader) {
 }
 
 #include "Classpath.inc"
-#include "ClasspathField.inc"
+#include "ClasspathVMField.inc"
 #include "ClasspathVMMethod.inc"
 #include "ClasspathVMClass.inc"
 #include "ClasspathVMClassLoader.inc"

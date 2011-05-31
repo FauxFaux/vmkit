@@ -20,7 +20,7 @@ using namespace j3;
 extern "C" {
 
 
-JNIEXPORT jint JNICALL Java_java_lang_reflect_Field_getModifiersInternal(
+JNIEXPORT jint JNICALL Java_java_lang_reflect_VMField_getModifiersInternal(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
@@ -39,7 +39,7 @@ JavaObjectField* Field) {
   return res;
 }
 
-JNIEXPORT JavaObject* JNICALL Java_java_lang_reflect_Field_getType(
+JNIEXPORT JavaObject* JNICALL Java_java_lang_reflect_VMField_getType(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
@@ -63,7 +63,7 @@ JavaObjectField* Field) {
   return res;
 }
 
-JNIEXPORT jint JNICALL Java_java_lang_reflect_Field_getInt(
+JNIEXPORT jint JNICALL Java_java_lang_reflect_VMField_getInt(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
@@ -128,7 +128,7 @@ JavaObjectField* Field, JavaObject* obj) {
   
 }
 
-JNIEXPORT jlong JNICALL Java_java_lang_reflect_Field_getLong(
+JNIEXPORT jlong JNICALL Java_java_lang_reflect_VMField_getLong(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
@@ -198,7 +198,7 @@ JavaObjectField* Field, JavaObject* obj) {
   return res;
 }
 
-JNIEXPORT jboolean JNICALL Java_java_lang_reflect_Field_getBoolean(
+JNIEXPORT jboolean JNICALL Java_java_lang_reflect_VMField_getBoolean(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
@@ -244,7 +244,7 @@ JavaObjectField* Field, JavaObject* obj) {
   
 }
 
-JNIEXPORT jfloat JNICALL Java_java_lang_reflect_Field_getFloat(
+JNIEXPORT jfloat JNICALL Java_java_lang_reflect_VMField_getFloat(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
@@ -319,7 +319,7 @@ JavaObjectField* Field, JavaObject* obj) {
   return res;
 }
 
-JNIEXPORT jbyte JNICALL Java_java_lang_reflect_Field_getByte(
+JNIEXPORT jbyte JNICALL Java_java_lang_reflect_VMField_getByte(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
@@ -363,7 +363,7 @@ JavaObjectField* Field, JavaObject* obj) {
   return res;
 }
 
-JNIEXPORT jchar JNICALL Java_java_lang_reflect_Field_getChar(
+JNIEXPORT jchar JNICALL Java_java_lang_reflect_VMField_getChar(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
@@ -408,7 +408,7 @@ JavaObjectField* Field, JavaObject* obj) {
   
 }
 
-JNIEXPORT jshort JNICALL Java_java_lang_reflect_Field_getShort(
+JNIEXPORT jshort JNICALL Java_java_lang_reflect_VMField_getShort(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
@@ -459,7 +459,7 @@ JavaObjectField* Field, JavaObject* obj) {
   return res;
 }
   
-JNIEXPORT jdouble JNICALL Java_java_lang_reflect_Field_getDouble(
+JNIEXPORT jdouble JNICALL Java_java_lang_reflect_VMField_getDouble(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
@@ -539,7 +539,7 @@ JavaObjectField* Field, JavaObject* obj) {
   return res;
 }
 
-JNIEXPORT JavaObject* JNICALL Java_java_lang_reflect_Field_get(
+JNIEXPORT JavaObject* JNICALL Java_java_lang_reflect_VMField_get(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
@@ -621,7 +621,7 @@ JavaObjectField* Field, JavaObject* obj) {
   return res;
 }
 
-JNIEXPORT void JNICALL Java_java_lang_reflect_Field_set(
+JNIEXPORT void JNICALL Java_java_lang_reflect_VMField_set(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
@@ -711,7 +711,7 @@ JavaObjectField* Field, JavaObject* obj, JavaObject* val) {
   END_NATIVE_EXCEPTION
 }
 
-JNIEXPORT void JNICALL Java_java_lang_reflect_Field_setBoolean(
+JNIEXPORT void JNICALL Java_java_lang_reflect_VMField_setBoolean(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
@@ -753,7 +753,7 @@ JavaObjectField* Field, JavaObject* obj, jboolean val) {
   
 }
 
-JNIEXPORT void JNICALL Java_java_lang_reflect_Field_setByte(
+JNIEXPORT void JNICALL Java_java_lang_reflect_VMField_setByte(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
@@ -824,7 +824,7 @@ JavaObjectField* Field, JavaObject* obj, jbyte val) {
   END_NATIVE_EXCEPTION
 }
 
-JNIEXPORT void JNICALL Java_java_lang_reflect_Field_setChar(
+JNIEXPORT void JNICALL Java_java_lang_reflect_VMField_setChar(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
@@ -888,7 +888,7 @@ JavaObjectField* Field, JavaObject* obj, jchar val) {
   END_NATIVE_EXCEPTION
 }
 
-JNIEXPORT void JNICALL Java_java_lang_reflect_Field_setShort(
+JNIEXPORT void JNICALL Java_java_lang_reflect_VMField_setShort(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
@@ -952,7 +952,7 @@ JavaObjectField* Field, JavaObject* obj, jshort val) {
   END_NATIVE_EXCEPTION
 }
 
-JNIEXPORT void JNICALL Java_java_lang_reflect_Field_setInt(
+JNIEXPORT void JNICALL Java_java_lang_reflect_VMField_setInt(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
@@ -1011,7 +1011,7 @@ JavaObjectField* Field, JavaObject* obj, jint val) {
   END_NATIVE_EXCEPTION
 }
 
-JNIEXPORT void JNICALL Java_java_lang_reflect_Field_setLong(
+JNIEXPORT void JNICALL Java_java_lang_reflect_VMField_setLong(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
@@ -1064,7 +1064,7 @@ JavaObjectField* Field, JavaObject* obj, jlong val) {
   END_NATIVE_EXCEPTION
 }
 
-JNIEXPORT void JNICALL Java_java_lang_reflect_Field_setFloat(
+JNIEXPORT void JNICALL Java_java_lang_reflect_VMField_setFloat(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
@@ -1111,7 +1111,7 @@ JavaObjectField* Field, JavaObject* obj, jfloat val) {
   END_NATIVE_EXCEPTION
 }
 
-JNIEXPORT void JNICALL Java_java_lang_reflect_Field_setDouble(
+JNIEXPORT void JNICALL Java_java_lang_reflect_VMField_setDouble(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 #endif
