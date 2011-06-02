@@ -90,6 +90,12 @@ public:
   UserClassArray* constructorArrayAnnotation;
   UserClass*      newConstructor;
   JavaMethod* initConstructor;
+  UserClass*  newHashMap;
+  JavaMethod* initHashMap;
+  JavaMethod* putHashMap;
+  JavaMethod* createAnnotation;
+  UserClass*  newAnnotation;
+  UserClassArray* annotationArrayClass;
   UserClass*  newVMConstructor;
   JavaMethod* initVMConstructor;
   JavaField*  constructorSlot;

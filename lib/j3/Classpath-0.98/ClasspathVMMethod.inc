@@ -20,10 +20,79 @@
 #include "JavaUpcalls.h"
 #include "Jnjvm.h"
 #include "JnjvmClassLoader.h"
+#include "Reader.h"
+
+#if 0
+using namespace vmkit;
+#define dprintf(...) do { printf("ClasspathVMMethod: "); printf(__VA_ARGS__); } while(0)
+#else
+#define dprintf(...)
+#endif
 
 using namespace j3;
 
 extern "C" {
+
+
+JNIEXPORT JavaObject* JNICALL Java_java_lang_reflect_VMMethod_getAnnotation(
+#ifdef NATIVE_JNI
+JNIEnv *env, 
+#endif
+JavaObjectVMMethod* VMMeth, JavaObjectClass* annotationClass) {
+  JavaObject* res = 0;
+  JavaObject* newHashMap = 0;
+  llvm_gcroot(res, 0);
+  llvm_gcroot(newHashMap, 0);
+  llvm_gcroot(VMMeth, 0);
+  llvm_gcroot(annotationClass, 0);
+
+  BEGIN_NATIVE_EXCEPTION(0)
+
+  if (annotationClass) {
+    /* Retrieving annotationClass classname */
+    UserClass* clazz = JavaObjectClass::getClass(annotationClass)->asClass();
+    dprintf("searched annotation:%s\n\n", PrintBuffer(clazz->name).cString());
+
+    /* Retrieving VMMethod.class attributes list */
+    UserClass* compilingClass = JavaObjectVMMethod::getClass(VMMeth);
+    JavaMethod* method = JavaObjectVMMethod::getInternalMethod(VMMeth);
+    Attribut* annotationsAtt =
+      method->lookupAttribut(Attribut::annotationsAttribut);
+
+    dprintf("JavaMethod:%s\n", PrintBuffer(method->name).cString());
+
+    if (annotationsAtt) {
+      Reader reader(annotationsAtt, compilingClass->bytes);
+      AnnotationReader AR(reader, compilingClass);
+      uint16 numAnnotations = reader.readU2();
+
+      for (uint16 i = 0; i < numAnnotations; ++i) {
+	std::pair<JavaObject*, JavaObject*> pair =
+	  AR.searchAnnotation(clazz->name);
+
+	if (pair.first) {
+	  dprintf("annotation creation\n");
+	  Classpath* upcalls = JavaThread::get()->getJVM()->upcalls;
+	  UserClass* HashMap = upcalls->newHashMap;
+	  newHashMap = HashMap->doNew();
+	  upcalls->initHashMap->invokeIntSpecial(HashMap, newHashMap, 1);
+	  upcalls->putHashMap->invokeJavaObjectVirtual(HashMap, newHashMap, &pair.first, &pair.second);
+	  res = upcalls->createAnnotation->invokeJavaObjectStatic(upcalls->newAnnotation, &annotationClass, &newHashMap);
+	  return res;
+	}
+      }
+    }
+
+  } else {
+    Jnjvm* vm = JavaThread::get()->getJVM();
+    vm->nullPointerException();
+  }
+
+  END_NATIVE_EXCEPTION
+
+  return res;
+}
+
 
 JNIEXPORT jint JNICALL Java_java_lang_reflect_VMMethod_getModifiersInternal(
 #ifdef NATIVE_JNI
@@ -265,7 +334,7 @@ JavaObjectVMMethod* Meth, JavaObject* obj, ArrayObject* args, JavaObject* Cl, ji
   return res;
 }
 
-JNIEXPORT ArrayObject* JNICALL Java_java_lang_reflect_Method_getExceptionTypes(
+JNIEXPORT ArrayObject* JNICALL Java_java_lang_reflect_VMMethod_getExceptionTypes(
 #ifdef NATIVE_JNI
 JNIEnv *env, 
 #endif

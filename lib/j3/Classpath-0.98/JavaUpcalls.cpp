@@ -562,8 +562,30 @@ void Classpath::postInitialiseClasspath(JnjvmClassLoader* loader) {
                   ACC_VIRTUAL);
 
   initString =
-    UPCALL_METHOD(loader, "java/lang/String", "<init>", "([CIIZ)V", ACC_VIRTUAL);
-  
+    UPCALL_METHOD(loader, "java/lang/String", "<init>", "([CII)V", ACC_VIRTUAL);
+
+  newHashMap =
+    UPCALL_CLASS(loader, "java/util/HashMap");
+
+  initHashMap =
+    UPCALL_METHOD(loader, "java/util/HashMap", "<init>",
+                  "(I)V", ACC_VIRTUAL);  
+  putHashMap =
+    UPCALL_METHOD(loader, "java/util/HashMap", "put",
+                  "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+		  ACC_VIRTUAL);
+
+  newAnnotation = 
+    UPCALL_CLASS(loader, "sun/reflect/annotation/AnnotationInvocationHandler");
+
+  createAnnotation =
+    UPCALL_METHOD(loader, "sun/reflect/annotation/AnnotationInvocationHandler",
+		  "create", "(Ljava/lang/Class;Ljava/util/Map;)Ljava/lang/annotation/Annotation;",
+		  ACC_STATIC);
+
+  annotationArrayClass =
+    UPCALL_ARRAY_CLASS(loader, "java/lang/annotation/Annotation", 1);
+
   newVMConstructor =
     UPCALL_CLASS(loader, "java/lang/reflect/VMConstructor");
 
