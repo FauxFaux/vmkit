@@ -96,6 +96,7 @@ public:
   JavaMethod* createAnnotation;
   UserClass*  newAnnotationHandler;
   UserClassArray* annotationArrayClass;
+  UserClass*  newAnnotation;
   UserClass*  newVMConstructor;
   JavaMethod* initVMConstructor;
   JavaField*  constructorSlot;

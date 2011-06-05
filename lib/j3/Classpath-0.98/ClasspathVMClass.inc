@@ -167,9 +167,17 @@ jboolean publicOnly) {
   } else {
     UserClass* realCl = cl->asClass();
     uint32 size = 0;
+    bool annot = false;
+    
+    // Check if the class is an annotation.
+    const UTF8* name = upcalls->newAnnotation->name;
+    if (realCl->inheritName(name->elements, name->size))
+      annot = true;
 
-    for (uint32 i = 0; i < realCl->nbVirtualMethods + realCl->nbStaticMethods;
-         ++i) {
+    // Ugly hack : we don't want this method to return annotationType() 
+    // method for annotations. For that, we start the counter to 1 instead 
+    // of 0.
+    for (uint32 i = annot ? 1 : 0; i < realCl->nbVirtualMethods + realCl->nbStaticMethods; ++i) {
       JavaMethod* meth = &realCl->virtualMethods[i];
       bool pub = isPublic(meth->access);
       if (!(meth->name->equals(vm->upcalls->initName)) && 
@@ -182,7 +190,8 @@ jboolean publicOnly) {
     ret = (ArrayObject*)upcalls->methodArrayClass->doNew(size);
 
     sint32 index = 0;
-    for (uint32 i = 0; i < realCl->nbVirtualMethods + realCl->nbStaticMethods;
+    // Same hack as before.
+    for (uint32 i = annot ? 1 : 0; i < realCl->nbVirtualMethods + realCl->nbStaticMethods;
          ++i) {
       JavaMethod* meth = &realCl->virtualMethods[i];
       bool pub = isPublic(meth->access);

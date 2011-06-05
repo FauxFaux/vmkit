@@ -586,6 +586,9 @@ void Classpath::postInitialiseClasspath(JnjvmClassLoader* loader) {
   annotationArrayClass =
     UPCALL_ARRAY_CLASS(loader, "java/lang/annotation/Annotation", 1);
 
+  newAnnotation =
+    UPCALL_CLASS(loader, "java/lang/annotation/Annotation");
+
   newVMConstructor =
     UPCALL_CLASS(loader, "java/lang/reflect/VMConstructor");
 
@@ -1068,11 +1071,11 @@ void Classpath::postInitialiseClasspath(JnjvmClassLoader* loader) {
 }
 
 #include "Classpath.inc"
-#include "ClasspathVMField.inc"
-#include "ClasspathVMMethod.inc"
 #include "ClasspathVMClass.inc"
 #include "ClasspathVMClassLoader.inc"
 #include "ClasspathVMConstructor.inc"
+#include "ClasspathVMField.inc"
+#include "ClasspathVMMethod.inc"
 #include "ClasspathVMObject.inc"
 #include "ClasspathVMRuntime.inc"
 #include "ClasspathVMStackWalker.inc"
