@@ -94,7 +94,7 @@ public:
   JavaMethod* initHashMap;
   JavaMethod* putHashMap;
   JavaMethod* createAnnotation;
-  UserClass*  newAnnotation;
+  UserClass*  newAnnotationHandler;
   UserClassArray* annotationArrayClass;
   UserClass*  newVMConstructor;
   JavaMethod* initVMConstructor;

@@ -14,6 +14,7 @@
 #include "ClasspathReflect.h"
 #include "JavaArray.h"
 #include "JavaClass.h"
+#include "JavaConstantPool.h"
 #include "JavaObject.h"
 #include "JavaTypes.h"
 #include "JavaThread.h"
@@ -48,6 +49,10 @@ JavaObjectVMMethod* VMMeth, JavaObjectClass* annotationClass) {
 
   BEGIN_NATIVE_EXCEPTION(0)
 
+  Jnjvm* vm = JavaThread::get()->getJVM();
+  Classpath* upcalls = vm->upcalls;
+
+  dprintf("*************VMMethod_getAnnotation*************\n");
   if (annotationClass) {
     /* Retrieving annotationClass classname */
     UserClass* clazz = JavaObjectClass::getClass(annotationClass)->asClass();
@@ -58,7 +63,6 @@ JavaObjectVMMethod* VMMeth, JavaObjectClass* annotationClass) {
     JavaMethod* method = JavaObjectVMMethod::getInternalMethod(VMMeth);
     Attribut* annotationsAtt =
       method->lookupAttribut(Attribut::annotationsAttribut);
-
     dprintf("JavaMethod:%s\n", PrintBuffer(method->name).cString());
 
     if (annotationsAtt) {
@@ -67,24 +71,27 @@ JavaObjectVMMethod* VMMeth, JavaObjectClass* annotationClass) {
       uint16 numAnnotations = reader.readU2();
 
       for (uint16 i = 0; i < numAnnotations; ++i) {
-	std::pair<JavaObject*, JavaObject*> pair =
-	  AR.searchAnnotation(clazz->name);
+	uint16 typeIndex = reader.readU2();
+	const UTF8* annoType = compilingClass->ctpInfo->UTF8At(typeIndex);
 
-	if (pair.first) {
-	  dprintf("annotation creation\n");
-	  Classpath* upcalls = JavaThread::get()->getJVM()->upcalls;
-	  UserClass* HashMap = upcalls->newHashMap;
-	  newHashMap = HashMap->doNew();
-	  upcalls->initHashMap->invokeIntSpecial(HashMap, newHashMap, 1);
-	  upcalls->putHashMap->invokeJavaObjectVirtual(HashMap, newHashMap, &pair.first, &pair.second);
-	  res = upcalls->createAnnotation->invokeJavaObjectStatic(upcalls->newAnnotation, &annotationClass, &newHashMap);
-	  return res;
+	// Remove the L and ; in the name annotation type (L.....;)
+	// for the comparison.
+	if (clazz->name->equals(annoType->elements+1, annoType->size-2)) {
+	  newHashMap = AR.createAnnotationMapValues();
+	  break;
+
+	} else {
+	  AR.readAnnotationElementValues();
 	}
-      }
-    }
+      } // end for
 
+      if (newHashMap) {
+	dprintf("Annotation creation\n");
+	res = upcalls->createAnnotation->invokeJavaObjectStatic(upcalls->newAnnotationHandler, &annotationClass, &newHashMap);
+      }
+
+    }
   } else {
-    Jnjvm* vm = JavaThread::get()->getJVM();
     vm->nullPointerException();
   }
 

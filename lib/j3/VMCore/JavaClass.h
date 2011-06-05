@@ -68,11 +68,13 @@ public:
     AnnotationNameIndex(0) {}
   void readAnnotation();
   void readElementValue();
-  
-  // searchAnnotation - search for a specific annotation in annotation 
+
+  void readAnnotationElementValues();
+
+  // createAnnotation - search for a specific annotation in annotation 
   // attributes.
   //
-  std::pair<JavaObject*, JavaObject*> searchAnnotation(const UTF8* annotation);
+  JavaObject* createAnnotationMapValues();
   
   // createElementValue - create the Java type associated withe the value 
   // of the current annotation key.

@@ -569,13 +569,13 @@ void Classpath::postInitialiseClasspath(JnjvmClassLoader* loader) {
 
   initHashMap =
     UPCALL_METHOD(loader, "java/util/HashMap", "<init>",
-                  "(I)V", ACC_VIRTUAL);  
+                  "()V", ACC_VIRTUAL);  
   putHashMap =
     UPCALL_METHOD(loader, "java/util/HashMap", "put",
                   "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
 		  ACC_VIRTUAL);
 
-  newAnnotation = 
+  newAnnotationHandler = 
     UPCALL_CLASS(loader, "sun/reflect/annotation/AnnotationInvocationHandler");
 
   createAnnotation =
