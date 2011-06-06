@@ -319,27 +319,32 @@ JavaObject* proceedMethod(JavaObjectVMMethod* Meth, JavaObject* obj,
 
 #undef RUN_METH
 
-JNIEXPORT JavaObject* JNICALL Java_java_lang_reflect_Method_invokeNative(
+JNIEXPORT JavaObject* JNICALL Java_java_lang_reflect_VMMethod_invoke(
 #ifdef NATIVE_JNI
 JNIEnv *env, 
 #endif
-JavaObjectVMMethod* Meth, JavaObject* obj, ArrayObject* args, JavaObject* Cl, jint index) {
-  
+JavaObjectVMMethod* VMMeth, JavaObject* obj, ArrayObject* args) {
+  JavaObject* Cl = 0;
   JavaObject* res = 0;
+  jint index;
   llvm_gcroot(res, 0);
-  llvm_gcroot(Meth, 0);
+  llvm_gcroot(VMMeth, 0);
   llvm_gcroot(obj, 0);
   llvm_gcroot(args, 0);
   llvm_gcroot(Cl, 0);
 
   BEGIN_NATIVE_EXCEPTION(0)
 
-  res = proceedMethod(Meth, obj, args, Cl, index);
+  Classpath* upcalls = JavaThread::get()->getJVM()->upcalls;
+  Cl = upcalls->vmmethodClass->getInstanceObjectField(VMMeth);
+  index = upcalls->vmmethodSlot->getInstanceInt32Field(VMMeth);
+  res = proceedMethod(VMMeth, obj, args, Cl, index);
   
   END_NATIVE_EXCEPTION
 
   return res;
 }
+
 
 JNIEXPORT ArrayObject* JNICALL Java_java_lang_reflect_VMMethod_getExceptionTypes(
 #ifdef NATIVE_JNI
