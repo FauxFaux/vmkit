@@ -1735,7 +1735,8 @@ JavaObject* AnnotationReader::createElementValue() {
   llvm_gcroot(res, 0);
   llvm_gcroot(tmp, 0);
 
-  Classpath* upcalls = JavaThread::get()->getJVM()->upcalls;
+  Jnjvm* vm = JavaThread::get()->getJVM();
+  Classpath* upcalls = vm->upcalls;
   ddprintf("value:");
 
   if (tag == 'B') {
@@ -1801,9 +1802,12 @@ JavaObject* AnnotationReader::createElementValue() {
     abort();
 
   } else if (tag == 'c') {
-    ddprintf("class=");
     const UTF8* m = cl->ctpInfo->UTF8At(reader.readU2());
-    ddprintf("%s", PrintBuffer(m).cString());
+    ddprintf("class=%s", PrintBuffer(m).cString());
+    JnjvmClassLoader* jcl = vm->appClassLoader;
+    Typedef* td = jcl->constructType(m);
+    UserCommonClass* clazz = td->assocClass(jcl);
+    res = clazz->getClassDelegatee();
 
   } else if (tag == '[') {
     uint16 numValues = reader.readU2();

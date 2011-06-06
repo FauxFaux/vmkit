@@ -585,7 +585,7 @@ void Classpath::postInitialiseClasspath(JnjvmClassLoader* loader) {
 		  ACC_STATIC);
 
   annotationArrayClass =
-    UPCALL_ARRAY_CLASS(loader, "java/lang/annotation/Annotation", 1);
+    UPCALL_ARRAY_CLASS(loader, "java/lang/String", 1);
 
   newAnnotation =
     UPCALL_CLASS(loader, "java/lang/annotation/Annotation");
