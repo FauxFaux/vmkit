@@ -40,6 +40,7 @@ using namespace vmkit;
 using namespace j3;
 
 const UTF8* Attribut::annotationsAttribut = 0;
+const UTF8* Attribut::annotationDefaultAttribut = 0;
 const UTF8* Attribut::codeAttribut = 0;
 const UTF8* Attribut::exceptionsAttribut = 0;
 const UTF8* Attribut::constantAttribut = 0;

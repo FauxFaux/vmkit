@@ -448,6 +448,7 @@ Classpath::Classpath(JnjvmBootstrapLoader* loader, bool dlLoad) {
   arrayTable[JavaArray::T_DOUBLE - 4]  = ArrayOfDouble;
   
   Attribut::annotationsAttribut     = loader->asciizConstructUTF8("RuntimeVisibleAnnotations");
+Attribut::annotationDefaultAttribut = loader->asciizConstructUTF8("AnnotationDefault");
   Attribut::codeAttribut            = loader->asciizConstructUTF8("Code");
   Attribut::exceptionsAttribut      = loader->asciizConstructUTF8("Exceptions");
   Attribut::constantAttribut        = loader->asciizConstructUTF8("ConstantValue");

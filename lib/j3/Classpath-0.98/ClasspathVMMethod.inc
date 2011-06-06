@@ -35,6 +35,45 @@ using namespace j3;
 extern "C" {
 
 
+JNIEXPORT JavaObject* JNICALL Java_java_lang_reflect_VMMethod_getDefaultValue(
+#ifdef NATIVE_JNI
+JNIEnv *env,
+#endif
+JavaObjectVMMethod* VMMeth) {
+  JavaObject* res = 0;
+  llvm_gcroot(VMMeth, 0);
+  llvm_gcroot(res, 0);
+
+  BEGIN_NATIVE_EXCEPTION(0)
+  dprintf("*************VMMethod_getDefaultValue*************\n");
+  Classpath* upcalls = JavaThread::get()->getJVM()->upcalls;
+  UserClass* cl = JavaObjectVMMethod::getClass(VMMeth);
+  dprintf("JavaClass:%s\n", vmkit::PrintBuffer(cl->name).cString());
+
+  // Annotation interface class.
+  const UTF8* name = upcalls->newAnnotation->name;
+
+  if (cl->inheritName(name->elements, name->size)) {
+    // Find "default attribute"
+    JavaMethod* method = JavaObjectVMMethod::getInternalMethod(VMMeth);
+    Attribut* annotationsAtt =
+      method->lookupAttribut(Attribut::annotationDefaultAttribut);
+    dprintf("JavaMethod:%s\n", vmkit::PrintBuffer(method->name).cString());
+
+    if (annotationsAtt) {
+      Reader reader(annotationsAtt, cl->bytes);
+      AnnotationReader AR(reader, cl);
+
+      res = AR.createElementValue();
+    }
+  }
+
+  END_NATIVE_EXCEPTION
+
+  return res;
+}
+
+
 JNIEXPORT JavaObject* JNICALL Java_java_lang_reflect_VMMethod_getAnnotation(
 #ifdef NATIVE_JNI
 JNIEnv *env, 

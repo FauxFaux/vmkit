@@ -116,6 +116,8 @@ public:
   //
   static const UTF8* annotationsAttribut;
 
+  static const UTF8* annotationDefaultAttribut;
+
   /// exceptionsAttribut - The "Exceptions" attribut. This is a method
   /// attribut for finding the exception table of a method in the .class
   /// file.
