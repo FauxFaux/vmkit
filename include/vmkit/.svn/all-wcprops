@@ -1,0 +1,95 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/llvm-project/!svn/ver/145205/vmkit/trunk/include/vmkit
+END
+GC.h
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/llvm-project/!svn/ver/145038/vmkit/trunk/include/vmkit/GC.h
+END
+MethodInfo.h
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/llvm-project/!svn/ver/145038/vmkit/trunk/include/vmkit/MethodInfo.h
+END
+ObjectLocks.h
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/llvm-project/!svn/ver/145205/vmkit/trunk/include/vmkit/ObjectLocks.h
+END
+CollectionRV.h
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/llvm-project/!svn/ver/145038/vmkit/trunk/include/vmkit/CollectionRV.h
+END
+VmkitDenseMap.h
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/llvm-project/!svn/ver/145038/vmkit/trunk/include/vmkit/VmkitDenseMap.h
+END
+Thread.h
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/llvm-project/!svn/ver/145038/vmkit/trunk/include/vmkit/Thread.h
+END
+config.h.in
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/llvm-project/!svn/ver/145036/vmkit/trunk/include/vmkit/config.h.in
+END
+VirtualMachine.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/llvm-project/!svn/ver/145038/vmkit/trunk/include/vmkit/VirtualMachine.h
+END
+Locks.h
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/llvm-project/!svn/ver/145038/vmkit/trunk/include/vmkit/Locks.h
+END
+Allocator.h
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/llvm-project/!svn/ver/145038/vmkit/trunk/include/vmkit/Allocator.h
+END
+Cond.h
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/llvm-project/!svn/ver/145038/vmkit/trunk/include/vmkit/Cond.h
+END
+System.h
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/llvm-project/!svn/ver/145038/vmkit/trunk/include/vmkit/System.h
+END
+VmkitDenseSet.h
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/llvm-project/!svn/ver/145038/vmkit/trunk/include/vmkit/VmkitDenseSet.h
+END
+UTF8.h
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/llvm-project/!svn/ver/145038/vmkit/trunk/include/vmkit/UTF8.h
+END
+JIT.h
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/llvm-project/!svn/ver/145038/vmkit/trunk/include/vmkit/JIT.h
+END

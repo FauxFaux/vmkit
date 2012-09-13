@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/nogc
+END
+NoGCTraceLocal.java
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/nogc/NoGCTraceLocal.java
+END
+NoGCMutator.java
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/nogc/NoGCMutator.java
+END
+NoGC.java
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/nogc/NoGC.java
+END
+NoGCCollector.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/nogc/NoGCCollector.java
+END
+NoGCConstraints.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/nogc/NoGCConstraints.java
+END

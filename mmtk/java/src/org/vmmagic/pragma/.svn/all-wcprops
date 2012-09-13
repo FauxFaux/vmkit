@@ -1,0 +1,179 @@
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma
+END
+UnpreemptibleNoWarn.java
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/UnpreemptibleNoWarn.java
+END
+DynamicBridge.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/DynamicBridge.java
+END
+NativeBridge.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/NativeBridge.java
+END
+NoNullCheck.java
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/NoNullCheck.java
+END
+Untraced.java
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/Untraced.java
+END
+SynchronizedObject.java
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/SynchronizedObject.java
+END
+BaselineNoRegisters.java
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/BaselineNoRegisters.java
+END
+Preemptible.java
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/Preemptible.java
+END
+NoOptCompile.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/NoOptCompile.java
+END
+SpecializedMethodInvoke.java
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/SpecializedMethodInvoke.java
+END
+NonMoving.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/NonMoving.java
+END
+NoInline.java
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/NoInline.java
+END
+Entrypoint.java
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/Entrypoint.java
+END
+Pure.java
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/Pure.java
+END
+Unpreemptible.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/Unpreemptible.java
+END
+Inline.java
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/Inline.java
+END
+RawStorage.java
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/RawStorage.java
+END
+RuntimePure.java
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/RuntimePure.java
+END
+NonMovingAllocation.java
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/NonMovingAllocation.java
+END
+NoEscapes.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/NoEscapes.java
+END
+UninterruptibleNoWarn.java
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/UninterruptibleNoWarn.java
+END
+SysCallNative.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/SysCallNative.java
+END
+NoBoundsCheck.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/NoBoundsCheck.java
+END
+Interruptible.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/Interruptible.java
+END
+BaselineSaveLSRegisters.java
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/BaselineSaveLSRegisters.java
+END
+LogicallyUninterruptible.java
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/LogicallyUninterruptible.java
+END
+Uninterruptible.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/Uninterruptible.java
+END
+RuntimeFinal.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/RuntimeFinal.java
+END
+SaveVolatile.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/pragma/SaveVolatile.java
+END

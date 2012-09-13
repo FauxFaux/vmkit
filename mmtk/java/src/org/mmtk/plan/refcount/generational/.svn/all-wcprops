@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/llvm-project/!svn/ver/111072/vmkit/trunk/mmtk/java/src/org/mmtk/plan/refcount/generational
+END
+GenRCModifiedProcessor.java
+K 25
+svn:wc:ra_dav:version-url
+V 122
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/refcount/generational/GenRCModifiedProcessor.java
+END
+GenRCCollector.java
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/llvm-project/!svn/ver/111072/vmkit/trunk/mmtk/java/src/org/mmtk/plan/refcount/generational/GenRCCollector.java
+END
+GenRCConstraints.java
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/refcount/generational/GenRCConstraints.java
+END
+GenRCFindRootSetTraceLocal.java
+K 25
+svn:wc:ra_dav:version-url
+V 126
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/refcount/generational/GenRCFindRootSetTraceLocal.java
+END
+GenRCMutator.java
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/refcount/generational/GenRCMutator.java
+END
+GenRC.java
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/refcount/generational/GenRC.java
+END

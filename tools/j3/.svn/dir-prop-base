@@ -1,0 +1,16 @@
+K 10
+svn:ignore
+V 133
+Release
+Release+Asserts
+vmkitoptimized.bc
+vmkit.s
+vmkit.bc
+jnjvm.s
+jnjvm.bc
+j3.bc
+j3.s
+FrametablesExterns.inc
+FrametablesSymbols.inc
+
+END

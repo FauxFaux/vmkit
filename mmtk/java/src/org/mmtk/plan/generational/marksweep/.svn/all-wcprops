@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/llvm-project/!svn/ver/111072/vmkit/trunk/mmtk/java/src/org/mmtk/plan/generational/marksweep
+END
+GenMSCollector.java
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/llvm-project/!svn/ver/111072/vmkit/trunk/mmtk/java/src/org/mmtk/plan/generational/marksweep/GenMSCollector.java
+END
+GenMSConstraints.java
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/generational/marksweep/GenMSConstraints.java
+END
+GenMSMatureTraceLocal.java
+K 25
+svn:wc:ra_dav:version-url
+V 122
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/generational/marksweep/GenMSMatureTraceLocal.java
+END
+GenMSMutator.java
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/generational/marksweep/GenMSMutator.java
+END
+GenMS.java
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/generational/marksweep/GenMS.java
+END

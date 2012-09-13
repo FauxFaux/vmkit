@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/unboxed
+END
+AddressArray.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/unboxed/AddressArray.java
+END
+ObjectReferenceArray.java
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/unboxed/ObjectReferenceArray.java
+END
+Address.java
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/unboxed/Address.java
+END
+ObjectReference.java
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/unboxed/ObjectReference.java
+END
+OffsetArray.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/unboxed/OffsetArray.java
+END
+ExtentArray.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/unboxed/ExtentArray.java
+END
+Offset.java
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/unboxed/Offset.java
+END
+Extent.java
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/unboxed/Extent.java
+END
+WordArray.java
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/unboxed/WordArray.java
+END
+Word.java
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/vmmagic/unboxed/Word.java
+END

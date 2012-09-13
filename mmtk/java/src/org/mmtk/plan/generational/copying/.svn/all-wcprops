@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/llvm-project/!svn/ver/111072/vmkit/trunk/mmtk/java/src/org/mmtk/plan/generational/copying
+END
+GenCopyMutator.java
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svn/llvm-project/!svn/ver/111072/vmkit/trunk/mmtk/java/src/org/mmtk/plan/generational/copying/GenCopyMutator.java
+END
+GenCopy.java
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/generational/copying/GenCopy.java
+END
+GenCopyCollector.java
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/llvm-project/!svn/ver/111072/vmkit/trunk/mmtk/java/src/org/mmtk/plan/generational/copying/GenCopyCollector.java
+END
+GenCopyConstraints.java
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/generational/copying/GenCopyConstraints.java
+END
+GenCopyMatureTraceLocal.java
+K 25
+svn:wc:ra_dav:version-url
+V 122
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/generational/copying/GenCopyMatureTraceLocal.java
+END

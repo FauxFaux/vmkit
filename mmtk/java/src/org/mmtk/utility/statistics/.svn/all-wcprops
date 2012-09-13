@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/llvm-project/!svn/ver/111072/vmkit/trunk/mmtk/java/src/org/mmtk/utility/statistics
+END
+BooleanCounter.java
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/utility/statistics/BooleanCounter.java
+END
+Counter.java
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/llvm-project/!svn/ver/111072/vmkit/trunk/mmtk/java/src/org/mmtk/utility/statistics/Counter.java
+END
+LongCounter.java
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/utility/statistics/LongCounter.java
+END
+Timer.java
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/utility/statistics/Timer.java
+END
+Xml.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/utility/statistics/Xml.java
+END
+EventCounter.java
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/utility/statistics/EventCounter.java
+END
+SizeCounter.java
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/utility/statistics/SizeCounter.java
+END
+PerfEvent.java
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svn/llvm-project/!svn/ver/111072/vmkit/trunk/mmtk/java/src/org/mmtk/utility/statistics/PerfEvent.java
+END
+Stats.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/llvm-project/!svn/ver/111072/vmkit/trunk/mmtk/java/src/org/mmtk/utility/statistics/Stats.java
+END

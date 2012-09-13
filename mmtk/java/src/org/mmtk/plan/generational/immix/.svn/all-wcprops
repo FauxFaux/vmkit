@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/llvm-project/!svn/ver/111072/vmkit/trunk/mmtk/java/src/org/mmtk/plan/generational/immix
+END
+GenImmixCollector.java
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/llvm-project/!svn/ver/111072/vmkit/trunk/mmtk/java/src/org/mmtk/plan/generational/immix/GenImmixCollector.java
+END
+GenImmixConstraints.java
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/generational/immix/GenImmixConstraints.java
+END
+GenImmixMatureTraceLocal.java
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/generational/immix/GenImmixMatureTraceLocal.java
+END
+GenImmixMutator.java
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/generational/immix/GenImmixMutator.java
+END
+GenImmix.java
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/generational/immix/GenImmix.java
+END
+GenImmixMatureDefragTraceLocal.java
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/svn/llvm-project/!svn/ver/75904/vmkit/trunk/mmtk/java/src/org/mmtk/plan/generational/immix/GenImmixMatureDefragTraceLocal.java
+END

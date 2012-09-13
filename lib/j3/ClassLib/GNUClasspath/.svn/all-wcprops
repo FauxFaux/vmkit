@@ -1,0 +1,95 @@
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/llvm-project/!svn/ver/147375/vmkit/trunk/lib/j3/ClassLib/GNUClasspath
+END
+ClasspathVMSystemProperties.inc
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/llvm-project/!svn/ver/145303/vmkit/trunk/lib/j3/ClassLib/GNUClasspath/ClasspathVMSystemProperties.inc
+END
+ClasspathVMClass.inc
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/llvm-project/!svn/ver/147375/vmkit/trunk/lib/j3/ClassLib/GNUClasspath/ClasspathVMClass.inc
+END
+ClasspathVMObject.inc
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/llvm-project/!svn/ver/145039/vmkit/trunk/lib/j3/ClassLib/GNUClasspath/ClasspathVMObject.inc
+END
+ClasspathVMThread.inc
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/llvm-project/!svn/ver/145039/vmkit/trunk/lib/j3/ClassLib/GNUClasspath/ClasspathVMThread.inc
+END
+JavaUpcalls.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/llvm-project/!svn/ver/145687/vmkit/trunk/lib/j3/ClassLib/GNUClasspath/JavaUpcalls.cpp
+END
+ClasspathVMStackWalker.inc
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/llvm-project/!svn/ver/145039/vmkit/trunk/lib/j3/ClassLib/GNUClasspath/ClasspathVMStackWalker.inc
+END
+Classpath.inc
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/llvm-project/!svn/ver/145039/vmkit/trunk/lib/j3/ClassLib/GNUClasspath/Classpath.inc
+END
+JavaUpcalls.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/llvm-project/!svn/ver/145687/vmkit/trunk/lib/j3/ClassLib/GNUClasspath/JavaUpcalls.h
+END
+ClasspathVMRuntime.inc
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/llvm-project/!svn/ver/145039/vmkit/trunk/lib/j3/ClassLib/GNUClasspath/ClasspathVMRuntime.inc
+END
+ClasspathVMSystem.inc
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/llvm-project/!svn/ver/145039/vmkit/trunk/lib/j3/ClassLib/GNUClasspath/ClasspathVMSystem.inc
+END
+ClasspathVMThrowable.inc
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/llvm-project/!svn/ver/146065/vmkit/trunk/lib/j3/ClassLib/GNUClasspath/ClasspathVMThrowable.inc
+END
+ClasspathReflect.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/llvm-project/!svn/ver/145039/vmkit/trunk/lib/j3/ClassLib/GNUClasspath/ClasspathReflect.cpp
+END
+ClasspathVMClassLoader.inc
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svn/llvm-project/!svn/ver/145089/vmkit/trunk/lib/j3/ClassLib/GNUClasspath/ClasspathVMClassLoader.inc
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/llvm-project/!svn/ver/145039/vmkit/trunk/lib/j3/ClassLib/GNUClasspath/Makefile
+END
+ClasspathReflect.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/llvm-project/!svn/ver/145039/vmkit/trunk/lib/j3/ClassLib/GNUClasspath/ClasspathReflect.h
+END

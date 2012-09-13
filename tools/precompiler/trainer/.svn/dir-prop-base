@@ -1,0 +1,9 @@
+K 10
+svn:ignore
+V 37
+Release+Asserts
+Release
+*.bc
+*.class
+
+END

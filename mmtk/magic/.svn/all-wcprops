@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/llvm-project/!svn/ver/146843/vmkit/trunk/mmtk/magic
+END
+LowerJavaRT.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/llvm-project/!svn/ver/141491/vmkit/trunk/mmtk/magic/LowerJavaRT.cpp
+END
+LowerMagic.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/llvm-project/!svn/ver/146843/vmkit/trunk/mmtk/magic/LowerMagic.cpp
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/llvm-project/!svn/ver/144082/vmkit/trunk/mmtk/magic/Makefile
+END

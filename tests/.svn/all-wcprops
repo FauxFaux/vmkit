@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/llvm-project/!svn/ver/145798/vmkit/trunk/tests
+END
+InvokeFinalizerTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/llvm-project/!svn/ver/140148/vmkit/trunk/tests/InvokeFinalizerTest.java
+END
+InstanceOfThisTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/llvm-project/!svn/ver/144808/vmkit/trunk/tests/InstanceOfThisTest.java
+END
+LshlTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/llvm-project/!svn/ver/144214/vmkit/trunk/tests/LshlTest.java
+END
+ThisReferenceTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/llvm-project/!svn/ver/141493/vmkit/trunk/tests/ThisReferenceTest.java
+END
+ThreadTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/llvm-project/!svn/ver/145798/vmkit/trunk/tests/ThreadTest.java
+END
+LshrTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/llvm-project/!svn/ver/144214/vmkit/trunk/tests/LshrTest.java
+END
+FieldWriteTest.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/llvm-project/!svn/ver/145503/vmkit/trunk/tests/FieldWriteTest.java
+END

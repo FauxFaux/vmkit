@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/llvm-project/!svn/ver/143957/vmkit/trunk/mmtk/java
+END
+build.xml.in
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/llvm-project/!svn/ver/129225/vmkit/trunk/mmtk/java/build.xml.in
+END
+vmkit.properties
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/llvm-project/!svn/ver/85001/vmkit/trunk/mmtk/java/vmkit.properties
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/llvm-project/!svn/ver/116307/vmkit/trunk/mmtk/java/Makefile
+END

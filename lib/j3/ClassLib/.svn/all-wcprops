@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/llvm-project/!svn/ver/147398/vmkit/trunk/lib/j3/ClassLib
+END
+ClasspathConstructor.inc
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/llvm-project/!svn/ver/146065/vmkit/trunk/lib/j3/ClassLib/ClasspathConstructor.inc
+END
+SetProperties.inc
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/llvm-project/!svn/ver/145404/vmkit/trunk/lib/j3/ClassLib/SetProperties.inc
+END
+ArrayCopy.inc
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/llvm-project/!svn/ver/146065/vmkit/trunk/lib/j3/ClassLib/ArrayCopy.inc
+END
+ClassContext.inc
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/llvm-project/!svn/ver/145571/vmkit/trunk/lib/j3/ClassLib/ClassContext.inc
+END
+VMStaticInstance.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/llvm-project/!svn/ver/145039/vmkit/trunk/lib/j3/ClassLib/VMStaticInstance.h
+END
+DefineClass.inc
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/llvm-project/!svn/ver/145089/vmkit/trunk/lib/j3/ClassLib/DefineClass.inc
+END
+Unsafe.inc
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/llvm-project/!svn/ver/145039/vmkit/trunk/lib/j3/ClassLib/Unsafe.inc
+END
+ClasspathMethod.inc
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/llvm-project/!svn/ver/146065/vmkit/trunk/lib/j3/ClassLib/ClasspathMethod.inc
+END
+Reflect.inc
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/llvm-project/!svn/ver/147375/vmkit/trunk/lib/j3/ClassLib/Reflect.inc
+END
+Classpath.h.in
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/llvm-project/!svn/ver/146346/vmkit/trunk/lib/j3/ClassLib/Classpath.h.in
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/llvm-project/!svn/ver/145039/vmkit/trunk/lib/j3/ClassLib/Makefile
+END
+ClasspathField.inc
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/llvm-project/!svn/ver/145039/vmkit/trunk/lib/j3/ClassLib/ClasspathField.inc
+END

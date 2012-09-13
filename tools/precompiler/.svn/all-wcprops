@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/llvm-project/!svn/ver/145039/vmkit/trunk/tools/precompiler
+END
+Precompiler.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/llvm-project/!svn/ver/145039/vmkit/trunk/tools/precompiler/Precompiler.cpp
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/llvm-project/!svn/ver/145035/vmkit/trunk/tools/precompiler/Makefile
+END
