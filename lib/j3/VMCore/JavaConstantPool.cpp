@@ -158,7 +158,10 @@ void*
 JavaConstantPool::operator new(size_t sz, vmkit::BumpPtrAllocator& allocator,
                                uint32 ctpSize) {
   uint32 size = sz + ctpSize * (sizeof(void*) + sizeof(sint32) + sizeof(uint8));
-  return allocator.Allocate(size, "Constant pool");
+  void* res = allocator.Allocate(size, "Constant pool");
+  printf("JavaConstantPool operator new @%p\n", res);
+  fflush(NULL);
+  return res;
 }
 
 JavaConstantPool::JavaConstantPool(Class* cl, Reader& reader, uint32 size) {
