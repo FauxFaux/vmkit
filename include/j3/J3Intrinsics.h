@@ -31,6 +31,7 @@ public:
   llvm::Type* JavaArrayObjectType;
   
   llvm::Type* VTType;
+  llvm::Type* ObjectHeaderType;
   llvm::Type* JavaObjectType;
   llvm::Type* JavaArrayType;
   llvm::Type* JavaCommonClassType;
@@ -102,9 +103,9 @@ public:
   llvm::Function* GetFinalFloatFieldFunction;
   llvm::Function* GetFinalDoubleFieldFunction;
   
-  llvm::Constant* JavaArraySizeOffsetConstant;
   llvm::Constant* JavaArrayElementsOffsetConstant;
-  llvm::Constant* JavaObjectLockOffsetConstant;
+  llvm::Constant* HeaderArraySizeOffsetConstant;
+  llvm::Constant* HeaderObjectLockOffsetConstant;
   llvm::Constant* JavaObjectVTOffsetConstant;
 
   llvm::Constant* OffsetAccessInCommonClassConstant;
