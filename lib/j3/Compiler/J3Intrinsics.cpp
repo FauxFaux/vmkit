@@ -112,9 +112,8 @@ void J3Intrinsics::init(llvm::Module* module) {
   
   
 
-  JavaArrayElementsOffsetConstant = constantOne;
-  //JavaArraySizeOffsetConstant = constantOne;
-  HeaderArraySizeOffsetConstant = constantZero;
+  JavaArrayElementsOffsetConstant = constantTwo;
+  JavaArraySizeOffsetConstant = constantOne;
 
   //  JavaObjectLockOffsetConstant = constantOne;
   HeaderObjectLockOffsetConstant = constantZero;
@@ -240,3 +239,4 @@ void J3Intrinsics::init(llvm::Module* module) {
   ThrowExceptionFromJITFunction =
     module->getFunction("j3ThrowExceptionFromJIT"); 
 }
+
