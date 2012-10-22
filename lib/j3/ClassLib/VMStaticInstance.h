@@ -74,7 +74,6 @@ public:
     return OwningClass->getStaticInstance();
   }
 
-  Class* getOwningClass() {return OwningClass;}
 };
 
 }
