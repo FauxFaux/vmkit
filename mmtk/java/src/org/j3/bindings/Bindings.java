@@ -118,16 +118,17 @@ public final class Bindings {
   }
 
   @Inline
-  private static Address copy(ObjectReference from,
+  private static ObjectReference copy(ObjectReference from,
                               ObjectReference virtualTable,
                               int size,
                               int allocator) {
+	int wholeSize = size + hiddenHeaderSize();
     Selected.Collector plan = Selected.Collector.get();
-    allocator = plan.copyCheckAllocator(from, size, 0, allocator);
-    Address to = plan.allocCopy(from, size, 0, 0, allocator);
+    allocator = plan.copyCheckAllocator(from, wholeSize, 0, allocator);
+    Address to = plan.allocCopy(from, wholeSize, 0, 0, allocator);
     memcpy(to.toObjectReference(), from, size);
     plan.postCopy(to.toObjectReference(), virtualTable, size, allocator);
-    return to;
+    return to.toObjectReference();
   }
 
   @Inline
