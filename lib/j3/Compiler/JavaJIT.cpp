@@ -96,7 +96,7 @@ bool JavaJIT::canBeInlined(JavaMethod* meth, bool customizing) {
   if (isSynchro(meth->access)) return false;
   if (isNative(meth->access)) return false;
 
-  Attribut* codeAtt = meth->lookupAttribut(Attribut::codeAttribut);
+  JavaAttribute* codeAtt = meth->lookupAttribute(JavaAttribute::codeAttribute);
   if (codeAtt == NULL) return false;
 
   Reader reader(codeAtt, meth->classDef->bytes);
@@ -799,7 +799,7 @@ static void removeUnusedObjects(std::vector<AllocaInst*>& objects,
 Instruction* JavaJIT::inlineCompile(BasicBlock*& curBB,
                                     BasicBlock* endExBlock,
                                     std::vector<Value*>& args) {
-  Attribut* codeAtt = compilingMethod->lookupAttribut(Attribut::codeAttribut);
+  JavaAttribute* codeAtt = compilingMethod->lookupAttribute(JavaAttribute::codeAttribute);
   Reader reader(codeAtt, compilingClass->bytes);
   uint16 maxStack = reader.readU2();
   uint16 maxLocals = reader.readU2();
@@ -973,7 +973,7 @@ llvm::Function* JavaJIT::javaCompile() {
   DbgSubprogram = TheCompiler->getDebugFactory()->createFunction(
       DIDescriptor(), "", "", DIFile(), 0, DIType(), false, false, 0);
 
-  Attribut* codeAtt = compilingMethod->lookupAttribut(Attribut::codeAttribut);
+  JavaAttribute* codeAtt = compilingMethod->lookupAttribute(JavaAttribute::codeAttribute);
   
   if (!codeAtt) {
     fprintf(stderr, "I haven't verified your class file and it's malformed:"
@@ -1245,8 +1245,8 @@ llvm::Function* JavaJIT::javaCompile() {
               UTF8Buffer(compilingClass->name).cString(),
               UTF8Buffer(compilingMethod->name).cString());
    
-  Attribut* annotationsAtt =
-    compilingMethod->lookupAttribut(Attribut::annotationsAttribut);
+  JavaAttribute* annotationsAtt =
+    compilingMethod->lookupAttribute(JavaAttribute::annotationsAttribute);
   
   if (annotationsAtt) {
     Reader reader(annotationsAtt, compilingClass->bytes);
@@ -1258,10 +1258,10 @@ llvm::Function* JavaJIT::javaCompile() {
         compilingClass->ctpInfo->UTF8At(AR.AnnotationNameIndex);
       if (name->equals(TheCompiler->InlinePragma)) {
         llvmFunction->removeFnAttr(
-            Attributes::get(*llvmContext, Attributes::NoInline));
-        llvmFunction->addFnAttr(Attributes::AlwaysInline);
+            Attributes::get(*llvmContext, llvm::Attributes::NoInline));
+        llvmFunction->addFnAttr(llvm::Attributes::AlwaysInline);
       } else if (name->equals(TheCompiler->NoInlinePragma)) {
-        llvmFunction->addFnAttr(Attributes::NoInline);
+        llvmFunction->addFnAttr(llvm::Attributes::NoInline);
       }
     }
   }
