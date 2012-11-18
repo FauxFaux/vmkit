@@ -23,6 +23,7 @@
 #include <llvm/Support/CFG.h>
 
 #include "vmkit/JIT.h"
+#include "vmkit/GC.h"
 
 #include "debug.h"
 #include "JavaArray.h"
@@ -643,22 +644,23 @@ llvm::Function* JavaJIT::nativeCompile(word_t natPtr) {
   return llvmFunction;
 }
 
+llvm::Value* JavaJIT::objectToHeader(Value* obj) {
+  obj = new PtrToIntInst(obj, intrinsics->pointerSizeType, "", currentBlock);
+  Value* d = ConstantInt::get(intrinsics->pointerSizeType, gcHeader::hiddenHeaderSize());
+	obj = BinaryOperator::CreateSub(obj, d, "", currentBlock);
+	return new IntToPtrInst(obj, intrinsics->ObjectHeaderType, "", currentBlock);
+}
+
 void JavaJIT::monitorEnter(Value* obj) {
-  std::vector<Value*> gep;
-  gep.push_back(intrinsics->constantZero);
-  gep.push_back(intrinsics->JavaObjectLockOffsetConstant);
-  Value* lockPtr = GetElementPtrInst::Create(obj, gep, "", currentBlock);
-  
+  Value* lockPtr = objectToHeader(obj);
+
   Value* lock = new LoadInst(lockPtr, "", currentBlock);
-  lock = new PtrToIntInst(lock, intrinsics->pointerSizeType, "", currentBlock);
+
   Value* NonLockBitsMask = ConstantInt::get(intrinsics->pointerSizeType,
                                             vmkit::ThinLock::NonLockBitsMask);
 
   lock = BinaryOperator::CreateAnd(lock, NonLockBitsMask, "", currentBlock);
 
-  lockPtr = new BitCastInst(lockPtr, 
-                            PointerType::getUnqual(intrinsics->pointerSizeType),
-                            "", currentBlock);
   Value* threadId = getMutatorThreadPtr();
   threadId = new PtrToIntInst(threadId, intrinsics->pointerSizeType, "",
                               currentBlock);
@@ -687,14 +689,10 @@ void JavaJIT::monitorEnter(Value* obj) {
 }
 
 void JavaJIT::monitorExit(Value* obj) {
-  std::vector<Value*> gep;
-  gep.push_back(intrinsics->constantZero);
-  gep.push_back(intrinsics->JavaObjectLockOffsetConstant);
-  Value* lockPtr = GetElementPtrInst::Create(obj, gep, "", currentBlock);
-  lockPtr = new BitCastInst(lockPtr, 
-                            PointerType::getUnqual(intrinsics->pointerSizeType),
-                            "", currentBlock);
+	Value* lockPtr = objectToHeader(obj);
+
   Value* lock = new LoadInst(lockPtr, "", currentBlock);
+
   Value* NonLockBitsMask = ConstantInt::get(
       intrinsics->pointerSizeType, vmkit::ThinLock::NonLockBitsMask);
 
@@ -1259,10 +1257,11 @@ llvm::Function* JavaJIT::javaCompile() {
       const UTF8* name =
         compilingClass->ctpInfo->UTF8At(AR.AnnotationNameIndex);
       if (name->equals(TheCompiler->InlinePragma)) {
-        llvmFunction->removeFnAttr(Attribute::NoInline);
-        llvmFunction->addFnAttr(Attribute::AlwaysInline);
+        llvmFunction->removeFnAttr(
+            Attributes::get(*llvmContext, Attributes::NoInline));
+        llvmFunction->addFnAttr(Attributes::AlwaysInline);
       } else if (name->equals(TheCompiler->NoInlinePragma)) {
-        llvmFunction->addFnAttr(Attribute::NoInline);
+        llvmFunction->addFnAttr(Attributes::NoInline);
       }
     }
   }
@@ -1342,7 +1341,7 @@ void JavaJIT::loadConstant(uint16 index) {
 void JavaJIT::JITVerifyNull(Value* obj) {
   if (TheCompiler->hasExceptionsEnabled()) {
     if (nbHandlers == 0 && vmkit::System::SupportsHardwareNullCheck()) {
-      Value* indexes[2] = { intrinsics->constantZero, intrinsics->constantZero };
+      Value* indexes[2] = { intrinsics->constantZero, intrinsics->JavaObjectVTOffsetConstant };
       Value* VTPtr = GetElementPtrInst::Create(obj, indexes, "", currentBlock);
       Instruction* VT = new LoadInst(VTPtr, "", true, currentBlock);
       VT->setDebugLoc(DebugLoc::get(currentBytecodeIndex, 1, DbgSubprogram));
@@ -1828,7 +1827,7 @@ void JavaJIT::invokeNew(uint16 index) {
   
   Class* cl = 0;
   Value* Cl = getResolvedClass(index, true, true, &cl);
-          
+
   Value* VT = 0;
   Value* Size = 0;
   

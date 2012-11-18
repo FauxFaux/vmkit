@@ -43,7 +43,7 @@ public final class Bindings {
     Selected.Mutator mutator = Selected.Mutator.get();
     int allocator = mutator.checkAllocator(size, 0, 0);
     Address res = mutator.alloc(size, 0, 0, allocator, 0);
-    res.store(virtualTable);
+    setVT(res, virtualTable);
     mutator.postAlloc(res.toObjectReference(), virtualTable, size, allocator);
     return res;
   }
@@ -118,22 +118,34 @@ public final class Bindings {
   }
 
   @Inline
-  private static Address copy(ObjectReference from,
+  private static ObjectReference copy(ObjectReference from,
                               ObjectReference virtualTable,
                               int size,
                               int allocator) {
+	int wholeSize = size + hiddenHeaderSize();
     Selected.Collector plan = Selected.Collector.get();
-    allocator = plan.copyCheckAllocator(from, size, 0, allocator);
-    Address to = plan.allocCopy(from, size, 0, 0, allocator);
-    memcpy(to.toObjectReference(), from, size);
+    allocator = plan.copyCheckAllocator(from, wholeSize, 0, allocator);
+    Address to = plan.allocCopy(from, wholeSize, 0, 0, allocator);
+    memcpy(to, from.toAddress(), wholeSize);
     plan.postCopy(to.toObjectReference(), virtualTable, size, allocator);
-    return to;
+    return to.toObjectReference();
   }
+
+  @Inline
+  private static native void setVT(Address addr , ObjectReference virtualTable);
+  
+  @Inline
+  private static native int hiddenHeaderSize();
+  
+  @Inline
+  private static native void memcpy(
+      Address to, Address from, int size);
 
   @Inline
   private static native void memcpy(
       ObjectReference to, ObjectReference from, int size);
 
+  
   @Inline
   private static void arrayWriteBarrier(ObjectReference ref, Address slot, ObjectReference value) {
     if (Selected.Constraints.get().needsObjectReferenceWriteBarrier()) {
@@ -170,7 +182,7 @@ public final class Bindings {
       Selected.Mutator mutator = Selected.Mutator.get();
       return mutator.objectReferenceTryCompareAndSwap(src, slot, old, value, slot.toWord(), slot.toWord(), Constants.INSTANCE_FIELD);
     } else {
-      return slot.attempt(old.toAddress().toWord(), value.toAddress().toWord());
+      return slot.attempt(old, value);
     }
   }
 

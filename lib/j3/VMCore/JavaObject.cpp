@@ -34,7 +34,7 @@ uint32_t JavaObject::hashCode(JavaObject* self) {
   assert(HashMask != 0);
   assert(vmkit::HashBits != 0);
 
-  word_t header = self->header;
+  word_t header = self->header();
   word_t GCBits;
   GCBits = header & vmkit::GCBitMask;
   word_t val = header & HashMask;
@@ -54,16 +54,16 @@ uint32_t JavaObject::hashCode(JavaObject* self) {
   assert(val <= HashMask);
 
   do {
-    header = self->header;
+    header = self->header();
     if ((header & HashMask) != 0) break;
     word_t newHeader = header | val;
     assert((newHeader & ~HashMask) == header);
-    __sync_val_compare_and_swap(&(self->header), header, newHeader);
+    __sync_val_compare_and_swap(&(self->header()), header, newHeader);
   } while (true);
 
-  assert((self->header & HashMask) != 0);
-  assert(GCBits == (self->header & vmkit::GCBitMask));
-  return (self->header & HashMask) ^ (word_t)getClass(self);
+  assert((self->header() & HashMask) != 0);
+  assert(GCBits == (self->header() & vmkit::GCBitMask));
+  return (self->header() & HashMask) ^ (word_t)getClass(self);
 }
 
 
@@ -74,6 +74,9 @@ void JavaObject::waitIntern(
   vmkit::LockSystem& table = thread->getJVM()->lockSystem;
 
   if (!owner(self)) {
+  	printf("IN JavaObject.cpp: 77 EXCEPTION\n");
+  	thread->printBacktrace();
+  	thread->getJVM()->exit();
     thread->getJVM()->illegalMonitorStateException(self);
     UNREACHABLE();
   }
@@ -124,6 +127,12 @@ void JavaObject::notify(JavaObject* self) {
   vmkit::LockSystem& table = thread->getJVM()->lockSystem;
 
   if (!owner(self)) {
+  	fflush(NULL);
+  	printf("IN JavaObject.cpp: 128 EXCEPTION\n");
+  	thread->printBacktrace();
+  	fflush(NULL);
+  	thread->getJVM()->exit();
+
     thread->getJVM()->illegalMonitorStateException(self);
     UNREACHABLE();
   }
@@ -136,6 +145,10 @@ void JavaObject::notifyAll(JavaObject* self) {
   vmkit::LockSystem& table = thread->getJVM()->lockSystem;
 
   if (!owner(self)) {
+  	printf("IN JavaObject.cpp: 140 EXCEPTION\n");
+  	thread->printBacktrace();
+  	thread->getJVM()->exit();
+
     thread->getJVM()->illegalMonitorStateException(self);
     UNREACHABLE();
   }

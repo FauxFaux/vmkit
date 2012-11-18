@@ -34,7 +34,7 @@
 #include "llvm/Support/SystemUtils.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/Signals.h"
-#include "llvm/Target/TargetData.h"
+#include "llvm/DataLayout.h"
 #include "llvm/Target/TargetMachine.h"
 
 
@@ -178,6 +178,10 @@ int main(int argc, char **argv) {
     }   
   }
   
+  if(llvm::verifyModule(*(Comp->getLLVMModule()), llvm::PrintMessageAction)){
+  	return 1;
+  }
+
   std::string ErrorInfo;
   std::auto_ptr<raw_ostream> Out 
     (new raw_fd_ostream(OutputFilename.c_str(), ErrorInfo,

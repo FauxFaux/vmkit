@@ -59,8 +59,9 @@ extern "C" void* JnJVM_org_j3_bindings_Bindings_gcmalloc__ILorg_vmmagic_unboxed_
     int sz, void* VT) ALWAYS_INLINE;
 
 extern "C" void* gcmalloc(uint32_t sz, void* VT) {
+	sz += gcHeader::hiddenHeaderSize();
   sz = llvm::RoundUpToAlignment(sz, sizeof(void*));
-  return (gc*)JnJVM_org_j3_bindings_Bindings_gcmalloc__ILorg_vmmagic_unboxed_ObjectReference_2(sz, VT);
+  return ((gcHeader*)JnJVM_org_j3_bindings_Bindings_gcmalloc__ILorg_vmmagic_unboxed_ObjectReference_2(sz, VT))->toReference();
 }
 
 extern "C" void addFinalizationCandidate(gc* obj) __attribute__((always_inline));
@@ -203,8 +204,8 @@ void Collector::initialise(int argc, char** argv) {
 }
 
 extern "C" void* MMTkMutatorAllocate(uint32_t size, VirtualTable* VT) {
-  void* val = MutatorThread::get()->Allocator.Allocate(size);
-  ((void**)val)[0] = VT;
+  gc* val = (gc*)MutatorThread::get()->Allocator.Allocate(size);
+  val->setVirtualTable(VT);
   return val;
 }
 

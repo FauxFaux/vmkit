@@ -12,6 +12,8 @@
 #include "debug.h"
 #include "types.h"
 
+#include "vmkit/System.h"
+
 #include "ClasspathReflect.h"
 #include "JavaArray.h"
 #include "JavaClass.h"
@@ -451,7 +453,6 @@ JavaObject* UserClass::doNew(Jnjvm* vm) {
          && "Uninitialized class when allocating.");
   assert(getVirtualVT() && "No VT\n");
   res = (JavaObject*)gc::operator new(getVirtualSize(), getVirtualVT());
-
   return res;
 }
 
