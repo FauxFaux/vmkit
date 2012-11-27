@@ -194,6 +194,11 @@ public:
   ///
   virtual void traceObject(gc* object, word_t closure) = 0;
 
+  /// setType - Method called when allocating an object. The VirtualMachine has to
+  /// set the identity of the object (identity is determined by user).
+  ///
+  virtual void setType(gcHeader* header, void* type) = 0;
+
   /// getObjectSize - Get the size of this object. Used by copying collectors.
   ///
   virtual size_t getObjectSize(gc* object) = 0;

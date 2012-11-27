@@ -130,6 +130,7 @@ private:
   virtual void scanFinalizationQueue(word_t closure);
   virtual void addFinalizationCandidate(gc* obj);
   virtual void traceObject(gc* obj, word_t closure);
+  virtual void setType(gcHeader* header, void* type);
   virtual size_t getObjectSize(gc* obj);
   virtual const char* getObjectTypeName(gc* obj);
   virtual void printMethod(vmkit::FrameInfo* FI, word_t ip, word_t addr);
