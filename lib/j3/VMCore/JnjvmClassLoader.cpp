@@ -7,6 +7,9 @@
 //
 //===----------------------------------------------------------------------===//
 
+#define DEBUG_VERBOSE_CASS_LOADER_UNLOADING		1
+
+#include <iostream>
 #include <climits>
 #include <cstdlib>
 
@@ -43,6 +46,7 @@
 
 
 using namespace j3;
+using namespace std;
 
 typedef void (*static_init_t)(JnjvmClassLoader*);
 
@@ -859,6 +863,10 @@ const UTF8* JnjvmClassLoader::readerConstructUTF8(const uint16* buf,
 }
 
 JnjvmClassLoader::~JnjvmClassLoader() {
+
+#if DEBUG_VERBOSE_CASS_LOADER_UNLOADING
+	cerr << "Bundle class loader unloaded, bundleID=" << this->getAssociatedBundleID() << endl;
+#endif
 
   if (vm) {
     vm->removeFrameInfos(TheCompiler);

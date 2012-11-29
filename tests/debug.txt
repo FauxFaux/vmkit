@@ -1,3 +1,5 @@
 framework call j3.J3Mgr resetReferencesToBundle ijvm.tests.AImpl
 
+framework call j3.J3Mgr resetReferencesToBundle ijvm.tests.Runner
+
 framework meminfo -gc

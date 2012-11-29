@@ -16,7 +16,7 @@ GNU Classpath:
 ==============
 
 wget http://ftp.gnu.org/gnu/classpath/classpath-0.97.2.tar.gz
-tar zxvf classpath-0.97.2.tar.gz
+tar zxf classpath-0.97.2.tar.gz
 ln -s classpath-0.97.2 classpath
 cd classpath
 ./configure --disable-plugin --disable-examples --disable-Werror
