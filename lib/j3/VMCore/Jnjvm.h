@@ -31,7 +31,7 @@ class ArrayObject;
 class ArrayUInt16;
 class Classpath;
 class CommonClass;
-class FinalizerThread;
+class JavaFinalizerThread;
 class JavaField;
 class JavaMethod;
 class JavaObject;
@@ -114,9 +114,9 @@ public:
 
 private:
   
-  /// finalizerThread - The thread that finalizes Java objects.
+  /// JavaFinalizerThread - The thread that finalizes Java objects.
   ///
-  FinalizerThread* finalizerThread;
+  JavaFinalizerThread* finalizerThread;
  
   /// enqueueThread - The thread that enqueue Java references.
   ///
@@ -314,11 +314,11 @@ public:
   
   /// setFinalizerThread - Set the finalizer thread of this VM.
   ///
-  void setFinalizerThread(FinalizerThread* th) { finalizerThread = th; }
+  void setFinalizerThread(JavaFinalizerThread* th) { finalizerThread = th; }
   
   /// getFinalizerThread - Get the finalizer thread of this VM.
   ///
-  FinalizerThread* getFinalizerThread() const { return finalizerThread; }
+  JavaFinalizerThread* getFinalizerThread() const { return finalizerThread; }
   
   /// setReferenceThread - Set the enqueue thread of this VM.
   ///
