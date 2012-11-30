@@ -367,6 +367,7 @@ protected:
   void resetReferenceIfStale(const JavaObject *source, class VMStaticInstance** ref);
   void resetReferenceIfStale(const JavaObject *source, class JavaObject** ref);
 
+  // Link between OSGi (bundle ID) and Java (class loaders).
   vmkit::LockRecursive bundleClassLoadersLock;
   bundleClassLoadersType bundleClassLoaders;
 };

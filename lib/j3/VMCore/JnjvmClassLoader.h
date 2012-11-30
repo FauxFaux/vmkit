@@ -325,12 +325,15 @@ public:
   word_t getRegisteredNative(const JavaMethod * meth);
 
 protected:
+  // A zombie class loader is one whose defining bundle was uninstalled, but it is
+  // still loaded because some references to it still exist in memory.
   bool zombie;
 
 public:
   bool isZombie() const {return zombie;}
   void markZombie(bool becomeZombie = true) {zombie = becomeZombie;}
 
+  // This bridges the OSGi world (bundles) to the Java world (class loaders).
   int64_t getAssociatedBundleID();
   void setAssociatedBundleID(int64_t newID);
 

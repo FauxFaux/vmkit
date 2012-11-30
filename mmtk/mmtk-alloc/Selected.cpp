@@ -114,7 +114,10 @@ void Collector::scanObject(void** ptr, word_t closure) {
   if ((*ptr) != NULL) {
     assert(((gc*)(*ptr))->getVirtualTable());
   }
+
+  // Allow the VM to reset references if needed
   vmkit::Thread::get()->MyVM->resetReferenceIfStale(NULL, ptr);
+
   JnJVM_org_j3_bindings_Bindings_reportDelayedRootEdge__Lorg_mmtk_plan_TraceLocal_2Lorg_vmmagic_unboxed_Address_2(closure, ptr);
 }
  
@@ -124,7 +127,10 @@ void Collector::markAndTrace(void* source, void* ptr, word_t closure) {
     assert(((gc*)(*ptr_))->getVirtualTable());
   }
   if ((*(void**)ptr) != NULL) assert(((gc*)(*(void**)ptr))->getVirtualTable());
+
+  // Allow the VM to reset references if needed
   vmkit::Thread::get()->MyVM->resetReferenceIfStale(source, ptr_);
+
   JnJVM_org_j3_bindings_Bindings_processEdge__Lorg_mmtk_plan_TransitiveClosure_2Lorg_vmmagic_unboxed_ObjectReference_2Lorg_vmmagic_unboxed_Address_2(closure, source, ptr);
 }
   
@@ -133,7 +139,10 @@ void Collector::markAndTraceRoot(void* source, void* ptr, word_t closure) {
   if ((*ptr_) != NULL) {
     assert(((gc*)(*ptr_))->getVirtualTable());
   }
+
+  // Allow the VM to reset references if needed
   vmkit::Thread::get()->MyVM->resetReferenceIfStale(source, ptr_);
+
   JnJVM_org_j3_bindings_Bindings_processRootEdge__Lorg_mmtk_plan_TraceLocal_2Lorg_vmmagic_unboxed_Address_2Z(closure, ptr, true);
 }
 
