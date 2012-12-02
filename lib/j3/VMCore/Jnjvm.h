@@ -355,6 +355,7 @@ public:
 public:
   void resetReferencesToBundle(int64_t bundleID);
   virtual void resetReferenceIfStale(const void* source, void** ref);
+  void dumpClassLoaderBundles();
 
   int64_t getClassLoaderBundleID(JnjvmClassLoader* loader);
   JnjvmClassLoader* getBundleClassLoader(int64_t bundleID);

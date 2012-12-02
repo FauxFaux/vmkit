@@ -1,12 +1,22 @@
 
 #include <algorithm>
+#include <iostream>
 
 #include "VmkitGC.h"
 #include "Jnjvm.h"
 #include "ClasspathReflect.h"
 #include "j3/jni.h"
 
+using namespace std;
+
 namespace j3 {
+
+void Jnjvm::dumpClassLoaderBundles()
+{
+	for (bundleClassLoadersType::const_iterator i = bundleClassLoaders.begin(), e = bundleClassLoaders.end(); i != e; ++i) {
+		cerr << "classLoader=" << i->second << "\tbundleID=" << i->first << endl;
+	}
+}
 
 JnjvmClassLoader* Jnjvm::getBundleClassLoader(int64_t bundleID)
 {
@@ -75,4 +85,10 @@ extern "C" void Java_j3_vm_OSGi_resetReferencesToBundle(jlong bundleID)
 {
 	Jnjvm* vm = JavaThread::get()->getJVM();
 	vm->resetReferencesToBundle(bundleID);
+}
+
+extern "C" void Java_j3_vm_OSGi_dumpClassLoaderBundles()
+{
+	Jnjvm* vm = JavaThread::get()->getJVM();
+	vm->dumpClassLoaderBundles();
 }
