@@ -887,8 +887,11 @@ void Class::readClass() {
   magic = reader.readU4();
   assert(magic == Jnjvm::Magic && "I've created a class but magic is no good!");
 
-  /* uint16 minor = */ reader.readU2();
-  /* uint16 major = */ reader.readU2();
+  uint16 minor = reader.readU2();
+  uint16 major = reader.readU2();
+  if (major > (uint16)0x31)        // 0x31 for Java 1.5
+    cerr << "WARNING: Class file '" << *name << "' requires a Java version that is unsupported by this JVM." << endl;
+
   uint32 ctpSize = reader.readU2();
   ctpInfo = new(classLoader->allocator, ctpSize) JavaConstantPool(this, reader,
                                                                   ctpSize);
