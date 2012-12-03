@@ -68,13 +68,26 @@ JavaMethod* Classpath::initString;
 JavaMethod* Classpath::getCallingClassLoader;
 JavaMethod* Classpath::initConstructor;
 Class*      Classpath::newConstructor;
+JavaMethod* Classpath::initVMConstructor;
+Class*      Classpath::newVMConstructor;
 ClassArray* Classpath::constructorArrayClass;
 ClassArray* Classpath::constructorArrayAnnotation;
 JavaField*  Classpath::constructorSlot;
+UserClass*  Classpath::newHashMap;
+JavaMethod* Classpath::initHashMap;
+JavaMethod* Classpath::putHashMap;
+JavaMethod* Classpath::createAnnotation;
+UserClass*  Classpath::newAnnotationHandler;
+UserClass*  Classpath::newAnnotation;
+UserClassArray* Classpath::annotationArrayClass;
 JavaMethod* Classpath::initMethod;
+JavaMethod* Classpath::initVMMethod;
 JavaMethod* Classpath::initField;
+JavaMethod* Classpath::initVMField;
 Class*      Classpath::newField;
+Class*      Classpath::newVMField;
 Class*      Classpath::newMethod;
+Class*      Classpath::newVMMethod;
 ClassArray* Classpath::methodArrayClass;
 ClassArray* Classpath::fieldArrayClass;
 JavaField*  Classpath::methodSlot;
@@ -495,6 +508,21 @@ extern "C" void nativeJavaObjectConstructorTracer(
   JavaObjectConstructor::staticTracer(obj, closure);
 }
 
+extern "C" void nativeJavaObjectVMFieldTracer(
+    JavaObjectVMField* obj, word_t closure) {
+  JavaObjectVMField::staticTracer(obj, closure);
+}
+
+extern "C" void nativeJavaObjectVMMethodTracer(
+    JavaObjectVMMethod* obj, word_t closure) {
+  JavaObjectVMMethod::staticTracer(obj, closure);
+}
+
+extern "C" void nativeJavaObjectVMConstructorTracer(
+    JavaObjectVMConstructor* obj, word_t closure) {
+  JavaObjectVMConstructor::staticTracer(obj, closure);
+}
+
 extern "C" void nativeJavaObjectVMThreadTracer(
     JavaObjectVMThread* obj, word_t closure) {
   JavaObjectVMThread::staticTracer(obj, closure);
@@ -581,11 +609,18 @@ void Classpath::initialiseClasspath(JnjvmClassLoader* loader) {
     UPCALL_METHOD(loader, "java/lang/String", "<init>", "([CIIZ)V", ACC_VIRTUAL);
   
   initConstructor =
-    UPCALL_METHOD(loader, "java/lang/reflect/Constructor", "<init>",
+      UPCALL_METHOD(loader, "java/lang/reflect/Constructor", "<init>",
+                    "(Ljava/lang/reflect/VMConstructor;)V", ACC_VIRTUAL);
+
+  initVMConstructor =
+    UPCALL_METHOD(loader, "java/lang/reflect/VMConstructor", "<init>",
                   "(Ljava/lang/Class;I)V", ACC_VIRTUAL);
 
   newConstructor =
     UPCALL_CLASS(loader, "java/lang/reflect/Constructor");
+
+  newVMConstructor =
+		  UPCALL_CLASS(loader, "java/lang/reflect/VMConstructor");
 
   constructorArrayClass =
     UPCALL_ARRAY_CLASS(loader, "java/lang/reflect/Constructor", 1);
@@ -595,13 +630,47 @@ void Classpath::initialiseClasspath(JnjvmClassLoader* loader) {
 
   constructorSlot =
     UPCALL_FIELD(loader, "java/lang/reflect/Constructor", "slot", "I", ACC_VIRTUAL);
+    
+    
+  newHashMap =
+    UPCALL_CLASS(loader, "java/util/HashMap");
+
+  initHashMap =
+    UPCALL_METHOD(loader, "java/util/HashMap", "<init>",
+                  "()V", ACC_VIRTUAL);  
+  putHashMap =
+    UPCALL_METHOD(loader, "java/util/HashMap", "put",
+                  "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+		  ACC_VIRTUAL);
+
+  newAnnotationHandler = 
+    UPCALL_CLASS(loader, "sun/reflect/annotation/AnnotationInvocationHandler");
+
+  createAnnotation =
+    UPCALL_METHOD(loader, "sun/reflect/annotation/AnnotationInvocationHandler",
+		  "create", "(Ljava/lang/Class;Ljava/util/Map;)Ljava/lang/annotation/Annotation;",
+		  ACC_STATIC);
+
+  annotationArrayClass =
+    UPCALL_ARRAY_CLASS(loader, "java/lang/annotation/Annotation", 1);
+    
+  newAnnotation =
+    UPCALL_CLASS(loader, "java/lang/annotation/Annotation");
+
   
   initMethod =
     UPCALL_METHOD(loader, "java/lang/reflect/Method", "<init>",
-                  "(Ljava/lang/Class;Ljava/lang/String;I)V", ACC_VIRTUAL);
+                  "(Ljava/lang/reflect/VMMethod;)V", ACC_VIRTUAL);
 
+  initVMMethod =
+      UPCALL_METHOD(loader, "java/lang/reflect/VMMethod", "<init>",
+                    "()V", ACC_VIRTUAL);
+   // Ljava/lang/Class;Ljava/lang/String;I
   newMethod =
     UPCALL_CLASS(loader, "java/lang/reflect/Method");
+
+  newVMMethod =
+      UPCALL_CLASS(loader, "java/lang/reflect/VMMethod");
 
   methodArrayClass =
     UPCALL_ARRAY_CLASS(loader, "java/lang/reflect/Method", 1);
@@ -611,10 +680,17 @@ void Classpath::initialiseClasspath(JnjvmClassLoader* loader) {
   
   initField =
     UPCALL_METHOD(loader, "java/lang/reflect/Field", "<init>",
-                  "(Ljava/lang/Class;Ljava/lang/String;I)V", ACC_VIRTUAL);
+                  "(Ljava/lang/reflect/VMField;)V", ACC_VIRTUAL);
+
+  initVMField =
+      UPCALL_METHOD(loader, "java/lang/reflect/VMField", "<init>",
+                    "(Ljava/lang/Class;Ljava/lang/String;I)V", ACC_VIRTUAL);
 
   newField =
     UPCALL_CLASS(loader, "java/lang/reflect/Field");
+
+  newVMField =
+      UPCALL_CLASS(loader, "java/lang/reflect/VMField");
 
   fieldArrayClass =
     UPCALL_ARRAY_CLASS(loader, "java/lang/reflect/Field", 1);
@@ -1059,9 +1135,9 @@ void Classpath::InitializeSystem(Jnjvm * jvm) {
 }
 
 #include "Classpath.inc"
-#include "ClasspathConstructor.inc"
-#include "ClasspathField.inc"
-#include "ClasspathMethod.inc"
+#include "ClasspathVMConstructor.inc"
+#include "ClasspathVMField.inc"
+#include "ClasspathVMMethod.inc"
 #include "ClasspathVMClass.inc"
 #include "ClasspathVMClassLoader.inc"
 #include "ClasspathVMObject.inc"

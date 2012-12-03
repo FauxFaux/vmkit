@@ -19,12 +19,12 @@ include $(LEVEL)/Makefile.common
 PRECOMPILER := $(ToolDir)/precompiler$(EXEEXT)
 
 ifndef VERBOSE
-#  J3.Flags := > /dev/null
+  J3.Flags := > /dev/null
 endif
 
 HelloWorld.class: HelloWorld.java
 	$(Echo) "Compiling trainer"
-	$(Verb) javac $< -d .
+	$(Verb) javac -target $(JAVAC_TARGET) $< -d .
 
 generated.bc: $(PRECOMPILER) HelloWorld.class
 	$(Echo) "Pre-compiling bootstrap code"
