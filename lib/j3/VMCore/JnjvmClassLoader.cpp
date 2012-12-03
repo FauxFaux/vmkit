@@ -7,6 +7,9 @@
 //
 //===----------------------------------------------------------------------===//
 
+#define DEBUG_VERBOSE_CLASS_LOADER_UNLOADING		1
+
+#include <iostream>
 #include <climits>
 #include <cstdlib>
 
@@ -43,6 +46,7 @@
 
 
 using namespace j3;
+using namespace std;
 
 typedef void (*static_init_t)(JnjvmClassLoader*);
 
@@ -142,18 +146,18 @@ JnjvmBootstrapLoader::JnjvmBootstrapLoader(vmkit::BumpPtrAllocator& Alloc,
   arrayTable[JavaArray::T_LONG - 4] = upcalls->ArrayOfLong;
   arrayTable[JavaArray::T_DOUBLE - 4] = upcalls->ArrayOfDouble;
   
-  Attribut::annotationsAttribut =
+  JavaAttribute::annotationsAttribute =
     asciizConstructUTF8("RuntimeVisibleAnnotations");
-  Attribut::codeAttribut = asciizConstructUTF8("Code");
-  Attribut::exceptionsAttribut = asciizConstructUTF8("Exceptions");
-  Attribut::constantAttribut = asciizConstructUTF8("ConstantValue");
-  Attribut::lineNumberTableAttribut = asciizConstructUTF8("LineNumberTable");
-  Attribut::innerClassesAttribut = asciizConstructUTF8("InnerClasses");
-  Attribut::sourceFileAttribut = asciizConstructUTF8("SourceFile");
-  Attribut::signatureAttribut = asciizConstructUTF8("Signature");
-  Attribut::enclosingMethodAttribut = asciizConstructUTF8("EnclosingMethod");
-  Attribut::paramAnnotationsAttribut = asciizConstructUTF8("RuntimeVisibleParameterAnnotations");
-  Attribut::annotationDefaultAttribut = asciizConstructUTF8("AnnotationDefault");
+  JavaAttribute::codeAttribute = asciizConstructUTF8("Code");
+  JavaAttribute::exceptionsAttribute = asciizConstructUTF8("Exceptions");
+  JavaAttribute::constantAttribute = asciizConstructUTF8("ConstantValue");
+  JavaAttribute::lineNumberTableAttribute = asciizConstructUTF8("LineNumberTable");
+  JavaAttribute::innerClassesAttribute = asciizConstructUTF8("InnerClasses");
+  JavaAttribute::sourceFileAttribute = asciizConstructUTF8("SourceFile");
+  JavaAttribute::signatureAttribute = asciizConstructUTF8("Signature");
+  JavaAttribute::enclosingMethodAttribute = asciizConstructUTF8("EnclosingMethod");
+  JavaAttribute::paramAnnotationsAttribute = asciizConstructUTF8("RuntimeVisibleParameterAnnotations");
+  JavaAttribute::annotationDefaultAttribute = asciizConstructUTF8("AnnotationDefault");
  
   JavaCompiler::InlinePragma =
     asciizConstructUTF8("Lorg/vmmagic/pragma/Inline;");
@@ -208,10 +212,22 @@ JnjvmBootstrapLoader::JnjvmBootstrapLoader(vmkit::BumpPtrAllocator& Alloc,
 #undef DEF_UTF8 
 }
 
+JnjvmClassLoader::JnjvmClassLoader(vmkit::BumpPtrAllocator& Alloc) :
+	allocator(Alloc)
+#if RESET_STALE_REFERENCES
+	,zombie(false)
+#endif
+{
+}
+
 JnjvmClassLoader::JnjvmClassLoader(vmkit::BumpPtrAllocator& Alloc,
                                    JnjvmClassLoader& JCL, JavaObject* loader,
                                    VMClassLoader* vmdata,
-                                   Jnjvm* I) : allocator(Alloc) {
+                                   Jnjvm* VM) : allocator(Alloc)
+#if RESET_STALE_REFERENCES
+	, zombie(false)
+#endif
+{
   llvm_gcroot(loader, 0);
   llvm_gcroot(vmdata, 0);
   bootstrapLoader = JCL.bootstrapLoader;
@@ -226,7 +242,7 @@ JnjvmClassLoader::JnjvmClassLoader(vmkit::BumpPtrAllocator& Alloc,
   vmdata->JCL = this;
   vmkit::Collector::objectReferenceNonHeapWriteBarrier(
       (gc**)&javaLoader, (gc*)loader);
-  isolate = I;
+  vm = VM;
 
   JavaMethod* meth = bootstrapLoader->upcalls->loadInClassLoader;
   loadClassMethod = 
@@ -330,9 +346,9 @@ UserClass* JnjvmClassLoader::internalLoad(const UTF8* name, bool doResolve,
   if (!cl) {
     UserClass* forCtp = loadClass;
     if (strName == NULL) {
-      strName = JavaString::internalToJava(name, isolate);
+      strName = JavaString::internalToJava(name, vm);
     }
-    obj = loadClassMethod->invokeJavaObjectVirtual(isolate, forCtp, javaLoader,
+    obj = loadClassMethod->invokeJavaObjectVirtual(vm, forCtp, javaLoader,
                                                    &strName);
     cl = JavaObjectClass::getClass(((JavaObjectClass*)obj));
   }
@@ -837,8 +853,18 @@ const UTF8* JnjvmClassLoader::readerConstructUTF8(const uint16* buf,
 
 JnjvmClassLoader::~JnjvmClassLoader() {
 
-  if (isolate) {
-    isolate->removeFrameInfos(TheCompiler);
+#if RESET_STALE_REFERENCES
+
+#if DEBUG_VERBOSE_CLASS_LOADER_UNLOADING
+  cerr << "Bundle class loader unloaded, bundleID=" << this->getAssociatedBundleID() << endl;
+#endif
+
+  this->setAssociatedBundleID(-1);
+
+#endif
+
+  if (vm) {
+    vm->removeFrameInfos(TheCompiler);
   }
 
   if (classes) {
@@ -879,7 +905,7 @@ JnjvmBootstrapLoader::~JnjvmBootstrapLoader() {
 JavaString** JnjvmClassLoader::UTF8ToStr(const UTF8* val) {
   JavaString* res = NULL;
   llvm_gcroot(res, 0);
-  res = isolate->internalUTF8ToStr(val);
+  res = vm->internalUTF8ToStr(val);
   return strings->addString(this, res);
 }
 
@@ -1088,3 +1114,25 @@ ArrayObject* JnjvmBootstrapLoader::getBootPackages(Jnjvm * vm) {
 
   return res;
 }
+
+#if RESET_STALE_REFERENCES
+
+int64_t JnjvmClassLoader::getAssociatedBundleID()
+{
+	return vm->getClassLoaderBundleID(this);
+}
+
+void JnjvmClassLoader::setAssociatedBundleID(int64_t newID)
+{
+	int64_t oldBundleID = vm->getClassLoaderBundleID(this);
+	if (oldBundleID != -1) {
+		if (oldBundleID == newID) return;	// Nothing to do
+
+		// Remove old bundle ID
+		vm->setBundleClassLoader(oldBundleID, NULL);
+	}
+
+	vm->setBundleClassLoader(newID, this);
+}
+
+#endif

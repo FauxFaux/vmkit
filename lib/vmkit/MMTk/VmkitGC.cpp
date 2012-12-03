@@ -96,7 +96,7 @@ void Collector::markAndTrace(void* source, void* ptr, word_t closure) {
   abort();
 }
   
-void Collector::markAndTraceRoot(void* ptr, word_t closure) {
+void Collector::markAndTraceRoot(void* source, void* ptr, word_t closure) {
   abort();
 }
 

@@ -64,11 +64,11 @@ public:
 
   /// unlock - Release the lock.
   ///
-  virtual void unlock() = 0;
+  virtual void unlock(vmkit::Thread* ownerThread = NULL) = 0;
 
   /// selfOwner - Is the current thread holding the lock?
   ///
-  bool selfOwner();
+  bool selfOwner(vmkit::Thread* ownerThread = NULL);
 
   /// getOwner - Get the thread that is holding the lock.
   ///
@@ -92,7 +92,7 @@ public:
   LockNormal() : Lock() {}
 
   virtual void lock() __attribute__ ((noinline));
-  virtual void unlock();
+  virtual void unlock(vmkit::Thread* ownerThread = NULL);
 
 };
 
@@ -121,7 +121,7 @@ public:
   LockRecursive() : Lock() { n = 0; }
   
   virtual void lock() __attribute__ ((noinline));
-  virtual void unlock();
+  virtual void unlock(vmkit::Thread* ownerThread = NULL);
   virtual int tryLock();
 
   /// recursionCount - Get the number of times the lock has been locked.
@@ -172,9 +172,31 @@ public:
   ///
   void release() { locked = 0; }
   
-  void unlock() { release(); }
+  void unlock(vmkit::Thread* ownerThread = NULL) { release(); }
 };
 
+
+class LockGuard
+{
+protected:
+	Lock& lock;
+
+private:	//Disabled constructors
+	LockGuard();
+	LockGuard(const LockGuard&);
+
+public:
+	LockGuard(Lock& l) :
+		lock(l)
+	{
+		lock.lock();
+	}
+
+	virtual ~LockGuard()
+	{
+		lock.unlock();
+	}
+};
 
 } // end namespace vmkit
 
