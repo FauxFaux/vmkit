@@ -352,6 +352,8 @@ public:
   ///
   void loadBootstrap();
 
+#if RESET_STALE_REFERENCES
+
 public:
   void resetReferencesToBundle(int64_t bundleID);
   virtual void resetReferenceIfStale(const void* source, void** ref);
@@ -371,6 +373,8 @@ protected:
   // Link between OSGi (bundle ID) and Java (class loaders).
   vmkit::LockRecursive bundleClassLoadersLock;
   bundleClassLoadersType bundleClassLoaders;
+
+#endif
 };
 
 } // end namespace j3

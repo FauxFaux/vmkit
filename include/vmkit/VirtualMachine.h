@@ -10,6 +10,8 @@
 #ifndef VMKIT_VIRTUALMACHINE_H
 #define VMKIT_VIRTUALMACHINE_H
 
+#define RESET_STALE_REFERENCES	1
+
 #include "llvm/ADT/DenseMap.h"
 
 #include "vmkit/Allocator.h"
@@ -203,7 +205,9 @@ public:
   ///
   CooperativeCollectionRV rendezvous;
 
+#if RESET_STALE_REFERENCES
   virtual void resetReferenceIfStale(const void* source, void** ref) {}
+#endif
 
 //===----------------------------------------------------------------------===//
 // (3) Backtrace-related methods.

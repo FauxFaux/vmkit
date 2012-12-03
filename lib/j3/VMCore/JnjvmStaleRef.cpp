@@ -3,6 +3,8 @@
 #include "Jnjvm.h"
 #include "VMStaticInstance.h"
 
+#if RESET_STALE_REFERENCES
+
 #define DEBUG_VERBOSE_STALE_REF		1
 
 using namespace std;
@@ -117,3 +119,5 @@ void Jnjvm::resetReferenceIfStale(const JavaObject *source, JavaObject** ref)
 }
 
 }
+
+#endif
