@@ -10,6 +10,8 @@
 #ifndef VMKIT_VIRTUALMACHINE_H
 #define VMKIT_VIRTUALMACHINE_H
 
+#include "vmkit/config.h"
+
 #include "llvm/ADT/DenseMap.h"
 
 #include "vmkit/Allocator.h"
@@ -211,6 +213,10 @@ public:
   /// rendezvous - The rendezvous implementation for garbage collection.
   ///
   CooperativeCollectionRV rendezvous;
+
+#if RESET_STALE_REFERENCES
+  virtual void resetReferenceIfStale(const void* source, void** ref) {}
+#endif
 
 //===----------------------------------------------------------------------===//
 // (3) Backtrace-related methods.

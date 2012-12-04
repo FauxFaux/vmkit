@@ -36,7 +36,7 @@ int Thread::kill(int signo) {
 }
 
 void Thread::exit(int value) {
-  pthread_exit((void*)value);
+  pthread_exit((void*)(intptr_t)value);
 }
 
 void Thread::yield(void) {
@@ -397,4 +397,17 @@ void Thread::releaseThread(vmkit::Thread* th) {
   word_t index = ((word_t)th & System::GetThreadIDMask());
   index = (index & ~TheStackManager.baseAddr) >> 20;
   TheStackManager.used[index] = 0;
+}
+
+void Thread::throwNullPointerException(word_t methodIP)
+{
+	vmkit::FrameInfo* FI = MyVM->IPToFrameInfo(methodIP);
+	if (FI->Metadata == NULL) {
+		fprintf(stderr, "Thread %p received a SIGSEGV: either the VM code or an external\n"
+					"native method is bogus. Aborting...\n", (void*)this);
+		abort();
+	}
+
+	MyVM->nullPointerException();
+	UNREACHABLE();
 }
