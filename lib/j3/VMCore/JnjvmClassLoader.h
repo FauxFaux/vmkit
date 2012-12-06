@@ -19,6 +19,7 @@
 
 
 #include "vmkit/Allocator.h"
+#include "vmkit/VirtualMachine.h"
 
 #include "JavaObject.h"
 #include "JnjvmConfig.h"
@@ -57,7 +58,7 @@ private:
 
   /// isolate - Which isolate defined me? Null for the bootstrap class loader.
   ///
-  Jnjvm* isolate;
+  Jnjvm* vm;
 
   /// javaLoder - The Java representation of the class loader. Null for the
   /// bootstrap class loader.
@@ -78,7 +79,7 @@ private:
   /// first use of a Java class loader.
   ///
   JnjvmClassLoader(vmkit::BumpPtrAllocator& Alloc, JnjvmClassLoader& JCL,
-                   JavaObject* loader, VMClassLoader* vmdata, Jnjvm* isolate);
+                   JavaObject* loader, VMClassLoader* vmdata, Jnjvm* VM);
 
   /// lookupComponentName - Try to find the component name of the given array
   /// name. If the component name is not in the table of UTF8s and holder
@@ -92,7 +93,7 @@ private:
   void ensureCached(UserCommonClass* cl);
 protected:
   
-  JnjvmClassLoader(vmkit::BumpPtrAllocator& Alloc) : allocator(Alloc) {}
+  JnjvmClassLoader(vmkit::BumpPtrAllocator& Alloc);
   
   /// TheCompiler - The Java compiler for this class loader.
   ///
@@ -132,7 +133,7 @@ public:
  
   /// getIsolate - Returns the isolate that created this class loader.
   ///
-  Jnjvm* getIsolate() const { return isolate; }
+  Jnjvm* getJVM() const { return vm; }
 
   /// getClasses - Returns the classes this class loader has loaded.
   ///
@@ -324,6 +325,23 @@ public:
   ///
   word_t getRegisteredNative(const JavaMethod * meth);
 
+#if RESET_STALE_REFERENCES
+
+protected:
+  // A zombie class loader is one whose defining bundle was uninstalled, but it is
+  // still loaded because some references to it still exist in memory.
+  bool zombie;
+
+public:
+  bool isZombie() const {return zombie;}
+  void markZombie(bool becomeZombie = true) {zombie = becomeZombie;}
+
+  // This bridges the OSGi world (bundles) to the Java world (class loaders).
+  int64_t getAssociatedBundleID();
+  void setAssociatedBundleID(int64_t newID);
+
+#endif
+
   friend class Class;
   friend class CommonClass;
   friend class StringList;
@@ -490,7 +508,7 @@ public:
 
   /// Is the object a VMClassLoader object?
   ///
-  static bool isVMClassLoader(JavaObject* obj) {
+  static bool isVMClassLoader(const JavaObject* obj) {
     llvm_gcroot(obj, 0);
     return obj->getVirtualTable() == &VT;
   }
@@ -514,7 +532,7 @@ public:
 
   /// getClassLoader - Get the internal class loader.
   ///
-  JnjvmClassLoader* getClassLoader() {
+  JnjvmClassLoader* getClassLoader() const {
     return JCL;
   }
 

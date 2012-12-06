@@ -57,7 +57,7 @@ public:
     vmkit::Collector::markAndTrace(obj, &obj->constructor, closure);
     if (obj->vmdata) {
       JavaObject** Obj = obj->vmdata->classLoader->getJavaClassLoaderPtr();
-      if (*Obj) vmkit::Collector::markAndTraceRoot(Obj, closure);
+      if (*Obj) vmkit::Collector::markAndTraceRoot(obj, Obj, closure);
     }
   }
 
@@ -199,10 +199,7 @@ public:
   
   static JavaMethod* getInternalMethod(JavaObjectConstructor* self);
   
-  static UserClass* getClass(JavaObjectConstructor* self) {
-    llvm_gcroot(self, 0);
-    return JavaObjectVMConstructor::getClass(self->vmCons);
-  }
+  static UserClass* getClass(JavaObjectConstructor* self);
 
   static JavaObjectConstructor* createFromInternalConstructor(JavaMethod* cons, int i);
 };
@@ -224,6 +221,9 @@ public:
     vmthread->vmdata = internal_thread;
   }
 
+  static JavaThread* getVmdata(JavaObjectVMThread* vmthread) {return vmthread->vmdata;}
+
+  friend std::ostream& operator << (std::ostream&, JavaObjectVMThread&);
 };
 
 

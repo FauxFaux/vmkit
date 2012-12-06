@@ -18,6 +18,7 @@
 #include "JavaArray.h"
 #include "JavaClass.h"
 #include "JavaCompiler.h"
+#include "JavaString.h"
 #include "JavaConstantPool.h"
 #include "JavaObject.h"
 #include "JavaThread.h"
@@ -29,19 +30,29 @@
 
 #include <cstring>
 
-using namespace j3;
+#if 0
+using namespace vmkit;
+#define dprintf(...) do { printf("JavaClass: "); printf(__VA_ARGS__); } while(0)
+#define ddprintf(...) do { printf(__VA_ARGS__); } while(0)
+#else
+#define dprintf(...)
+#define ddprintf(...)
+#endif
 
-const UTF8* Attribut::annotationsAttribut = 0;
-const UTF8* Attribut::codeAttribut = 0;
-const UTF8* Attribut::exceptionsAttribut = 0;
-const UTF8* Attribut::constantAttribut = 0;
-const UTF8* Attribut::lineNumberTableAttribut = 0;
-const UTF8* Attribut::innerClassesAttribut = 0;
-const UTF8* Attribut::sourceFileAttribut = 0;
-const UTF8* Attribut::signatureAttribut = 0;
-const UTF8* Attribut::enclosingMethodAttribut = 0;
-const UTF8* Attribut::paramAnnotationsAttribut = 0;
-const UTF8* Attribut::annotationDefaultAttribut = 0;
+using namespace j3;
+using namespace std;
+
+const UTF8* JavaAttribute::annotationsAttribute = 0;
+const UTF8* JavaAttribute::codeAttribute = 0;
+const UTF8* JavaAttribute::exceptionsAttribute = 0;
+const UTF8* JavaAttribute::constantAttribute = 0;
+const UTF8* JavaAttribute::lineNumberTableAttribute = 0;
+const UTF8* JavaAttribute::innerClassesAttribute = 0;
+const UTF8* JavaAttribute::sourceFileAttribute = 0;
+const UTF8* JavaAttribute::signatureAttribute = 0;
+const UTF8* JavaAttribute::enclosingMethodAttribute = 0;
+const UTF8* JavaAttribute::paramAnnotationsAttribute = 0;
+const UTF8* JavaAttribute::annotationDefaultAttribute = 0;
 
 Class* ClassArray::SuperArray;
 Class** ClassArray::InterfacesArray;
@@ -51,7 +62,7 @@ extern "C" void ArrayObjectTracer(JavaObject*);
 extern "C" void RegularObjectTracer(JavaObject*);
 extern "C" void ReferenceObjectTracer(JavaObject*);
 
-Attribut::Attribut(const UTF8* name, uint32 length,
+JavaAttribute::JavaAttribute(const UTF8* name, uint32 length,
                    uint32 offset) {
   
   this->start    = offset;
@@ -59,27 +70,27 @@ Attribut::Attribut(const UTF8* name, uint32 length,
   this->name     = name;
 }
 
-Attribut* Class::lookupAttribut(const UTF8* key) {
-  for (uint32 i = 0; i < nbAttributs; ++i) {
-    Attribut* cur = &(attributs[i]);
+JavaAttribute* Class::lookupAttribute(const UTF8* key) {
+  for (uint32 i = 0; i < nbAttributes; ++i) {
+    JavaAttribute* cur = &(attributes[i]);
     if (cur->name->equals(key)) return cur;
   }
 
   return 0;
 }
 
-Attribut* JavaField::lookupAttribut(const UTF8* key) {
-  for (uint32 i = 0; i < nbAttributs; ++i) {
-    Attribut* cur = &(attributs[i]);
+JavaAttribute* JavaField::lookupAttribute(const UTF8* key) {
+  for (uint32 i = 0; i < nbAttributes; ++i) {
+    JavaAttribute* cur = &(attributes[i]);
     if (cur->name->equals(key)) return cur;
   }
 
   return 0;
 }
 
-Attribut* JavaMethod::lookupAttribut(const UTF8* key) {
-  for (uint32 i = 0; i < nbAttributs; ++i) {
-    Attribut* cur = &(attributs[i]);
+JavaAttribute* JavaMethod::lookupAttribute(const UTF8* key) {
+  for (uint32 i = 0; i < nbAttributes; ++i) {
+    JavaAttribute* cur = &(attributes[i]);
     if (cur->name->equals(key)) return cur;
   }
 
@@ -90,9 +101,9 @@ CommonClass::~CommonClass() {
 }
 
 Class::~Class() {
-  for (uint32 i = 0; i < nbAttributs; ++i) {
-    Attribut* cur = &(attributs[i]);
-    cur->~Attribut();
+  for (uint32 i = 0; i < nbAttributes; ++i) {
+    JavaAttribute* cur = &(attributes[i]);
+    cur->~JavaAttribute();
     classLoader->allocator.Deallocate(cur);
   }
   
@@ -134,17 +145,17 @@ Class::~Class() {
 }
 
 JavaField::~JavaField() {
-  for (uint32 i = 0; i < nbAttributs; ++i) {
-    Attribut* cur = &(attributs[i]);
-    cur->~Attribut();
+  for (uint32 i = 0; i < nbAttributes; ++i) {
+    JavaAttribute* cur = &(attributes[i]);
+    cur->~JavaAttribute();
     classDef->classLoader->allocator.Deallocate(cur);
   }
 }
 
 JavaMethod::~JavaMethod() { 
-  for (uint32 i = 0; i < nbAttributs; ++i) {
-    Attribut* cur = &(attributs[i]);
-    cur->~Attribut();
+  for (uint32 i = 0; i < nbAttributes; ++i) {
+    JavaAttribute* cur = &(attributes[i]);
+    cur->~JavaAttribute();
     classDef->classLoader->allocator.Deallocate(cur);
   }
 }
@@ -332,6 +343,8 @@ JavaMethod* Class::lookupSpecialMethodDontThrow(const UTF8* name,
 JavaMethod* Class::lookupMethodDontThrow(const UTF8* name, const UTF8* type,
                                          bool isStatic, bool recurse,
                                          Class** methodCl) {
+  // This is a dirty hack because of a dirty usage pattern. See UPCALL_METHOD macro...
+  if (this == NULL) return NULL;
   
   JavaMethod* methods = 0;
   uint32 nb = 0;
@@ -592,12 +605,12 @@ void JavaField::InitStaticField(float val) {
 
 void JavaField::InitStaticField(Jnjvm* vm) {
   const Typedef* type = getSignature();
-  Attribut* attribut = lookupAttribut(Attribut::constantAttribut);
+  JavaAttribute* attribute = lookupAttribute(JavaAttribute::constantAttribute);
 
-  if (!attribut) {
+  if (!attribute) {
     InitNullStaticField();
   } else {
-    Reader reader(attribut, classDef->bytes);
+    Reader reader(attribute, classDef->bytes);
     JavaConstantPool * ctpInfo = classDef->ctpInfo;
     uint16 idx = reader.readU2();
     if (type->isPrimitive()) {
@@ -675,7 +688,7 @@ void Class::readParents(Reader& reader) {
 
 void internalLoadExceptions(JavaMethod& meth) {
   
-  Attribut* codeAtt = meth.lookupAttribut(Attribut::codeAttribut);
+  JavaAttribute* codeAtt = meth.lookupAttribute(JavaAttribute::codeAttribute);
    
   if (codeAtt) {
     Reader reader(codeAtt, meth.classDef->bytes);
@@ -710,15 +723,15 @@ void UserClass::loadExceptions() {
     internalLoadExceptions(staticMethods[i]);
 }
 
-Attribut* Class::readAttributs(Reader& reader, uint16& size) {
+JavaAttribute* Class::readAttributes(Reader& reader, uint16& size) {
   uint16 nba = reader.readU2();
  
-  Attribut* attributs = new(classLoader->allocator, "Attributs") Attribut[nba];
+  JavaAttribute* attributes = new(classLoader->allocator, "Attributes") JavaAttribute[nba];
 
   for (int i = 0; i < nba; i++) {
     const UTF8* attName = ctpInfo->UTF8At(reader.readU2());
     uint32 attLen = reader.readU4();
-    Attribut& att = attributs[i];
+    JavaAttribute& att = attributes[i];
     att.start = reader.cursor;
     att.nbb = attLen;
     att.name = attName;
@@ -726,7 +739,7 @@ Attribut* Class::readAttributs(Reader& reader, uint16& size) {
   }
 
   size = nba;
-  return attributs;
+  return attributes;
 }
 
 void Class::readFields(Reader& reader) {
@@ -748,7 +761,7 @@ void Class::readFields(Reader& reader) {
       field->initialise(this, name, type, access);
       ++nbVirtualFields;
     }
-    field->attributs = readAttributs(reader, field->nbAttributs);
+    field->attributes = readAttributes(reader, field->nbAttributes);
   }
 }
 
@@ -847,7 +860,7 @@ void Class::readMethods(Reader& reader) {
       meth->initialise(this, name, type, access);
       ++nbVirtualMethods;
     }
-    meth->attributs = readAttributs(reader, meth->nbAttributs);
+    meth->attributes = readAttributes(reader, meth->nbAttributes);
   }
 
   if (isAbstract(access)) {
@@ -886,8 +899,10 @@ void Class::readClass() {
   magic = reader.readU4();
   assert(magic == Jnjvm::Magic && "I've created a class but magic is no good!");
 
-  /* uint16 minor = */ reader.readU2();
-  /* uint16 major = */ reader.readU2();
+  uint16 minor = reader.readU2();
+  uint16 major = reader.readU2();
+  this->isClassVersionSupported(major, minor);
+
   uint32 ctpSize = reader.readU2();
   ctpInfo = new(classLoader->allocator, ctpSize) JavaConstantPool(this, reader,
                                                                   ctpSize);
@@ -905,7 +920,37 @@ void Class::readClass() {
   readParents(reader);
   readFields(reader);
   readMethods(reader);
-  attributs = readAttributs(reader, nbAttributs);
+  attributes = readAttributes(reader, nbAttributes);
+}
+
+void Class::getMinimalJDKVersion(uint16 major, uint16 minor, unsigned int& JDKMajor, unsigned int& JDKMinor, unsigned int& JDKBuild)
+{
+	JDKMajor = 1;
+	JDKBuild = 0;
+	if (major == 45 && minor <= 3) {			// Supported by Java 1.0.2
+		JDKMinor = 0;
+		JDKBuild = 2;
+	} else if (major == 45 && minor <= 65535) {	// Supported by Java 1.1
+		JDKMinor = 1;
+	} else {									// Supported by Java 1.x (x >= 2)
+		JDKMinor = major - 43;
+		if (minor == 0) --JDKMinor;
+	}
+}
+
+bool Class::isClassVersionSupported(uint16 major, uint16 minor)
+{
+	const int supportedJavaMinorVersion = 5;	// Java 1.5
+
+	unsigned int JDKMajor, JDKMinor, JDKBuild;
+	Class::getMinimalJDKVersion(major, minor, JDKMajor, JDKMinor, JDKBuild);
+
+	bool res = (JDKMajor <= 1) && (JDKMinor <= supportedJavaMinorVersion);
+	if (!res) {
+		cerr << "WARNING: Class file '" << *name << "' requires Java version " << JDKMajor << '.' << JDKMinor <<
+			". This JVM only supports Java versions up to 1." << supportedJavaMinorVersion << '.' << endl;
+	}
+	return res;
 }
 
 void UserClass::resolveParents() {
@@ -929,9 +974,9 @@ void Class::resolveClass() {
 
 void UserClass::resolveInnerOuterClasses() {
   if (!innerOuterResolved) {
-    Attribut* attribut = lookupAttribut(Attribut::innerClassesAttribut);
-    if (attribut != 0) {
-      Reader reader(attribut, bytes);
+    JavaAttribute* attribute = lookupAttribute(JavaAttribute::innerClassesAttribute);
+    if (attribute != 0) {
+      Reader reader(attribute, bytes);
       uint16 nbi = reader.readU2();
       for (uint16 i = 0; i < nbi; ++i) {
         uint16 inner = reader.readU2();
@@ -1002,7 +1047,7 @@ ArrayObject* JavaMethod::getExceptionTypes(JnjvmClassLoader* loader) {
   llvm_gcroot(res, 0);
   llvm_gcroot(delegatee, 0);
   
-  Attribut* exceptionAtt = lookupAttribut(Attribut::exceptionsAttribut);
+  JavaAttribute* exceptionAtt = lookupAttribute(JavaAttribute::exceptionsAttribute);
   Jnjvm* vm = JavaThread::get()->getJVM();
   if (exceptionAtt == 0) {
     return (ArrayObject*)vm->upcalls->classArrayClass->doNew(0, vm);
@@ -1295,7 +1340,7 @@ bool UserClass::needsInitialisationCheck() {
   if (super && super->needsInitialisationCheck())
     return true;
 
-  if (nbStaticFields) return true;
+  if (nbStaticFields > 0) return true;
 
   JavaMethod* meth = 
     lookupMethodDontThrow(classLoader->bootstrapLoader->clinitName,
@@ -1677,6 +1722,15 @@ void AnnotationReader::readAnnotation() {
   AnnotationNameIndex = typeIndex;
 }
 
+void AnnotationReader::readAnnotationElementValues() {
+  uint16 numPairs = reader.readU2();
+
+  for (uint16 j = 0; j < numPairs; ++j) {
+    reader.readU2();
+    readElementValue();
+  }
+}
+
 void AnnotationReader::readElementValue() {
   uint8 tag = reader.readU1();
   if ((tag == 'B') || (tag == 'C') || (tag == 'D') || (tag == 'F') ||
@@ -1698,8 +1752,137 @@ void AnnotationReader::readElementValue() {
   }
 }
 
+JavaObject* AnnotationReader::createElementValue() {
+  uint8 tag = reader.readU1();
+  JavaObject* res = 0;
+  JavaObject* tmp = 0;
+  llvm_gcroot(res, 0);
+  llvm_gcroot(tmp, 0);
+	
+	Jnjvm* vm = JavaThread::get()->getJVM();
+  Classpath* upcalls = JavaThread::get()->getJVM()->upcalls;
+  ddprintf("value:");
+
+  if (tag == 'B') {
+    uint32 val = cl->ctpInfo->IntegerAt(reader.readU2());
+    ddprintf("B=%d", val);
+    res = upcalls->boolClass->doNew(vm);
+    upcalls->boolValue->setInstanceInt8Field(res, val);
+
+  } else if (tag == 'C') {
+    uint32 val = cl->ctpInfo->IntegerAt(reader.readU2());
+    ddprintf("C=%c", val);
+    res = upcalls->intClass->doNew(vm);
+    upcalls->intValue->setInstanceInt32Field(res, val);
+
+  } else if (tag == 'D') {
+    double val = cl->ctpInfo->DoubleAt(reader.readU2());
+    ddprintf("D=%f", val);
+    res = upcalls->doubleClass->doNew(vm);
+    upcalls->doubleValue->setInstanceDoubleField(res, val);
+
+  } else if (tag == 'F') {
+    float val = cl->ctpInfo->FloatAt(reader.readU2());
+    ddprintf("F=%f", val);
+    res = upcalls->floatClass->doNew(vm);
+    upcalls->floatValue->setInstanceFloatField(res, val);
+
+  } else if (tag == 'J') {
+    sint64 val = cl->ctpInfo->LongAt(reader.readU2());
+    ddprintf("J=%lld", val);
+    res = upcalls->longClass->doNew(vm);
+    upcalls->longValue->setInstanceLongField(res, val);
+
+  } else if (tag == 'S') {
+    uint32 val = cl->ctpInfo->IntegerAt(reader.readU2());
+    ddprintf("S=%d", val);
+    res = upcalls->shortClass->doNew(vm);
+    upcalls->shortValue->setInstanceInt16Field(res, val);
+    
+  } else if (tag == 'I') {
+    uint32 val = cl->ctpInfo->IntegerAt(reader.readU2());
+    ddprintf("I=%d", val);
+    res = upcalls->intClass->doNew(vm);
+    upcalls->intValue->setInstanceInt32Field(res, val);
+
+  } else if (tag == 'Z') {
+    bool val = cl->ctpInfo->IntegerAt(reader.readU2());
+    ddprintf("Z=%d", val);
+    res = upcalls->boolClass->doNew(vm);
+    upcalls->boolValue->setInstanceInt8Field(res, val);
+
+  } else if (tag == 's') {
+    const UTF8* s = cl->ctpInfo->UTF8At(reader.readU2());
+    ddprintf("s=%s", PrintBuffer(s).cString());
+    res = JavaString::internalToJava(s, JavaThread::get()->getJVM());
+
+  } else if (tag == 'e') {
+    // Element_value Enumeration not implemented
+    const UTF8* n = cl->ctpInfo->UTF8At(reader.readU2());
+    ddprintf("%s", PrintBuffer(n).cString());
+    const UTF8* m = cl->ctpInfo->UTF8At(reader.readU2());
+    ddprintf("%s", PrintBuffer(m).cString());
+    fprintf(stderr, "Annotation not supported for %c type\n", tag);
+    abort();
+
+  } else if (tag == 'c') {
+    ddprintf("class=");
+    const UTF8* m = cl->ctpInfo->UTF8At(reader.readU2());
+    ddprintf("%s", PrintBuffer(m).cString());
+
+  } else if (tag == '[') {
+    uint16 numValues = reader.readU2();
+    UserClassArray* array = upcalls->annotationArrayClass;
+    res = array->doNew(numValues, vm);
+
+    ddprintf("Tableau de %d elements\n", numValues);
+    for (uint32 i = 0; i < numValues; ++i) {
+      tmp = createElementValue();
+      ArrayObject::setElement((ArrayObject *)res, tmp, i);
+    }
+    ddprintf("Fin du Tableau");
+  } else {
+    // Element_value Annotation not implemented
+    fprintf(stderr, "Annotation not supported for %c type\n", tag);
+    abort();
+  }
+  ddprintf("\n");
+
+  return res;
+}
+
+JavaObject* AnnotationReader::createAnnotationMapValues() {
+  std::pair<JavaObject*, JavaObject*> pair;
+  JavaObject* tmp = 0;
+  JavaString* str = 0;
+  JavaObject* newHashMap = 0;
+  llvm_gcroot(tmp, 0);
+  llvm_gcroot(str, 0);
+  llvm_gcroot(newHashMap, 0);
+
+	Jnjvm * vm = JavaThread::get()->getJVM();
+  Classpath* upcalls = vm->upcalls;
+  UserClass* HashMap = upcalls->newHashMap;
+  newHashMap = HashMap->doNew(vm);
+  upcalls->initHashMap->invokeIntSpecial(vm, HashMap, newHashMap);
+
+  uint16 numPairs = reader.readU2();
+  dprintf("numPairs:%d\n", numPairs);
+  for (uint16 j = 0; j < numPairs; ++j) {
+    uint16 nameIndex = reader.readU2();
+    const UTF8* key = cl->ctpInfo->UTF8At(nameIndex);
+    dprintf("keyAn:%s|", PrintBuffer(key).cString());
+
+    tmp = createElementValue();
+    str = JavaString::internalToJava(key, JavaThread::get()->getJVM());
+    upcalls->putHashMap->invokeJavaObjectVirtual(vm, HashMap, newHashMap, &str, &tmp);
+  }
+
+  return newHashMap;
+}
+
 uint16 JavaMethod::lookupLineNumber(vmkit::FrameInfo* info) {
-  Attribut* codeAtt = lookupAttribut(Attribut::codeAttribut);      
+  JavaAttribute* codeAtt = lookupAttribute(JavaAttribute::codeAttribute);      
   if (codeAtt == NULL) return 0;
   Reader reader(codeAtt, classDef->bytes);
   reader.readU2(); // max_stack
@@ -1712,7 +1895,7 @@ uint16 JavaMethod::lookupLineNumber(vmkit::FrameInfo* info) {
   for (uint16 att = 0; att < nba; ++att) {
     const UTF8* attName = classDef->ctpInfo->UTF8At(reader.readU2());
     uint32 attLen = reader.readU4();
-    if (attName->equals(Attribut::lineNumberTableAttribut)) {
+    if (attName->equals(JavaAttribute::lineNumberTableAttribute)) {
       uint16_t lineLength = reader.readU2();
       uint16_t currentLine = 0;
       for (uint16 j = 0; j < lineLength; ++j) {
@@ -1729,7 +1912,7 @@ uint16 JavaMethod::lookupLineNumber(vmkit::FrameInfo* info) {
 }
 
 uint16 JavaMethod::lookupCtpIndex(vmkit::FrameInfo* FI) {
-  Attribut* codeAtt = lookupAttribut(Attribut::codeAttribut);
+  JavaAttribute* codeAtt = lookupAttribute(JavaAttribute::codeAttribute);
   Reader reader(codeAtt, classDef->bytes);
   reader.cursor = reader.cursor + 2 + 2 + 4 + FI->SourceIndex + 1;
   return reader.readU2();
@@ -1764,19 +1947,41 @@ void Class::broadcastClass() {
   JavaObject::notifyAll(delegatee);
 }
 
-void JavaField::setInstanceObjectField(JavaObject* obj, JavaObject* val) {
-  llvm_gcroot(obj, 0);
-  llvm_gcroot(val, 0);
-  if (val != NULL) assert(val->getVirtualTable());
-  assert(classDef->isResolved());
-  JavaObject** ptr = (JavaObject**)((uint64)obj + ptrOffset);
-  vmkit::Collector::objectReferenceWriteBarrier((gc*)obj, (gc**)ptr, (gc*)val);
+std::string& CommonClass::getName(std::string& nameBuffer, bool linkageName) const
+{
+	name->toString(nameBuffer);
+
+	for (int32_t i=0; i < name->size; ++i) {
+		if (name->elements[i] == '/')
+			nameBuffer[i] = linkageName ? '_' : '.';
+	}
+
+	return nameBuffer;
 }
 
-void JavaField::setStaticObjectField(JavaObject* val) {
-  llvm_gcroot(val, 0);
-  if (val != NULL) assert(val->getVirtualTable());
-  assert(classDef->isResolved());
-  JavaObject** ptr = (JavaObject**)((uint64)classDef->getStaticInstance() + ptrOffset);
-  vmkit::Collector::objectReferenceNonHeapWriteBarrier((gc**)ptr, (gc*)val);
+std::string& JavaMethod::getName(std::string& nameBuffer, bool linkageName) const
+{
+	classDef->getName(nameBuffer, linkageName);
+	nameBuffer += linkageName ? '_' : '.';
+
+	string methName;
+	return nameBuffer += name->toString(methName);
 }
+
+std::ostream& j3::operator << (std::ostream& os, const JavaMethod& m)
+{
+	return os << *m.classDef->name << '.' << *m.name << " (" << *m.type << ')';
+}
+
+void JavaMethod::dump() const
+{
+	cerr << *this << endl;
+}
+
+JavaField_IMPL_ASSESSORS(float, Float)
+JavaField_IMPL_ASSESSORS(double, Double)
+JavaField_IMPL_ASSESSORS(uint8, Int8)
+JavaField_IMPL_ASSESSORS(uint16, Int16)
+JavaField_IMPL_ASSESSORS(uint32, Int32)
+JavaField_IMPL_ASSESSORS(sint64, Long)
+JavaField_IMPL_ASSESSORS(JavaObject*, Object)

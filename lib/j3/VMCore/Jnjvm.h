@@ -11,6 +11,7 @@
 #define JNJVM_JAVA_VM_H
 
 #include <vector>
+#include <map>
 
 #include "types.h"
 
@@ -94,7 +95,7 @@ public:
   char* jarFile;
   std::vector< std::pair<char*, char*> > agents;
 
-  void readArgs(Jnjvm *vm);
+  void readArgs(class Jnjvm *vm);
   void extractClassFromJar(Jnjvm* vm, int argc, char** argv, int i);
   void javaAgent(char* cur);
 
@@ -358,6 +359,30 @@ public:
   /// mapping the initial thread.
   ///
   void loadBootstrap();
+
+#if RESET_STALE_REFERENCES
+
+public:
+  void resetReferencesToBundle(int64_t bundleID);
+  virtual void resetReferenceIfStale(const void* source, void** ref);
+  void dumpClassLoaderBundles();
+
+  int64_t getClassLoaderBundleID(JnjvmClassLoader* loader);
+  JnjvmClassLoader* getBundleClassLoader(int64_t bundleID);
+  void setBundleClassLoader(int64_t bundleID, JnjvmClassLoader* loader);
+
+  typedef std::map<int64_t, JnjvmClassLoader*>	bundleClassLoadersType;
+
+protected:
+  void resetReferenceIfStale(const JavaObject *source, class VMClassLoader** ref);
+  void resetReferenceIfStale(const JavaObject *source, class VMStaticInstance** ref);
+  void resetReferenceIfStale(const JavaObject *source, class JavaObject** ref);
+
+  // Link between OSGi (bundle ID) and Java (class loaders).
+  vmkit::LockRecursive bundleClassLoadersLock;
+  bundleClassLoadersType bundleClassLoaders;
+
+#endif
 };
 
 } // end namespace j3
