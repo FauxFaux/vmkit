@@ -84,7 +84,7 @@ ifeq ($(COMPILE_MMTK), 1)
 	$(Verb) $(LLVMCC) -c $(ObjDir)/FinalMMTk.s -o $(ObjDir)/FinalMMTk.o
 	$(Verb) $(Archive) $(LibDir)/libFinalMMTk.a $(ObjDir)/FinalMMTk.o
 	$(Verb) $(Ranlib) $(LibDir)/libFinalMMTk.a
-	$(Verb) $(LLC) -march=cpp -cppgen=function -cppfor=gcmalloc $(LibDir)/FinalMMTk.bc -o $(PROJ_SRC_ROOT)/mmtk/inline/MMTkMallocInline.inc
+	$(Verb) $(LLC) -march=cpp -cppgen=function -cppfor=VTgcmalloc $(LibDir)/FinalMMTk.bc -o $(PROJ_SRC_ROOT)/mmtk/inline/MMTkMallocInline.inc
 	$(Verb) $(LLC) -march=cpp -cppgen=function -cppfor=fieldWriteBarrier $(LibDir)/FinalMMTk.bc -o $(PROJ_SRC_ROOT)/mmtk/inline/MMTkFieldWriteInline.inc
 	$(Verb) $(LLC) -march=cpp -cppgen=function -cppfor=arrayWriteBarrier $(LibDir)/FinalMMTk.bc -o $(PROJ_SRC_ROOT)/mmtk/inline/MMTkArrayWriteInline.inc
 	$(Verb) $(LLC) -march=cpp -cppgen=function -cppfor=nonHeapWriteBarrier $(LibDir)/FinalMMTk.bc -o $(PROJ_SRC_ROOT)/mmtk/inline/MMTkNonHeapWriteInline.inc
