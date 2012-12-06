@@ -40,6 +40,7 @@ public:
   }
 };
 
+
 /// JavaVirtualTable - This class is the virtual table of instances of
 /// Java classes. Besides holding function pointers for virtual calls,
 /// it contains a bunch of information useful for fast dynamic type checking.
@@ -236,6 +237,29 @@ private:
   static void waitIntern(JavaObject* self, struct timeval *info, bool timed);
   
 public:
+
+  /// Methods to match with VirtualTable
+  ///
+  virtual           ~JavaObject() {}
+  virtual void      tracer(word_t closure) {}
+
+  /// operator new - Optimized operator new for VT based objects
+  ///
+  void* operator new(size_t sz, VirtualTable *VT) {
+	    return VTgcmallocUnresolved(sz, VT);
+	  }
+
+  /// getVirtualTable - Returns the java virtual table of this object.
+  ///
+  JavaVirtualTable* getVirtualTable() const {
+    return ((JavaVirtualTable**)(this))[0];
+  }
+
+  /// setVirtualTable - Sets the java virtual table of this object.
+  ///
+  void setVirtualTable(JavaVirtualTable* VT) {
+    ((JavaVirtualTable**)(this))[0] = VT;
+  }
 
   /// getClass - Returns the class of this object.
   ///

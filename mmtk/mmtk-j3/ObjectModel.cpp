@@ -62,6 +62,14 @@ Java_org_j3_mmtk_ObjectModel_attemptAvailableBits__Lorg_vmmagic_unboxed_ObjectRe
   return (val == oldValue);
 }
 
+extern "C" void Java_org_j3_bindings_Bindings_setType__Lorg_vmmagic_unboxed_ObjectReference_2Lorg_vmmagic_unboxed_ObjectReference_2(
+                    gc* obj, void* type) ALWAYS_INLINE;
+
+extern "C" void Java_org_j3_bindings_Bindings_setType__Lorg_vmmagic_unboxed_ObjectReference_2Lorg_vmmagic_unboxed_ObjectReference_2(
+                    gc* obj, void* type) {
+	vmkit::Thread::get()->MyVM->setType(obj, type);
+}
+
 extern "C" int Java_org_j3_bindings_Bindings_hiddenHeaderSize__() ALWAYS_INLINE;
 
 extern "C" int Java_org_j3_bindings_Bindings_hiddenHeaderSize__() {
@@ -86,7 +94,7 @@ extern "C" void Java_org_j3_bindings_Bindings_memcpy__Lorg_vmmagic_unboxed_Addre
 
 
 extern "C" word_t JnJVM_org_j3_bindings_Bindings_copy__Lorg_vmmagic_unboxed_ObjectReference_2Lorg_vmmagic_unboxed_ObjectReference_2II(
-    gc* obj, VirtualTable* VT, int size, int allocator);
+    gc* obj, void* type, int size, int allocator);
 
 extern "C" word_t Java_org_j3_mmtk_ObjectModel_copy__Lorg_vmmagic_unboxed_ObjectReference_2I (
     MMTkObject* OM, gc* src, int allocator) ALWAYS_INLINE;
@@ -96,7 +104,7 @@ extern "C" word_t Java_org_j3_mmtk_ObjectModel_copy__Lorg_vmmagic_unboxed_Object
   size_t size = vmkit::Thread::get()->MyVM->getObjectSize(src);
   size = llvm::RoundUpToAlignment(size, sizeof(void*));
   gc* res = (gc*)JnJVM_org_j3_bindings_Bindings_copy__Lorg_vmmagic_unboxed_ObjectReference_2Lorg_vmmagic_unboxed_ObjectReference_2II(
-      src, src->getVirtualTable(), size, allocator);
+      src, vmkit::Thread::get()->MyVM->getType(src), size, allocator);
   assert((res->header() & ~vmkit::GCBitMask) == (src->header() & ~vmkit::GCBitMask));
   return (word_t)res;
 }

@@ -23,7 +23,7 @@
 #include <cstddef>
 #include <map>
 
-#include "vmkit/GC.h"
+#include "VmkitGC.h"
 
 using namespace llvm;
 
@@ -52,7 +52,7 @@ namespace {
 
 bool EscapeAnalysis::runOnFunction(Function& F) {
   bool Changed = false;
-  Function* Allocator = F.getParent()->getFunction("gcmalloc");
+  Function* Allocator = F.getParent()->getFunction("VTgcmalloc");
   if (!Allocator) return Changed;
 
   LoopInfo* LI = &getAnalysis<LoopInfo>();

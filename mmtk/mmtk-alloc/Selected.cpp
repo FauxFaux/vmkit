@@ -60,21 +60,19 @@ extern "C" void* JnJVM_org_j3_bindings_Bindings_prealloc__I(int sz) ALWAYS_INLIN
 extern "C" void* JnJVM_org_j3_bindings_Bindings_postalloc__Lorg_vmmagic_unboxed_ObjectReference_2Lorg_vmmagic_unboxed_ObjectReference_2I(
 		void* object, void* type, int sz) ALWAYS_INLINE;
 
-extern "C" void* prealloc(uint32_t size) {
-	gc* res = 0;
-  gcHeader* head = 0;
-  size = llvm::RoundUpToAlignment(size, sizeof(void*));
-  head = (gcHeader*) JnJVM_org_j3_bindings_Bindings_prealloc__I(size);
-  res = head->toReference();
-  return res;
-}
+extern "C" void* JnJVM_org_j3_bindings_Bindings_vmkitgcmalloc__ILorg_vmmagic_unboxed_ObjectReference_2(
+    int sz, void* VT) ALWAYS_INLINE;
 
-extern "C" void postalloc(gc* obj, void* type, uint32_t size) {
-	vmkit::Thread::get()->MyVM->setType(obj->toHeader(), type);
-	JnJVM_org_j3_bindings_Bindings_postalloc__Lorg_vmmagic_unboxed_ObjectReference_2Lorg_vmmagic_unboxed_ObjectReference_2I(obj, type, size);
-}
+extern "C" void* JnJVM_org_j3_bindings_Bindings_VTgcmalloc__ILorg_vmmagic_unboxed_ObjectReference_2(
+    int sz, void* VT) ALWAYS_INLINE;
 
-extern "C" void* gcmalloc(uint32_t sz, void* type) {
+extern "C" void addFinalizationCandidate(gc* obj) ALWAYS_INLINE;
+
+/**************************************
+ * Sample of code using pre/post alloc. It is slower but you can have
+ * a better control of objects allocation.
+ *
+extern "C" void* vmkitgcmalloc(uint32_t sz, void* type) {
   gc* res = 0;
   llvm_gcroot(res, 0);
 	sz += gcHeader::hiddenHeaderSize();
@@ -82,22 +80,66 @@ extern "C" void* gcmalloc(uint32_t sz, void* type) {
 	postalloc(res, type, sz);
 	return res;
 }
-
-extern "C" void* gcmallocUnresolved(uint32_t sz, void* type) {
-  gc* res = 0;
+*/
+extern "C" void* prealloc(uint32_t size) {
+	gc* res = 0;
+  gcHeader* head = 0;
   llvm_gcroot(res, 0);
-  res = (gc*)gcmalloc(sz, type);
-	vmkit::Thread::get()->MyVM->addFinalizationCandidate(res);
+  size = llvm::RoundUpToAlignment(size, sizeof(void*));
+  head = (gcHeader*) JnJVM_org_j3_bindings_Bindings_prealloc__I(size);
+  res = head->toReference();
   return res;
 }
 
-extern "C" void addFinalizationCandidate(gc* obj) __attribute__((always_inline));
+extern "C" void postalloc(gc* obj, void* type, uint32_t size) {
+	vmkit::Thread::get()->MyVM->setType(obj, type);
+	JnJVM_org_j3_bindings_Bindings_postalloc__Lorg_vmmagic_unboxed_ObjectReference_2Lorg_vmmagic_unboxed_ObjectReference_2I(obj, type, size);
+}
+
+extern "C" void* vmkitgcmalloc(uint32_t sz, void* type) {
+  gc* res = 0;
+  llvm_gcroot(res, 0);
+	sz += gcHeader::hiddenHeaderSize();
+	sz = llvm::RoundUpToAlignment(sz, sizeof(void*));
+	res = ((gcHeader*)JnJVM_org_j3_bindings_Bindings_vmkitgcmalloc__ILorg_vmmagic_unboxed_ObjectReference_2(sz, type))->toReference();
+	return res;
+}
+
+extern "C" void* vmkitgcmallocUnresolved(uint32_t sz, void* type) {
+  gc* res = 0;
+  llvm_gcroot(res, 0);
+  res = (gc*)vmkitgcmalloc(sz, type);
+	addFinalizationCandidate(res);
+  return res;
+}
+
+/******************************************************************************
+ * Optimized gcmalloc for VT based object layout.                             *
+ *****************************************************************************/
+
+extern "C" void* VTgcmalloc(uint32_t sz, VirtualTable* VT) {
+  gc* res = 0;
+  llvm_gcroot(res, 0);
+	sz += gcHeader::hiddenHeaderSize();
+	sz = llvm::RoundUpToAlignment(sz, sizeof(void*));
+	res = ((gcHeader*)JnJVM_org_j3_bindings_Bindings_VTgcmalloc__ILorg_vmmagic_unboxed_ObjectReference_2(sz, VT))->toReference();
+	return res;
+}
+
+extern "C" void* VTgcmallocUnresolved(uint32_t sz, VirtualTable* VT) {
+  gc* res = 0;
+  llvm_gcroot(res, 0);
+  res = (gc*)VTgcmalloc(sz, VT);
+  if (VT->hasDestructor()) addFinalizationCandidate(res);
+  return res;
+}
+
+/*****************************************************************************/
 
 extern "C" void addFinalizationCandidate(gc* obj) {
   llvm_gcroot(obj, 0);
   vmkit::Thread::get()->MyVM->addFinalizationCandidate(obj);
 }
-
 
 extern "C" void arrayWriteBarrier(void* ref, void** ptr, void* value) {
   JnJVM_org_j3_bindings_Bindings_arrayWriteBarrier__Lorg_vmmagic_unboxed_ObjectReference_2Lorg_vmmagic_unboxed_Address_2Lorg_vmmagic_unboxed_ObjectReference_2(
@@ -132,7 +174,7 @@ bool Collector::isLive(gc* ptr, word_t closure) {
 
 void Collector::scanObject(void** ptr, word_t closure) {
   if ((*ptr) != NULL) {
-    assert(((gc*)(*ptr))->getVirtualTable());
+    assert(vmkit::Thread::get()->MyVM->isCorruptedType((gc*)(*ptr)));
   }
 #if RESET_STALE_REFERENCES
   // Allow the VM to reset references if needed
@@ -142,22 +184,22 @@ void Collector::scanObject(void** ptr, word_t closure) {
 }
  
 void Collector::markAndTrace(void* source, void* ptr, word_t closure) {
-  void** ptr_ = (void**)ptr;
-  if ((*ptr_) != NULL) {
-    assert(((gc*)(*ptr_))->getVirtualTable());
-  }
-  if ((*(void**)ptr) != NULL) assert(((gc*)(*(void**)ptr))->getVirtualTable());
+	void** ptr_ = (void**)ptr;
+	if ((*ptr_) != NULL) {
+		assert(vmkit::Thread::get()->MyVM->isCorruptedType((gc*)(*ptr_)));
+	}
+	if ((*(void**)ptr) != NULL) assert(vmkit::Thread::get()->MyVM->isCorruptedType((gc*)(*(void**)ptr)));
 #if RESET_STALE_REFERENCES
-  // Allow the VM to reset references if needed
-  vmkit::Thread::get()->MyVM->resetReferenceIfStale(source, ptr_);
+	// Allow the VM to reset references if needed
+	vmkit::Thread::get()->MyVM->resetReferenceIfStale(source, ptr_);
 #endif
-  JnJVM_org_j3_bindings_Bindings_processEdge__Lorg_mmtk_plan_TransitiveClosure_2Lorg_vmmagic_unboxed_ObjectReference_2Lorg_vmmagic_unboxed_Address_2(closure, source, ptr);
+	JnJVM_org_j3_bindings_Bindings_processEdge__Lorg_mmtk_plan_TransitiveClosure_2Lorg_vmmagic_unboxed_ObjectReference_2Lorg_vmmagic_unboxed_Address_2(closure, source, ptr);
 }
   
 void Collector::markAndTraceRoot(void* source, void* ptr, word_t closure) {
   void** ptr_ = (void**)ptr;
   if ((*ptr_) != NULL) {
-    assert(((gc*)(*ptr_))->getVirtualTable());
+    assert(vmkit::Thread::get()->MyVM->isCorruptedType((gc*)(*ptr_)));
   }
 #if RESET_STALE_REFERENCES
   // Allow the VM to reset references if needed
@@ -235,9 +277,9 @@ void Collector::initialise(int argc, char** argv) {
   JnJVM_org_j3_bindings_Bindings_boot__Lorg_vmmagic_unboxed_Extent_2Lorg_vmmagic_unboxed_Extent_2_3Ljava_lang_String_2(20 * 1024 * 1024, 100 * 1024 * 1024, arguments);
 }
 
-extern "C" void* MMTkMutatorAllocate(uint32_t size, VirtualTable* VT) {
+extern "C" void* MMTkMutatorAllocate(uint32_t size, void* type) {
   gc* val = (gc*)MutatorThread::get()->Allocator.Allocate(size);
-  val->setVirtualTable(VT);
+  vmkit::Thread::get()->MyVM->setType(val, type);
   return val;
 }
 
