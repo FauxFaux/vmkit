@@ -28,23 +28,17 @@ void Jnjvm::resetReferencesToBundle(int64_t bundleID)
 void Jnjvm::resetReferenceIfStale(const void* source, void** ref)
 {
 	if (!ref || !(*ref)) return;	// Invalid or null reference
+	const JavaObject* src = reinterpret_cast<const JavaObject*>(source);
 	JavaObject** objRef = reinterpret_cast<JavaObject**>(ref);
 
 	// Check the type of Java object. Some Java objects are not real object, but
 	// are bridges between Java and the VM objects.
-	if (VMClassLoader::isVMClassLoader(*objRef)) {
-		return resetReferenceIfStale(
-			reinterpret_cast<const JavaObject*>(source),
-			reinterpret_cast<VMClassLoader**>(ref));
-	} else if (VMStaticInstance::isVMStaticInstance(*objRef)) {
-		return resetReferenceIfStale(
-			reinterpret_cast<const JavaObject*>(source),
-			reinterpret_cast<VMStaticInstance**>(ref));
-	} else {
-		return resetReferenceIfStale(
-			reinterpret_cast<const JavaObject*>(source),
-			objRef);
-	}
+	if (VMClassLoader::isVMClassLoader(*objRef))
+		resetReferenceIfStale(src, reinterpret_cast<VMClassLoader**>(ref));
+	else if (VMStaticInstance::isVMStaticInstance(*objRef))
+		resetReferenceIfStale(src, reinterpret_cast<VMStaticInstance**>(ref));
+	else
+		resetReferenceIfStale(src, objRef);
 }
 
 void Jnjvm::resetReferenceIfStale(const JavaObject *source, VMClassLoader** ref)
@@ -94,9 +88,9 @@ void Jnjvm::resetReferenceIfStale(const JavaObject *source, JavaObject** ref)
 #endif
 
 	CommonClass* ccl = JavaObject::getClass(*ref);
-	if (!ccl->classLoader->isZombie()) return;
+	assert (ccl && "Object Class is not null.");
 
-	return;
+	if (!ccl->classLoader->isZombie()) return;
 
 #if DEBUG_VERBOSE_STALE_REF
 
@@ -106,19 +100,16 @@ void Jnjvm::resetReferenceIfStale(const JavaObject *source, JavaObject** ref)
 
 #endif
 
-//	return;
-
-	Jnjvm* vm = JavaThread::get()->getJVM();
-	if (JavaThread* ownerThread = (JavaThread*)vmkit::ThinLock::getOwner(*ref, vm->lockSystem)) {
-		if (vmkit::FatLock* lock = vmkit::ThinLock::getFatLock(*ref, vm->lockSystem))
+	if (JavaThread* ownerThread = (JavaThread*)vmkit::ThinLock::getOwner(*ref, this->lockSystem)) {
+		if (vmkit::FatLock* lock = vmkit::ThinLock::getFatLock(*ref, this->lockSystem))
 			lock->markAssociatedObjectAsDead();
 
 		// Notify all threads waiting on this object
-		ownerThread->lockingThread.notifyAll(*ref, vm->lockSystem, ownerThread);
+		ownerThread->lockingThread.notifyAll(*ref, this->lockSystem, ownerThread);
 
 		// Release this object
-		while (vmkit::ThinLock::getOwner(*ref, vm->lockSystem) == ownerThread)
-			vmkit::ThinLock::release(*ref, vm->lockSystem, ownerThread);
+		while (vmkit::ThinLock::getOwner(*ref, this->lockSystem) == ownerThread)
+			vmkit::ThinLock::release(*ref, this->lockSystem, ownerThread);
 	}
 
 	*ref = NULL;	// Reset the reference

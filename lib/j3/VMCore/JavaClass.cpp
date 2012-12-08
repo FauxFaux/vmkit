@@ -281,7 +281,7 @@ JavaObject* UserClassArray::doNew(sint32 n, Jnjvm* vm) {
     cl->asPrimitiveClass()->logSize : (sizeof(JavaObject*) == 8 ? 3 : 2);
   VirtualTable* VT = virtualVT;
   uint32 size = sizeof(JavaObject) + sizeof(ssize_t) + (n << logSize);
-  res = (JavaObject*)gc::operator new(size, VT);
+  res = (JavaObject*)JavaObject::operator new(size, VT);
   JavaArray::setSize(res, n);
   return res;
 }
@@ -465,7 +465,7 @@ JavaObject* UserClass::doNew(Jnjvm* vm) {
           this == classLoader->bootstrapLoader->upcalls->newClass)
          && "Uninitialized class when allocating.");
   assert(getVirtualVT() && "No VT\n");
-  res = (JavaObject*)gc::operator new(getVirtualSize(), getVirtualVT());
+  res = (JavaObject*)JavaObject::operator new(getVirtualSize(), getVirtualVT());
   return res;
 }
 
@@ -1984,4 +1984,43 @@ JavaField_IMPL_ASSESSORS(uint8, Int8)
 JavaField_IMPL_ASSESSORS(uint16, Int16)
 JavaField_IMPL_ASSESSORS(uint32, Int32)
 JavaField_IMPL_ASSESSORS(sint64, Long)
-JavaField_IMPL_ASSESSORS(JavaObject*, Object)
+// JavaField_IMPL_ASSESSORS(JavaObject*, Object)
+
+JavaObject* JavaField::getStaticObjectField()
+{
+	return getStaticField<JavaObject*>();
+}
+
+void JavaField::setStaticObjectField(JavaObject* val)
+{
+	llvm_gcroot(val, 0);
+	return setStaticField<JavaObject*>(val);
+}
+
+JavaObject* JavaField::getInstanceObjectField(JavaObject* obj)
+{
+	llvm_gcroot(obj, 0);
+	return this->getInstanceField<JavaObject*>(obj);
+}
+
+void JavaField::setInstanceObjectField(JavaObject* obj, JavaObject* val)
+{
+	llvm_gcroot(obj, 0);
+	llvm_gcroot(val, 0);
+	return this->setInstanceField<JavaObject*>(obj, val);
+}
+
+template<>
+void JavaField::setInstanceField(JavaObject* obj, JavaObject* val)
+{
+	llvm_gcroot(obj, 0);
+	llvm_gcroot(val, 0);
+	FieldSetter<JavaObject*>::setInstanceField(this, obj, val);
+}
+
+template <>
+void JavaField::setStaticField(JavaObject* val)
+{
+	llvm_gcroot(val, 0);
+	FieldSetter<JavaObject*>::setStaticField(this, val);
+}

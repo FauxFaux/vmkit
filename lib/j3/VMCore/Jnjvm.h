@@ -32,7 +32,7 @@ class ArrayObject;
 class ArrayUInt16;
 class Classpath;
 class CommonClass;
-class FinalizerThread;
+class JavaFinalizerThread;
 class JavaField;
 class JavaMethod;
 class JavaObject;
@@ -41,7 +41,7 @@ class JavaThread;
 class JavaVirtualTable;
 class JnjvmBootstrapLoader;
 class JnjvmClassLoader;
-class ReferenceThread;
+class JavaReferenceThread;
 class UserClass;
 class UserClassArray;
 class UserClassPrimitive;
@@ -115,13 +115,13 @@ public:
 
 private:
   
-  /// finalizerThread - The thread that finalizes Java objects.
+  /// JavaFinalizerThread - The thread that finalizes Java objects.
   ///
-  FinalizerThread* finalizerThread;
+  JavaFinalizerThread* finalizerThread;
  
   /// enqueueThread - The thread that enqueue Java references.
   ///
-  ReferenceThread* referenceThread;
+  JavaReferenceThread* referenceThread;
 
   virtual void startCollection();
   virtual void endCollection();
@@ -130,12 +130,18 @@ private:
   virtual void scanPhantomReferencesQueue(word_t closure);
   virtual void scanFinalizationQueue(word_t closure);
   virtual void addFinalizationCandidate(gc* obj);
+  virtual void finalizeObject(gc* res);
   virtual void traceObject(gc* obj, word_t closure);
-  virtual void setType(gcHeader* header, void* type);
+  virtual void setType(gc* header, void* type);
+  virtual void* getType(gc* obj);
   virtual size_t getObjectSize(gc* obj);
   virtual const char* getObjectTypeName(gc* obj);
+  virtual bool isCorruptedType(gc* header);
   virtual void printMethod(vmkit::FrameInfo* FI, word_t ip, word_t addr);
-
+  virtual void invokeEnqueueReference(gc* res);
+  virtual void clearObjectReferent(gc* ref);
+  virtual gc** getObjectReferentPtr(gc* _obj);
+  virtual void setObjectReferent(gc* _obj, gc* val);
 
   /// CreateError - Creates a Java object of the specified exception class
   /// and calling its <init> function.
@@ -309,19 +315,19 @@ public:
   
   /// setFinalizerThread - Set the finalizer thread of this VM.
   ///
-  void setFinalizerThread(FinalizerThread* th) { finalizerThread = th; }
+  void setFinalizerThread(JavaFinalizerThread* th) { finalizerThread = th; }
   
   /// getFinalizerThread - Get the finalizer thread of this VM.
   ///
-  FinalizerThread* getFinalizerThread() const { return finalizerThread; }
+  JavaFinalizerThread* getFinalizerThread() const { return finalizerThread; }
   
   /// setReferenceThread - Set the enqueue thread of this VM.
   ///
-  void setReferenceThread(ReferenceThread* th) { referenceThread = th; }
+  void setReferenceThread(JavaReferenceThread* th) { referenceThread = th; }
   
   /// getReferenceThread - Get the enqueue thread of this VM.
   ///
-  ReferenceThread* getReferenceThread() const { return referenceThread; }
+  JavaReferenceThread* getReferenceThread() const { return referenceThread; }
 
   /// ~Jnjvm - Destroy the JVM.
   ///

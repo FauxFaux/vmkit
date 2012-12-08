@@ -34,7 +34,7 @@
 #include "LinkJavaRuntime.h"
 #include "LockedMap.h"
 #include "Reader.h"
-#include "ReferenceQueue.h"
+#include "JavaReferenceQueue.h"
 #include "VMStaticInstance.h"
 #include "Zip.h"
 
@@ -1071,13 +1071,13 @@ void Jnjvm::loadBootstrap() {
   JnjvmBootstrapLoader* loader = bootstrapLoader;
   
   // First create system threads.
-  finalizerThread = new FinalizerThread(this);
+  finalizerThread = new JavaFinalizerThread(this);
   finalizerThread->start(
-      (void (*)(vmkit::Thread*))FinalizerThread::finalizerStart);
+      (void (*)(vmkit::Thread*))JavaFinalizerThread::finalizerStart);
     
-  referenceThread = new ReferenceThread(this);
+  referenceThread = new JavaReferenceThread(this);
   referenceThread->start(
-      (void (*)(vmkit::Thread*))ReferenceThread::enqueueStart);
+      (void (*)(vmkit::Thread*))JavaReferenceThread::enqueueStart);
   
   // Initialise the bootstrap class loader if it's not
   // done already.
@@ -1378,21 +1378,39 @@ void Jnjvm::scanFinalizationQueue(word_t closure) {
 }
 
 void Jnjvm::addFinalizationCandidate(gc* object) {
-  llvm_gcroot(object, 0);
-  if (object->getVirtualTable()->hasDestructor())
-  	finalizerThread->addFinalizationCandidate(object);
+	llvm_gcroot(object, 0);
+	finalizerThread->addFinalizationCandidate(object);
 }
 
-void Jnjvm::setType(gcHeader* header, void* type) {
-	header->toReference()->setVirtualTable((VirtualTable*)type);
+void Jnjvm::setType(gc* header, void* type) {
+	JavaObject* src = 0;
+	llvm_gcroot(src, 0);
+	llvm_gcroot(header, 0);
+	src = (JavaObject*) header;
+	src->setVirtualTable((JavaVirtualTable*)type);
+}
+
+void* Jnjvm::getType(gc* header) {
+	JavaObject* src = 0;
+	llvm_gcroot(src, 0);
+	llvm_gcroot(header, 0);
+	src = (JavaObject*) header;
+	return src->getVirtualTable();
 }
 
 // This method is called during GC so no llvm_gcroot needed.
-void Jnjvm::traceObject(gc* obj, word_t closure) {
+void Jnjvm::traceObject(gc* _obj, word_t closure) {
+	JavaObject* obj = 0;
+	obj = (JavaObject*)_obj;
   assert(obj && "No object to trace");
   assert(obj->getVirtualTable() && "No virtual table");
   assert(obj->getVirtualTable()->tracer && "No tracer in VT");
   obj->tracer(closure);
+}
+
+// This method is called during GC so no llvm_gcroot needed.
+bool Jnjvm::isCorruptedType(gc* obj) {
+	return ((JavaObject*)obj)->getVirtualTable();
 }
 
 size_t Jnjvm::getObjectSize(gc* object) {

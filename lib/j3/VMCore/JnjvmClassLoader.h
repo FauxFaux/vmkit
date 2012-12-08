@@ -69,7 +69,9 @@ private:
   ///
   virtual UserClass* internalLoad(const UTF8* utf8, bool doResolve,
                                   JavaString* strName);
-  
+
+  UserCommonClass* internalLoadCreateClass(const UTF8* name, JavaString* strName);
+
   /// internalConstructType - Hashes a Typedef, an internal representation of
   /// a class still not loaded.
   ///
@@ -498,7 +500,7 @@ public:
   static VMClassLoader* allocate() {
     VMClassLoader* res = 0;
     llvm_gcroot(res, 0);
-    res = (VMClassLoader*)gc::operator new(sizeof(VMClassLoader), &VT);
+    res = (VMClassLoader*)JavaObject::operator new(sizeof(VMClassLoader), &VT);
     return res;
   }
 
