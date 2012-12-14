@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#define JNJVM_LOAD 0
+#define JNJVM_LOAD 1
 
 #include "debug.h"
 #include "types.h"
@@ -887,12 +887,10 @@ void Class::readMethods(Reader& reader) {
 }
 
 void Class::readClass() {
+  PRINT_DEBUG(JNJVM_LOAD, 0, LIGHT_GREEN, "readClass \t");
+  PRINT_DEBUG(JNJVM_LOAD, 0, DARK_MAGENTA, "%s\n", UTF8Buffer(this->name).cString());
 
   assert(getInitializationState() == loaded && "Wrong init state");
-  
-  PRINT_DEBUG(JNJVM_LOAD, 0, COLOR_NORMAL, "; ", 0);
-  PRINT_DEBUG(JNJVM_LOAD, 0, LIGHT_GREEN, "reading ", 0);
-  PRINT_DEBUG(JNJVM_LOAD, 0, COLOR_NORMAL, "%s\n", vmkit::PrintBuffer(this).cString());
 
   Reader reader(bytes);
   uint32 magic;
@@ -1984,4 +1982,43 @@ JavaField_IMPL_ASSESSORS(uint8, Int8)
 JavaField_IMPL_ASSESSORS(uint16, Int16)
 JavaField_IMPL_ASSESSORS(uint32, Int32)
 JavaField_IMPL_ASSESSORS(sint64, Long)
-JavaField_IMPL_ASSESSORS(JavaObject*, Object)
+// JavaField_IMPL_ASSESSORS(JavaObject*, Object)
+
+JavaObject* JavaField::getStaticObjectField()
+{
+	return getStaticField<JavaObject*>();
+}
+
+void JavaField::setStaticObjectField(JavaObject* val)
+{
+	llvm_gcroot(val, 0);
+	return setStaticField<JavaObject*>(val);
+}
+
+JavaObject* JavaField::getInstanceObjectField(JavaObject* obj)
+{
+	llvm_gcroot(obj, 0);
+	return this->getInstanceField<JavaObject*>(obj);
+}
+
+void JavaField::setInstanceObjectField(JavaObject* obj, JavaObject* val)
+{
+	llvm_gcroot(obj, 0);
+	llvm_gcroot(val, 0);
+	return this->setInstanceField<JavaObject*>(obj, val);
+}
+
+template<>
+void JavaField::setInstanceField(JavaObject* obj, JavaObject* val)
+{
+	llvm_gcroot(obj, 0);
+	llvm_gcroot(val, 0);
+	FieldSetter<JavaObject*>::setInstanceField(this, obj, val);
+}
+
+template <>
+void JavaField::setStaticField(JavaObject* val)
+{
+	llvm_gcroot(val, 0);
+	FieldSetter<JavaObject*>::setStaticField(this, val);
+}
