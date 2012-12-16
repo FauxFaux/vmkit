@@ -1750,22 +1750,26 @@ void AnnotationReader::readElementValue() {
   }
 }
 
-JavaObject* AnnotationReader::createElementValue() {
+JavaObject* AnnotationReader::createElementValue(uint8* outTag) {
   uint8 tag = reader.readU1();
+  if (outTag)
+	  *outTag = tag;
   JavaObject* res = 0;
   JavaObject* tmp = 0;
+  JavaString* str = 0;
   llvm_gcroot(res, 0);
   llvm_gcroot(tmp, 0);
+  llvm_gcroot(str, 0);
 	
-	Jnjvm* vm = JavaThread::get()->getJVM();
-  Classpath* upcalls = JavaThread::get()->getJVM()->upcalls;
+  Jnjvm* vm = JavaThread::get()->getJVM();
+  Classpath* upcalls = vm->upcalls;
   ddprintf("value:");
 
   if (tag == 'B') {
     uint32 val = cl->ctpInfo->IntegerAt(reader.readU2());
     ddprintf("B=%d", val);
-    res = upcalls->boolClass->doNew(vm);
-    upcalls->boolValue->setInstanceInt8Field(res, val);
+    res = upcalls->byteClass->doNew(vm);
+    upcalls->byteValue->setInstanceInt8Field(res, val);
 
   } else if (tag == 'C') {
     uint32 val = cl->ctpInfo->IntegerAt(reader.readU2());
@@ -1820,25 +1824,49 @@ JavaObject* AnnotationReader::createElementValue() {
     ddprintf("%s", PrintBuffer(n).cString());
     const UTF8* m = cl->ctpInfo->UTF8At(reader.readU2());
     ddprintf("%s", PrintBuffer(m).cString());
-    fprintf(stderr, "Annotation not supported for %c type\n", tag);
+    fprintf(stderr, "Annotation not supported for %c (enumerations) type\n", tag);
     abort();
 
   } else if (tag == 'c') {
     ddprintf("class=");
     const UTF8* m = cl->ctpInfo->UTF8At(reader.readU2());
+
     ddprintf("%s", PrintBuffer(m).cString());
+
+    JnjvmClassLoader* JCL = this->cl->classLoader;
+
+    m = m->extract(JCL->hashUTF8, 1,m->size-1);
+
+    UserCommonClass* cl = JCL->loadClassFromUserUTF8(m,true,false, NULL);
+
+	if (cl != NULL && !cl->isPrimitive()) {
+		if (cl->asClass()) {
+		  cl->asClass()->initialiseClass(vm);
+		}
+		res = cl->getClassDelegatee(vm);
+	} else {
+	  str = JavaString::internalToJava(m, vm);
+	  vm->classNotFoundException(str);
+	}
 
   } else if (tag == '[') {
     uint16 numValues = reader.readU2();
-    UserClassArray* array = upcalls->annotationArrayClass;
-    res = array->doNew(numValues, vm);
 
-    ddprintf("Tableau de %d elements\n", numValues);
-    for (uint32 i = 0; i < numValues; ++i) {
-      tmp = createElementValue();
-      ArrayObject::setElement((ArrayObject *)res, tmp, i);
+    uint8 arrayTag = 0;
+    if (numValues > 0) {
+    	tmp = createElementValue(&arrayTag);
+    	res = createArrayByTag(arrayTag, numValues);
+    	ArrayObject::setElement((ArrayObject *)res, tmp, 0);
+    	for (uint32 i = 1; i < numValues; ++i) {
+    		tmp = createElementValue();
+    	    ArrayObject::setElement((ArrayObject *)res, tmp, i);
+    	}
     }
-    ddprintf("Fin du Tableau");
+    else {
+    	fprintf(stderr, "Empty array not implemented %c type\n", tag);
+    	abort();
+    }
+
   } else {
     // Element_value Annotation not implemented
     fprintf(stderr, "Annotation not supported for %c type\n", tag);
@@ -1849,7 +1877,73 @@ JavaObject* AnnotationReader::createElementValue() {
   return res;
 }
 
-JavaObject* AnnotationReader::createAnnotationMapValues() {
+JavaObject* AnnotationReader::createArrayByTag(uint8 tag, uint16 numValues) {
+	JavaObject* res = 0;
+	llvm_gcroot(res, 0);
+	UserClassArray* array = 0;
+	Jnjvm* vm = JavaThread::get()->getJVM();
+	Classpath* upcalls = vm->upcalls;
+	ddprintf("value:");
+
+	if (tag == 'B') {
+		array = upcalls->ArrayOfByte;
+		res = array->doNew(numValues, vm);
+	} else if (tag == 'C') {
+		array = upcalls->ArrayOfChar;
+		res = array->doNew(numValues, vm);
+
+	} else if (tag == 'D') {
+		array = upcalls->ArrayOfDouble;
+		res = array->doNew(numValues, vm);
+
+	} else if (tag == 'F') {
+		array = upcalls->ArrayOfFloat;
+		res = array->doNew(numValues, vm);
+
+	} else if (tag == 'J') {
+		array = upcalls->ArrayOfLong;
+		res = array->doNew(numValues, vm);
+
+	} else if (tag == 'S') {
+		array = upcalls->ArrayOfShort;
+		res = array->doNew(numValues, vm);
+
+	} else if (tag == 'I') {
+		array = upcalls->ArrayOfInt;
+		res = array->doNew(numValues, vm);
+
+	} else if (tag == 'Z') {
+		array = upcalls->ArrayOfBool;
+		res = array->doNew(numValues, vm);
+
+	} else if (tag == 's') {
+		array = upcalls->ArrayOfString;
+		res = array->doNew(numValues, vm);
+
+	} else if (tag == 'e') {
+		fprintf(stderr, "Annotation not supported for %c (enumerations) type\n", tag);
+		abort();
+
+	} else if (tag == 'c') {
+		//array = upcalls->constructorArrayClass;
+		//res = array->doNew(numValues, vm);
+		fprintf(stderr, "Annotation not supported for %c (enumerations) type\n", tag);
+		abort();
+
+	} else if (tag == '[') {
+		fprintf(stderr, "Annotation not supported for %c (enumerations) type\n", tag);
+		abort();
+
+	} else {
+		// Element_value Annotation not implemented
+		fprintf(stderr, "Annotation not supported for %c type\n", tag);
+		abort();
+	}
+
+	return res;
+}
+
+JavaObject* AnnotationReader::createAnnotationMapValues(JavaObject* type) {
   std::pair<JavaObject*, JavaObject*> pair;
   JavaObject* tmp = 0;
   JavaString* str = 0;
@@ -1857,8 +1951,11 @@ JavaObject* AnnotationReader::createAnnotationMapValues() {
   llvm_gcroot(tmp, 0);
   llvm_gcroot(str, 0);
   llvm_gcroot(newHashMap, 0);
+  llvm_gcroot(type, 0);
 
-	Jnjvm * vm = JavaThread::get()->getJVM();
+  const UTF8* key = 0;
+
+  Jnjvm * vm = JavaThread::get()->getJVM();
   Classpath* upcalls = vm->upcalls;
   UserClass* HashMap = upcalls->newHashMap;
   newHashMap = HashMap->doNew(vm);
@@ -1868,13 +1965,17 @@ JavaObject* AnnotationReader::createAnnotationMapValues() {
   dprintf("numPairs:%d\n", numPairs);
   for (uint16 j = 0; j < numPairs; ++j) {
     uint16 nameIndex = reader.readU2();
-    const UTF8* key = cl->ctpInfo->UTF8At(nameIndex);
+    key = cl->ctpInfo->UTF8At(nameIndex);
     dprintf("keyAn:%s|", PrintBuffer(key).cString());
 
     tmp = createElementValue();
-    str = JavaString::internalToJava(key, JavaThread::get()->getJVM());
+    str = JavaString::internalToJava(key, vm);
     upcalls->putHashMap->invokeJavaObjectVirtual(vm, HashMap, newHashMap, &str, &tmp);
   }
+
+  // annotationType
+  str = vm->asciizToStr("annotationType");
+  upcalls->putHashMap->invokeJavaObjectVirtual(vm, HashMap, newHashMap, &str, &type);
 
   return newHashMap;
 }
