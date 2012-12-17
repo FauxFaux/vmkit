@@ -475,8 +475,6 @@ JavaObject* Cl) {
     uint16 numAnnotations = reader.readU2();
 
     UserClassArray* array = upcalls->constructorArrayAnnotation;
-    res = array->doNew(numAnnotations, vm);
-    UserClassArray* array = upcalls->constructorArrayAnnotation;
     arrayRes = (ArrayObject *)(res = array->doNew(numAnnotations, vm));
     for (uint16 i = 0; i < numAnnotations; ++i) {
 		uint16 typeIndex = reader.readU2();
