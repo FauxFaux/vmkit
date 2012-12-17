@@ -134,9 +134,11 @@ JavaObject* JavaObjectClass::getDeclaringClass(JavaObjectClass* Cl) {
 }
 
 ArrayObject* JavaObjectClass::getDeclaredClasses(JavaObjectClass* Cl, bool publicOnly) {
+  JavaObject* obj = 0;
   ArrayObject* result = 0;
   llvm_gcroot(result, 0);
   llvm_gcroot(Cl, 0);
+  llvm_gcroot(obj, 0);
 
   Jnjvm* vm = JavaThread::get()->getJVM();
   UserClass* cl = UserCommonClass::resolvedImplClass(vm, Cl, false)->asClass();
@@ -159,8 +161,9 @@ ArrayObject* JavaObjectClass::getDeclaredClasses(JavaObjectClass* Cl, bool publi
     int index = 0;
     for (uint16 i = 0; i < cl->nbInnerClasses; ++i) {
       UserClass* klass = cl->innerClasses[i];
+      obj = klass->getClassDelegatee(vm);
       if (!publicOnly || isPublic(klass->innerAccess))
-        ArrayObject::setElement(result, klass->getClassDelegatee(vm), index++);
+        ArrayObject::setElement(result, obj, index++);
     }
     assert(index == sizeArray);
   }
@@ -211,9 +214,11 @@ ArrayObject* JavaObjectClass::getDeclaredFields(JavaObjectClass* Cl, bool public
 }
 
 ArrayObject* JavaObjectClass::getInterfaces(JavaObjectClass* Cl) {
+  JavaObject* obj = 0;
   ArrayObject* res = 0;
   llvm_gcroot(Cl, 0);
   llvm_gcroot(res, 0);
+  llvm_gcroot(obj, 0);
 
   Jnjvm* vm = JavaThread::get()->getJVM();
   UserCommonClass* cl = UserCommonClass::resolvedImplClass(vm, Cl, false);
@@ -221,7 +226,8 @@ ArrayObject* JavaObjectClass::getInterfaces(JavaObjectClass* Cl) {
 
   for (uint16 i = 0; i < cl->nbInterfaces; ++i) {
     UserClass* klass = cl->interfaces[i];
-    ArrayObject::setElement(res, klass->getClassDelegatee(vm), i);
+    obj = klass->getClassDelegatee(vm);
+    ArrayObject::setElement(res, obj, i);
   }
 
   return res;
