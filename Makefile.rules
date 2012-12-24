@@ -140,7 +140,8 @@ BIN_DIR=$(PROJ_OBJ_ROOT)/$(BUILD_NAME)/bin
 LIB_DIR=$(PROJ_OBJ_ROOT)/$(BUILD_NAME)/lib
 BUILD_DIR=$(PROJ_OBJ_CWD)/$(BUILD_NAME)
 
-PREPARE_CODE_LIB=$(LIB_DIR)/prepare-code$(SHLIBEXT)
+STATIC_GC_PASS_LIB=$(LIB_DIR)/static-gc-pass$(SHLIBEXT)
+STATIC_GC_PRINTER_LIB=$(LIB_DIR)/static-gc-printer$(SHLIBEXT)
 VMJC=$(BIN_DIR)/vmjc$(EXEEXT)
 PRECOMPILER=$(BIN_DIR)/precompiler
 
@@ -168,12 +169,12 @@ endif
 #   GC passes
 ###############################################################################
 ifdef NEED_GC
-LLC_GC_FLAGS+=-load=$(PREPARE_CODE_LIB)
+LLC_GC_FLAGS+=-load=$(STATIC_GC_PRINTER_LIB)
 GC_ID=-gc
 
 %$(GC_ID).bc: %.bc
 	$(Echo) "Preparing GC '$(notdir $<)'"
-	$(Verb) $(LOPT) -load=$(PREPARE_CODE_LIB) -StaticGCPass $(OPT_FLAGS) $< -o $@
+	$(Verb) $(LOPT) -load=$(STATIC_GC_PASS_LIB) -StaticGCPass $(OPT_FLAGS) $< -o $@
 
 endif
 
