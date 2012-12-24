@@ -34,6 +34,11 @@ namespace j3 {
 void J3Intrinsics::init(llvm::Module* module) {
   BaseIntrinsics::init(module);
 
+  // Overloading allocation function to use VTgcmalloc
+  VTAllocateUnresolvedFunction = module->getFunction("VTgcmallocUnresolved");
+  assert(VTAllocateUnresolvedFunction && "No allocateUnresolved function");
+  VTAllocateFunction = module->getFunction("VTgcmalloc");
+
   j3::llvm_runtime::makeLLVMModuleContents(module);
   
   LLVMContext& Context = module->getContext();

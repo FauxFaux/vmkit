@@ -31,8 +31,10 @@ JNIEnv *env,
 #endif
 JavaObjectVMMethod* VMMeth) {
   JavaObject* res = 0;
+  JavaObject* methodType;
   llvm_gcroot(VMMeth, 0);
   llvm_gcroot(res, 0);
+  llvm_gcroot(methodType, 0);
 
   BEGIN_NATIVE_EXCEPTION(0)
   dprintf("*************VMMethod_getDefaultValue*************\n");
@@ -46,6 +48,7 @@ JavaObjectVMMethod* VMMeth) {
   if (cl->inheritName(name->elements, name->size)) {
     // Find "default attribute"
     JavaMethod* method = JavaObjectVMMethod::getInternalMethod(VMMeth);
+    
     JavaAttribute* annotationsAtt =
       method->lookupAttribute(JavaAttribute::annotationDefaultAttribute);
     dprintf("JavaMethod:%s\n", UTF8Buffer(method->name).cString());
@@ -53,8 +56,8 @@ JavaObjectVMMethod* VMMeth) {
     if (annotationsAtt) {
       Reader reader(annotationsAtt, cl->bytes);
       AnnotationReader AR(reader, cl);
-
-      res = AR.createElementValue();
+	  methodType = method->getReturnType(cl->classLoader);
+      res = AR.createElementValue(true, methodType, method->name);
     }
   }
 
@@ -105,7 +108,7 @@ JavaObjectVMMethod* VMMeth, JavaObjectClass* annotationClass) {
 	// Remove the L and ; in the name annotation type (L.....;)
 	// for the comparison.
 	if (clazz->name->equals(annoType->elements+1, annoType->size-2)) {
-	  newHashMap = AR.createAnnotationMapValues();
+	  newHashMap = AR.createAnnotationMapValues(annotationClass);
 	  break;
 
 	} else {
@@ -163,13 +166,13 @@ JavaObjectVMMethod* VMMethod) {
     Reader reader(annotationsAtt, compilingClass->bytes);
     AnnotationReader AR(reader, compilingClass);
     uint16 numAnnotations = reader.readU2();
-    
-    UserClassArray* array = upcalls->annotationArrayClass;
+
+    UserClassArray* array = upcalls->constructorArrayAnnotation;
     arrayRes = (ArrayObject *)(res = array->doNew(numAnnotations, vm));
     for (uint16 i = 0; i < numAnnotations; ++i) {
 			uint16 typeIndex = reader.readU2();
 			const UTF8* annoType = compilingClass->ctpInfo->UTF8At(typeIndex);
-			newHashMap = AR.createAnnotationMapValues();
+			
 			
 			annoType = annoType->extract(loader->hashUTF8, 1,annoType->size-1);
 			dprintf("Annotation type : %s\n", UTF8Buffer(annoType).cString());
@@ -185,9 +188,15 @@ JavaObjectVMMethod* VMMethod) {
 			dprintf("Loaded class : %s \n", UTF8Buffer(AnnonClass->name).cString());
 			annotationClass = AnnonClass->getClassDelegatee(vm);
 			
+			newHashMap = AR.createAnnotationMapValues(annotationClass);
+			
 			annon = upcalls->createAnnotation->invokeJavaObjectStatic(vm, upcalls->newAnnotationHandler, &annotationClass, &newHashMap);
 			ArrayObject::setElement(arrayRes, annon, i);
 		} // end for
+  }
+  else {
+  	UserClassArray* array = upcalls->constructorArrayAnnotation;
+    res = array->doNew(0, vm);
   }
 
   END_NATIVE_EXCEPTION
