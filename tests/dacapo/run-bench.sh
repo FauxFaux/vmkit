@@ -12,16 +12,21 @@ vmargs=$6
 bench_name=$7
 
 dacapo_dir=/home/koutheir/PhD/VMKit/vmkit/tests/dacapo
+#tmp_dir=$dacapo_dir/tmp
+tmp_dir=$HOME/dacapo_benchmarks/tmp
+log_dir=$dacapo_dir/logs
 
 suffix=_${bench_version}_${bench_name}_${vm_name}
 
-mkdir -p "$dacapo_dir/tmp" "$dacapo_dir/logs" 2>/dev/null
-scratch_dir=$(mktemp -d --suffix=$suffix --tmpdir=$dacapo_dir/tmp)
-log_file=$(mktemp --suffix=${suffix}.log --tmpdir=$dacapo_dir/logs)
+mkdir -p "$tmp_dir" "$log_dir" 2>/dev/null
+scratch_dir=$(mktemp -d --suffix=$suffix --tmpdir=$tmp_dir)
+log_file=$(mktemp --suffix=${suffix}.log --tmpdir=$log_dir)
 
+curdir=$(pwd)
 cd "$scratch_dir"
-"$jvm" -jar "$jar" $vmargs "$bench_name" > $log_file 2>&1 || exit 1
+"$jvm" -jar "$jar" $vmargs "$bench_name" > $log_file 2>&1
+r=$?
 
-cd ..
+cd "$curdir"
 rm -rf "$scratch_dir"
-exit 0
+exit $r

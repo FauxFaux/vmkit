@@ -1,0 +1,82 @@
+*sys-package-mgr*: processing new jar, '/media/Data/Documents/PhD/VMKit/vmkit/tests/dacapo/jars/dacapo-2006-10-MR2.jar'
+*sys-package-mgr*: processing new jar, '/media/Data/Documents/PhD/VMKit/classpath-0.99/build.x86/lib/glibj.zip'
+===== DaCapo jython starting =====
+-------------------------------------------------------------------------------
+PYBENCH 2.0
+-------------------------------------------------------------------------------
+* using Python 2.2a1
+* Python version doesn't support garbage collection
+* system check interval set to maximum: 2147483647
+* using timer: time.time
+
+Calibrating tests. Please wait...
+
+Running 1 round(s) of the suite at warp factor 20:
+
+* Round 1 done in 24.574 seconds.
+
+-------------------------------------------------------------------------------
+Benchmark: 2013-01-03 10:41:29
+-------------------------------------------------------------------------------
+
+    Rounds: 1
+    Warp:   20
+    Timer:  time.time
+
+Test                             minimum  average  operation  overhead
+-------------------------------------------------------------------------------
+          BuiltinFunctionCalls:    324ms    324ms    1.27us    0.000ms
+           BuiltinMethodLookup:    673ms    673ms    1.28us    0.000ms
+                 CompareFloats:    299ms    299ms    0.50us    0.000ms
+         CompareFloatsIntegers:    214ms    214ms    0.48us    0.000ms
+               CompareIntegers:    291ms    291ms    0.32us    0.000ms
+        CompareInternedStrings:    392ms    392ms    0.52us    0.000ms
+                  CompareLongs:    333ms    333ms    0.63us    0.000ms
+                CompareStrings:    209ms    209ms    0.42us    0.000ms
+                CompareUnicode:    292ms    292ms    0.78us    0.000ms
+                 ConcatStrings:    858ms    858ms    3.43us    0.000ms
+                 ConcatUnicode:    482ms    482ms    3.21us    0.000ms
+               CreateInstances:    177ms    177ms    3.16us    0.000ms
+            CreateNewInstances:    400ms    400ms    9.52us    0.000ms
+       CreateStringsWithConcat:    536ms    536ms    1.07us    0.000ms
+       CreateUnicodeWithConcat:    202ms    202ms    1.01us    0.000ms
+                  DictCreation:   1151ms   1151ms    5.76us    0.000ms
+             DictWithFloatKeys:    243ms    243ms    0.54us    0.000ms
+           DictWithIntegerKeys:    234ms    234ms    0.39us    0.000ms
+            DictWithStringKeys:    159ms    159ms    0.26us    0.000ms
+                      ForLoops:    243ms    243ms   19.44us    0.000ms
+                    IfThenElse:    615ms    615ms    0.91us    0.000ms
+                   ListSlicing:    510ms    510ms   72.86us    0.000ms
+                NestedForLoops:    177ms    177ms    0.24us    0.000ms
+          NormalClassAttribute:    533ms    533ms    0.89us    0.000ms
+       NormalInstanceAttribute:    444ms    444ms    0.74us    0.000ms
+           PythonFunctionCalls:    891ms    891ms    5.40us    0.000ms
+             PythonMethodCalls:    421ms    421ms    3.74us    0.000ms
+                     Recursion:    201ms    201ms    8.04us    0.000ms
+                  SecondImport:    250ms    250ms    5.00us    0.000ms
+           SecondPackageImport:    164ms    164ms    3.28us    0.000ms
+         SecondSubmoduleImport:    222ms    222ms    4.44us    0.000ms
+       SimpleComplexArithmetic:    728ms    728ms    1.65us    0.000ms
+        SimpleDictManipulation:    443ms    443ms    0.74us    0.000ms
+         SimpleFloatArithmetic:    595ms    595ms    0.90us    0.000ms
+      SimpleIntFloatArithmetic:    557ms    557ms    0.84us    0.000ms
+       SimpleIntegerArithmetic:    577ms    577ms    0.87us    0.000ms
+        SimpleListManipulation:    270ms    270ms    0.46us    0.000ms
+          SimpleLongArithmetic:    791ms    791ms    2.40us    0.000ms
+                    SmallLists:    499ms    499ms    1.47us    0.000ms
+                   SmallTuples:    697ms    697ms    2.58us    0.000ms
+         SpecialClassAttribute:    528ms    528ms    0.88us    0.000ms
+      SpecialInstanceAttribute:    520ms    520ms    0.87us    0.000ms
+                StringMappings:    616ms    616ms    4.89us    0.000ms
+              StringPredicates:    452ms    452ms    1.29us    0.000ms
+                 StringSlicing:    416ms    416ms    1.49us    0.000ms
+                     TryExcept:   1226ms   1226ms    1.09us    0.000ms
+                TryRaiseExcept:    258ms    258ms    8.06us    0.000ms
+                  TupleSlicing:   2516ms   2516ms   19.17us    0.000ms
+               UnicodeMappings:    285ms    285ms   15.83us    0.000ms
+             UnicodePredicates:    267ms    267ms    0.99us    0.000ms
+                UnicodeSlicing:    193ms    193ms    0.79us    0.000ms
+-------------------------------------------------------------------------------
+Totals:                          24574ms  24574ms
+
+===== DaCapo jython PASSED in 57826 msec =====
