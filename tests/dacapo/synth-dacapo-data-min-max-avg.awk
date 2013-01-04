@@ -2,9 +2,8 @@ BEGIN {
 	FS = ",";
 
 	getline;
-	print $0 FS "avg_" $4 FS "min_duration_ms" FS "max_duration_ms" FS "std_dev_duration_ms"
+	printf($1 FS $2 FS $3 FS $4 FS "avg_" $4 FS "min_" $4 FS "max_" $4 FS "std_dev_" $4 RS);
 
-	FS = ",";
 	getline;
 
 	bench_suite		= $1;
