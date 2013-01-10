@@ -925,7 +925,7 @@ void Class::readClass() {
   attributes = readAttributes(reader, nbAttributes);
 }
 
-void Class::getMinimalJDKVersion(uint16 major, uint16 minor, unsigned int& JDKMajor, unsigned int& JDKMinor, unsigned int& JDKBuild)
+void Class::getMinimalJDKVersion(uint16_t major, uint16_t minor, uint16_t& JDKMajor, uint16_t& JDKMinor, uint16_t& JDKBuild)
 {
 	JDKMajor = 1;
 	JDKBuild = 0;
@@ -940,16 +940,15 @@ void Class::getMinimalJDKVersion(uint16 major, uint16 minor, unsigned int& JDKMa
 	}
 }
 
-bool Class::isClassVersionSupported(uint16 major, uint16 minor)
+bool Class::isClassVersionSupported(uint16_t major, uint16_t minor)
 {
-	const int supportedJavaMinorVersion = 5;	// Java 1.5
+	const uint16_t supportedJavaMinorVersion = 5;	// Java 1.5
 
-	unsigned int JDKMajor, JDKMinor, JDKBuild;
-	Class::getMinimalJDKVersion(major, minor, JDKMajor, JDKMinor, JDKBuild);
+	Class::getMinimalJDKVersion(major, minor, minJDKVersionMajor, minJDKVersionMinor, minJDKVersionBuild);
 
-	bool res = (JDKMajor <= 1) && (JDKMinor <= supportedJavaMinorVersion);
+	bool res = (minJDKVersionMajor <= 1) && (minJDKVersionMinor <= supportedJavaMinorVersion);
 	if (!res) {
-		cerr << "WARNING: Class file '" << *name << "' requires Java version " << JDKMajor << '.' << JDKMinor <<
+		cerr << "WARNING: Class file '" << *name << "' requires Java version " << minJDKVersionMajor << '.' << minJDKVersionMinor <<
 			". This JVM only supports Java versions up to 1." << supportedJavaMinorVersion << '.' << endl;
 	}
 	return res;
