@@ -1079,7 +1079,7 @@ void Jnjvm::loadBootstrap() {
   referenceThread->start(
       (void (*)(vmkit::Thread*))JavaReferenceThread::enqueueStart);
   
-  // Initialise the bootstrap class loader if it's not
+  // Initialize the bootstrap class loader if it's not
   // done already.
   if (bootstrapLoader->upcalls->newString == NULL) {
     bootstrapLoader->upcalls->initialiseClasspath(bootstrapLoader);
@@ -1154,6 +1154,7 @@ void Jnjvm::loadBootstrap() {
 
   upcalls->setContextClassLoader->invokeIntSpecial(this, upcalls->newThread,
                                                    obj, &javaLoader);
+
   // load and initialise math since it is responsible for dlopen'ing 
   // libjavalang.so and we are optimizing some math operations
   UserCommonClass* math = loader->loadName(loader->mathName, true, true, NULL);
@@ -1397,9 +1398,10 @@ void Jnjvm::addFinalizationCandidate(gc* object) {
 }
 
 void Jnjvm::setType(gc* header, void* type) {
-	JavaObject* src = (JavaObject*)header;
+	JavaObject* src = 0;
 	llvm_gcroot(src, 0);
 	llvm_gcroot(header, 0);
+	src = (JavaObject*)header;
 	src->setVirtualTable((JavaVirtualTable*)type);
 }
 

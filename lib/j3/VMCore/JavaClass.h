@@ -79,12 +79,14 @@ public:
   // createAnnotation - search for a specific annotation in annotation 
   // attributes.
   //
-  JavaObject* createAnnotationMapValues();
+  JavaObject* createAnnotationMapValues(JavaObject* type);
   
-  // createElementValue - create the Java type associated withe the value 
+  // createElementValue - create the Java type associated with the value
   // of the current annotation key.
   //
-  JavaObject* createElementValue();
+  JavaObject* createElementValue(bool nextParameterIsTypeOfMethod, JavaObject* type, const UTF8* lastKey);
+
+  void fillArray(JavaObject* res, int numValues, UserClassArray* classArray);
 };
 
 /// Attribute - This class represents JVM attributes to Java class, methods and

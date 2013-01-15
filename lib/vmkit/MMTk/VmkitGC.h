@@ -85,8 +85,8 @@ public:
 }
 
 class VirtualTable;
-extern "C" void* VTgcmallocUnresolved(uint32_t sz, VirtualTable* VT);
-extern "C" void* VTgcmalloc(uint32_t sz, VirtualTable* VT);
+extern "C" void* VTgcmallocUnresolved(uint32_t sz, void* VT);
+extern "C" void* VTgcmalloc(uint32_t sz, void* VT);
 extern "C" void EmptyDestructor();
 
 /*

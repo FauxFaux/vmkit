@@ -62,7 +62,7 @@ extern "C" void* vmkitgcmallocUnresolved(uint32_t sz, void* type) {
  * Optimized gcmalloc for VT based object layout.                             *
  *****************************************************************************/
 
-extern "C" void* VTgcmalloc(uint32_t sz, VirtualTable* VT) {
+extern "C" void* VTgcmalloc(uint32_t sz, void* VT) {
   gc* res = 0;
   llvm_gcroot(res, 0);
   gcHeader* head = 0;
@@ -76,15 +76,15 @@ extern "C" void* VTgcmalloc(uint32_t sz, VirtualTable* VT) {
   __InternalSet__.insert(res);
   lock.release();
 
-  VirtualTable::setVirtualTable(res, VT);
+  VirtualTable::setVirtualTable(res, (VirtualTable*)VT);
   return res;
 }
 
-extern "C" void* VTgcmallocUnresolved(uint32_t sz, VirtualTable* VT) {
+extern "C" void* VTgcmallocUnresolved(uint32_t sz, void* VT) {
 	gc* res = NULL;
 	llvm_gcroot(res, 0);
 	res = (gc*)VTgcmalloc(sz, VT);
-	if (VT->hasDestructor())
+	if (((VirtualTable*)VT)->hasDestructor())
 		vmkit::Thread::get()->MyVM->addFinalizationCandidate(res);
 	return res;
 }
@@ -93,11 +93,13 @@ extern "C" void* VTgcmallocUnresolved(uint32_t sz, VirtualTable* VT) {
 
 // Do not insert MagicArray ref to InternalSet of references.
 extern "C" void* AllocateMagicArray(int32_t sz, void* length) {
+	gc* res = 0;
+	llvm_gcroot(res, 0);
 	gcHeader* head = 0;
 	sz += gcHeader::hiddenHeaderSize();
 	head = (gcHeader*)malloc(sz);
 	memset((void*)head, 0, sz);
-	void* res = head->toReference();
+	res = head->toReference();
 	vmkit::Thread::get()->MyVM->setType(res, length);
 	return res;
 }
