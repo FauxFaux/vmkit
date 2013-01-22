@@ -518,17 +518,14 @@ JNIEXPORT jboolean Java_java_lang_VMClass_isAnonymousClass(
 JNIEnv *env,
 jclass clazz, 
 #endif
-JavaObject* Cl) {
+JavaObjectClass* Cl) {
  
   jboolean res = false;
   llvm_gcroot(Cl, 0);
 
   BEGIN_NATIVE_EXCEPTION(0)
   
-  Jnjvm* vm = JavaThread::get()->getJVM();
-  UserClass* cl = UserCommonClass::resolvedImplClass(vm, Cl, false)->asClass();
-
-  if (cl) res = cl->isAnonymous;
+  res = JavaObjectClass::isAnonymousClass(Cl);
 
   END_NATIVE_EXCEPTION
 
@@ -545,38 +542,23 @@ JavaObject* Cl) {
    * @since 1.5
    * static native Class getEnclosingClass(Class klass);
    */
-  
-
 JNIEXPORT JavaObject* JNICALL Java_java_lang_VMClass_getEnclosingClass(
 #ifdef NATIVE_JNI
 JNIEnv *env,
 jclass clazz,
 #endif
-JavaObjectClass* klass) {
-  JavaObject* res;
-  llvm_gcroot(klass, 0);
-  llvm_gcroot(res, 0);
+JavaObjectClass* Cl) {
+	JavaObject* res = 0;
+	llvm_gcroot(Cl, 0);
+	llvm_gcroot(res, 0);
 
-  UserCommonClass* cl = JavaObjectClass::getClass(klass);
-  const UTF8* name=cl->name;
+	BEGIN_NATIVE_EXCEPTION(0)
 
-  char enclosingClassName[name->size];
+	res = JavaObjectClass::getEnclosingClass(Cl);
 
-  int i;
-  for(i=name->size-1;i>0;i--)
-	  if((char)name->elements[i]=='$'){
-		  for (int j=0;j<i;j++)
-			  enclosingClassName[j]=(char)name->elements[j];
-		  enclosingClassName[i]=0;
-		  break;
-	  }
+	END_NATIVE_EXCEPTION
 
-  if(i){
-	  UserCommonClass* tmp=cl->classLoader->loadClassFromAsciiz(enclosingClassName, 0, 1);
-  	  res=tmp->getClassDelegatee((Jnjvm*)vmkit::Thread::get()->MyVM);
-	}
-
-  return res;
+	return res;
 }
 
 }

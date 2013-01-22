@@ -925,7 +925,7 @@ void Class::readClass() {
   attributes = readAttributes(reader, nbAttributes);
 }
 
-void Class::getMinimalJDKVersion(uint16 major, uint16 minor, unsigned int& JDKMajor, unsigned int& JDKMinor, unsigned int& JDKBuild)
+void Class::getMinimalJDKVersion(uint16_t major, uint16_t minor, uint16_t& JDKMajor, uint16_t& JDKMinor, uint16_t& JDKBuild)
 {
 	JDKMajor = 1;
 	JDKBuild = 0;
@@ -940,17 +940,15 @@ void Class::getMinimalJDKVersion(uint16 major, uint16 minor, unsigned int& JDKMa
 	}
 }
 
-bool Class::isClassVersionSupported(uint16 major, uint16 minor)
+bool Class::isClassVersionSupported(uint16_t major, uint16_t minor)
 {
-	//const int supportedJavaMinorVersion = 5;	// Java 1.5
-	const int supportedJavaMinorVersion = 6;	// Java 1.6
+	const uint16_t supportedJavaMinorVersion = 6;	// Java 1.6
 
-	unsigned int JDKMajor, JDKMinor, JDKBuild;
-	Class::getMinimalJDKVersion(major, minor, JDKMajor, JDKMinor, JDKBuild);
+	Class::getMinimalJDKVersion(major, minor, minJDKVersionMajor, minJDKVersionMinor, minJDKVersionBuild);
 
-	bool res = (JDKMajor <= 1) && (JDKMinor <= supportedJavaMinorVersion);
+	bool res = (minJDKVersionMajor <= 1) && (minJDKVersionMinor <= supportedJavaMinorVersion);
 	if (!res) {
-		cerr << "WARNING: Class file '" << *name << "' requires Java version " << JDKMajor << '.' << JDKMinor <<
+		cerr << "WARNING: Class file '" << *name << "' requires Java version " << minJDKVersionMajor << '.' << minJDKVersionMinor <<
 			". This JVM only supports Java versions up to 1." << supportedJavaMinorVersion << '.' << endl;
 	}
 	return res;
@@ -993,6 +991,7 @@ void UserClass::resolveInnerOuterClasses() {
 
         if (clInner == this) {
           outerClass = clOuter;
+          if (!innerName) isAnonymous = true;
         } else if (clOuter == this) {
           if (!innerClasses) {
             innerClasses = (Class**)
@@ -1000,7 +999,7 @@ void UserClass::resolveInnerOuterClasses() {
                                               "Inner classes");
           }
           clInner->setInnerAccess(accessFlags);
-          if (!innerName) isAnonymous = true;
+          if (!innerName) clInner->isAnonymous = true;
           innerClasses[nbInnerClasses++] = clInner;
         }
       }
@@ -1079,11 +1078,9 @@ ArrayObject* JavaMethod::getExceptionTypes(JnjvmClassLoader* loader) {
 JavaObject* CommonClass::setDelegatee(JavaObject* val) {
   llvm_gcroot(val, 0);
   JavaObject** obj = &(delegatee[0]);
-  classLoader->lock.lock();
   if (*obj == NULL) {
     vmkit::Collector::objectReferenceNonHeapWriteBarrier((gc**)obj, (gc*)val);
   }
-  classLoader->lock.unlock();
   return getDelegatee();
 }
 
@@ -1910,9 +1907,7 @@ JavaObject* AnnotationReader::createElementValue(bool nextParameterIsTypeOfMetho
 
 	  newHashMap = createAnnotationMapValues(annotationClass);
 	  res = upcalls->createAnnotation->invokeJavaObjectStatic(vm, upcalls->newAnnotationHandler, &annotationClass, &newHashMap);
-  }
-  else {
-    // Element_value Annotation not implemented
+  } else {
     fprintf(stderr, "Wrong classfile format\n");
     abort();
   }
@@ -1967,7 +1962,6 @@ void AnnotationReader::fillArray(JavaObject* res, int numValues, UserClassArray*
 	UserCommonClass* clLoaded;
 	UserCommonClass* aaa;
 
-	UserClassArray* array = 0;
 	Jnjvm* vm = JavaThread::get()->getJVM();
 	Classpath* upcalls = vm->upcalls;
 	for (int i = 0 ; i < numValues ; i++) {
@@ -2092,7 +2086,6 @@ JavaObject* AnnotationReader::createAnnotationMapValues(JavaObject* type) {
   Jnjvm * vm = JavaThread::get()->getJVM();
   Classpath* upcalls = vm->upcalls;
   UserClass* HashMap = upcalls->newHashMap;
-
   newHashMap = HashMap->doNew(vm);
   upcalls->initHashMap->invokeIntSpecial(vm, HashMap, newHashMap);
 
@@ -2257,4 +2250,15 @@ void JavaField::setStaticField(JavaObject* val)
 {
 	llvm_gcroot(val, 0);
 	FieldSetter<JavaObject*>::setStaticField(this, val);
+}
+
+void CommonClass::dump() const
+{
+	cerr << *name;
+	if (!super)
+		cerr << ';' << endl;
+	else {
+		cerr << ':';
+		super->dump();
+	}
 }

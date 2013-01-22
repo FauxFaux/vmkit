@@ -25,10 +25,10 @@
 #include "JnjvmConfig.h"
 #include "JNIReferences.h"
 #include "LockedMap.h"
+#include "JavaArray.h"
 
 namespace j3 {
 
-class ArrayObject;
 class ArrayUInt16;
 class Classpath;
 class CommonClass;
@@ -133,6 +133,7 @@ private:
   virtual void finalizeObject(gc* res);
   virtual void traceObject(gc* obj, word_t closure);
   virtual void setType(gc* header, void* type);
+  virtual void setType(void* header, void* type);
   virtual void* getType(gc* obj);
   virtual size_t getObjectSize(gc* obj);
   virtual const char* getObjectTypeName(gc* obj);
@@ -359,6 +360,8 @@ public:
   /// mapping the initial thread.
   ///
   void loadBootstrap();
+
+  static void printBacktrace() __attribute__((noinline));
 
 #if RESET_STALE_REFERENCES
 

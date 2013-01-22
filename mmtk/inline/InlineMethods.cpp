@@ -48,3 +48,9 @@ extern "C" void MMTk_InlineMethods(llvm::Module* module) {
   mmtk::mmtk_array_write::makeLLVMFunction(module);
   mmtk::mmtk_non_heap_write::makeLLVMFunction(module);
 }
+
+namespace vmkit {
+	extern "C" void vmkit::makeLLVMFunctions_FinalMMTk(llvm::Module* module) {
+		MMTk_InlineMethods(module);
+	}
+}

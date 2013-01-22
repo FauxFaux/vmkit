@@ -253,11 +253,13 @@ void VmkitModule::unprotectIR() {
   protectEngine.unlock();
 }
 
+extern "C" void MMTk_InlineMethods(llvm::Module* module);
+
 void BaseIntrinsics::init(llvm::Module* module) {
 
   LLVMContext& Context = module->getContext();
 
-	makeLLVMFunctions_FinalMMTk(module);
+  makeLLVMFunctions_FinalMMTk(module);
   llvm_runtime::makeLLVMModuleContents(module);
 
   // Type declaration

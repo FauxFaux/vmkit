@@ -22,6 +22,7 @@
 #include "vmkit/VirtualMachine.h"
 
 #include "JavaObject.h"
+#include "JavaArray.h"
 #include "JnjvmConfig.h"
 #include "UTF8.h"
 
@@ -47,7 +48,6 @@ class Typedef;
 class TypeMap;
 class VMClassLoader;
 class ZipArchive;
-class ArrayObject;
 
 /// JnjvmClassLoader - Runtime representation of a class loader. It contains
 /// its own tables (signatures, UTF8, types) which are mapped to a single

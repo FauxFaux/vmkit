@@ -158,7 +158,7 @@ public:
   /// throwFromJNI - Throw an exception after executing JNI code.
   ///
   void throwFromJNI(word_t SP) {
-  	// Nothing to do. The RETURN_FROM_JNI will take care of it.
+    // Nothing to do. The RETURN_FROM_JNI will take care of it.
   }
   
   /// throwFromNative - Throw an exception after executing Native code.

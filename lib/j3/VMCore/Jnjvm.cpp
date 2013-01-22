@@ -1405,6 +1405,11 @@ void Jnjvm::setType(gc* header, void* type) {
 	src->setVirtualTable((JavaVirtualTable*)type);
 }
 
+void Jnjvm::setType(void* header, void* type)
+{
+	((JavaObject*)header)->setVirtualTable((JavaVirtualTable*)type);
+}
+
 void* Jnjvm::getType(gc* header) {
 	JavaObject* src = 0;
 	llvm_gcroot(src, 0);
@@ -1520,4 +1525,10 @@ void Jnjvm::printMethod(vmkit::FrameInfo* FI, word_t ip, word_t addr) {
           FI->SourceIndex, meth->code);
 
   fprintf(stderr, "\n");
+}
+
+void Jnjvm::printBacktrace()
+{
+	std::cerr << "Back trace:" << std::endl;
+	JavaThread::get()->printJavaBacktrace();
 }

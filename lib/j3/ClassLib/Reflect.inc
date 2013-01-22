@@ -249,4 +249,35 @@ int32_t JavaObjectClass::getModifiers(JavaObjectClass* Cl) {
   return res;
 }
 
+JavaObject* JavaObjectClass::getEnclosingClass(JavaObjectClass* Cl)
+{
+	JavaObject* res = 0;
+	llvm_gcroot(Cl, 0);
+	llvm_gcroot(res, 0);
+
+	Jnjvm* vm = JavaThread::get()->getJVM();
+	UserCommonClass* ccl = UserCommonClass::resolvedImplClass(vm, Cl, false);
+	if (ccl->isClass()) {
+		UserClass *cl = ccl->asClass();
+		cl->resolveInnerOuterClasses();
+		UserClass *outerCl = cl->getOuterClass();
+		if (outerCl != NULL)
+			res = outerCl->getClassDelegatee(vm, NULL);
+	}
+	return res;
+}
+
+bool JavaObjectClass::isAnonymousClass(JavaObjectClass* Cl)
+{
+	llvm_gcroot(Cl, 0);
+
+	Jnjvm* vm = JavaThread::get()->getJVM();
+	UserCommonClass* ccl = UserCommonClass::resolvedImplClass(vm, Cl, false);
+	if (!ccl->isClass()) return false;
+
+	UserClass *cl = ccl->asClass();
+	cl->resolveInnerOuterClasses();
+	return cl->isAnonymous;
+}
+
 } // end namespace j3

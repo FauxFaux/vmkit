@@ -31,7 +31,6 @@
 
 namespace j3 {
 
-class ArrayObject;
 class ArrayUInt8;
 class ArrayUInt16;
 class Class;
@@ -83,7 +82,7 @@ public:
   // createElementValue - create the Java type associated with the value
   // of the current annotation key.
   //
-  JavaObject* createElementValue(bool nextParameterIsTypeOfMethod,JavaObject* type, const UTF8* lastKey);
+  JavaObject* createElementValue(bool nextParameterIsTypeOfMethod, JavaObject* type, const UTF8* lastKey);
 
   void fillArray(JavaObject* res, int numValues, UserClassArray* classArray);
 };
@@ -393,6 +392,8 @@ public:
   //
   static UserCommonClass* resolvedImplClass(Jnjvm* vm, JavaObject* delegatee,
                                             bool doClinit);
+
+  void dump() const __attribute__((noinline));
 };
 
 /// ClassPrimitive - This class represents internal classes for primitive
@@ -522,6 +523,8 @@ public:
   /// staticSize - The size of the static instance of this class.
   ///
   uint32 staticSize;
+
+  uint16_t minJDKVersionMajor, minJDKVersionMinor, minJDKVersionBuild;
 
   /// getVirtualSize - Get the virtual size of instances of this class.
   ///
@@ -815,8 +818,8 @@ public:
   ///
   void makeVT();
 
-  static void getMinimalJDKVersion(uint16 major, uint16 minor, unsigned int& JDKMajor, unsigned int& JDKMinor, unsigned int& JDKBuild);
-  bool isClassVersionSupported(uint16 major, uint16 minor);
+  static void getMinimalJDKVersion(uint16_t major, uint16_t minor, uint16_t& JDKMajor, uint16_t& JDKMinor, uint16_t& JDKBuild);
+  bool isClassVersionSupported(uint16_t major, uint16_t minor);
 };
 
 /// ClassArray - This class represents Java array classes.
