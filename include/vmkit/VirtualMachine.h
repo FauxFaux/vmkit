@@ -161,6 +161,7 @@ public:
   
   /// endCollection - Code after running a GC.
   ///
+  virtual void endCollectionBeforeUnlockingWorld() {}
   virtual void endCollection() {}
   
   /// scanWeakReferencesQueue - Scan all weak references. Called by the GC
@@ -204,6 +205,7 @@ public:
   /// set the identity of the object (identity is determined by user).
   ///
   virtual void setType(gc* header, void* type) = 0;
+  virtual void setType(void* header, void* type) = 0;
 
   /// getType - Gets the type of given object.
   ///

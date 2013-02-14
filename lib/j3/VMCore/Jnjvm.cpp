@@ -1325,7 +1325,7 @@ void Jnjvm::runApplication(int argc, char** argv) {
 Jnjvm::Jnjvm(vmkit::BumpPtrAllocator& Alloc,
              vmkit::CompiledFrames** frames,
              JnjvmBootstrapLoader* loader) : 
-  VirtualMachine(Alloc, frames), lockSystem(Alloc) {
+  VirtualMachine(Alloc, frames), lockSystem(Alloc), scanStaleReferences(false) {
 
   classpath = getenv("CLASSPATH");
   if (classpath == NULL) classpath = ".";
@@ -1370,6 +1370,12 @@ void Jnjvm::startCollection() {
   referenceThread->PhantomReferencesQueue.acquire();
 }
   
+void Jnjvm::endCollectionBeforeUnlockingWorld()
+{
+	// Stale references can no more exist, until a bundle is uninstalled later.
+	scanStaleReferences = false;
+}
+
 void Jnjvm::endCollection() {
   finalizerThread->FinalizationQueueLock.release();
   referenceThread->ToEnqueueLock.release();
@@ -1413,6 +1419,11 @@ void Jnjvm::setType(gc* header, void* type) {
 	llvm_gcroot(header, 0);
 	src = (JavaObject*)header;
 	src->setVirtualTable((JavaVirtualTable*)type);
+}
+
+void Jnjvm::setType(void* header, void* type)
+{
+	((JavaObject*)header)->setVirtualTable((JavaVirtualTable*)type);
 }
 
 void* Jnjvm::getType(gc* header) {
@@ -1530,4 +1541,10 @@ void Jnjvm::printMethod(vmkit::FrameInfo* FI, word_t ip, word_t addr) {
           FI->SourceIndex, meth->code);
 
   fprintf(stderr, "\n");
+}
+
+void Jnjvm::printBacktrace()
+{
+	std::cerr << "Back trace:" << std::endl;
+	JavaThread::get()->printJavaBacktrace();
 }

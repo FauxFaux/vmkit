@@ -397,9 +397,9 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
         	  //PHINode* node = PHINode::Create(obj->getType(), 0, "jaja", opinfo->newBlock);
         	  //node->addIncoming(obj, currentBlock);
         	  // if we were in a handler and now we are in a new handler we simulate a throw
-			  llvm::Value* arg = pop();
-			  throwException(arg);
-			  b = true;
+        	  llvm::Value* arg = pop();
+        	  throwException(arg);
+        	  b = true;
         	  // Original Code
         	  //assert(node && "Handler marlformed");
           }

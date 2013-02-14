@@ -518,21 +518,39 @@ JNIEXPORT jboolean Java_java_lang_VMClass_isAnonymousClass(
 JNIEnv *env,
 jclass clazz, 
 #endif
-JavaObject* Cl) {
+JavaObjectClass* Cl) {
  
   jboolean res = false;
   llvm_gcroot(Cl, 0);
 
   BEGIN_NATIVE_EXCEPTION(0)
   
-  Jnjvm* vm = JavaThread::get()->getJVM();
-  UserClass* cl = UserCommonClass::resolvedImplClass(vm, Cl, false)->asClass();
-
-  if (cl) res = cl->isAnonymous;
+  res = JavaObjectClass::isAnonymousClass(Cl);
 
   END_NATIVE_EXCEPTION
 
   return res;
+}
+
+// Returns the class which immediately encloses the specified class.
+// If the class is a top-level class, this method returns null.
+JNIEXPORT JavaObject* JNICALL Java_java_lang_VMClass_getEnclosingClass(
+#ifdef NATIVE_JNI
+JNIEnv *env,
+jclass clazz,
+#endif
+JavaObjectClass* Cl) {
+	JavaObject* res = 0;
+	llvm_gcroot(Cl, 0);
+	llvm_gcroot(res, 0);
+
+	BEGIN_NATIVE_EXCEPTION(0)
+
+	res = JavaObjectClass::getEnclosingClass(Cl);
+
+	END_NATIVE_EXCEPTION
+
+	return res;
 }
 
 }

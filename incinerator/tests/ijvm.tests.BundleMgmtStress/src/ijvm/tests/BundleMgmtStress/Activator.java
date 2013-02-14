@@ -11,13 +11,15 @@ import org.osgi.util.tracker.ServiceTracker;
 public class Activator
 	implements BundleActivator, Runnable
 {
+	static final boolean correctStaleReferences = false;
+	
 	BundleContext context;
 	Thread worker;
 	boolean cancelWork;
 	long firstBundleID;
 	ServiceTracker j3mgrST;
 	J3Mgr j3mgr;
-	boolean correctStaleReferences;
+	long loopCount;
 
 	public void start(BundleContext bundleContext) throws Exception
 	{
@@ -29,7 +31,7 @@ public class Activator
 		if (j3mgr == null)
 			throw new BundleException("J3 Management service must be started before this service.");
 		
-		correctStaleReferences = true;
+		loopCount = 0;
 		firstBundleID = 13;
 		
 		cancelWork = false;
@@ -46,6 +48,7 @@ public class Activator
 			worker = null;
 		}
 		
+		System.out.println("Bundle reinstallation count: " + loopCount);
 		context = null;
 	}
 
@@ -57,7 +60,7 @@ public class Activator
 			uninstallBundle(context.getBundle(firstBundleID));
 						
 			while (!cancelWork) {
-				Bundle bundle = context.installBundle("file:///home/koutheir/PhD/VMKit/vmkit_stale_ref/tests/plugins/ijvm.tests.AImpl_1.0.0.jar");
+				Bundle bundle = context.installBundle("file:///home/koutheir/PhD/VMKit/vmkit/incinerator/tests/plugins/ijvm.tests.AImpl_1.0.0.jar");
 				bundle.start();
 				Thread.sleep(20);
 				
@@ -81,6 +84,8 @@ public class Activator
 				bundle.stop();
 				bundle.uninstall();
 			}
+			
+			loopCount++;
 			
 			System.gc();
 		} catch (Exception e) {

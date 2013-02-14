@@ -20,7 +20,7 @@
 #include "Jnjvm.h"
 #include "VMStaticInstance.h"
 
-#include <jni.h>
+#include "jni.h"
 #include "debug.h"
 
 using namespace j3;
@@ -429,4 +429,9 @@ std::ostream& j3::operator << (std::ostream& os, const JavaObject& obj)
 void JavaObject::dump() const
 {
 	cerr << *this << endl;
+}
+
+void JavaObject::dumpClass() const
+{
+	JavaObject::getClass(this)->dump();
 }
