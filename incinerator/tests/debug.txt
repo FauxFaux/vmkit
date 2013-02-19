@@ -10,3 +10,5 @@ bundles
 start 18
 
 framework call j3.J3Mgr dumpClassLoaderBundles
+
+framework call j3.J3Mgr setBundleStaleReferenceCorrected ijvm.tests.AImpl yes

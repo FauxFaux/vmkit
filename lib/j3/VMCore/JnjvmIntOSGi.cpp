@@ -14,6 +14,59 @@ using namespace std;
 
 namespace j3 {
 
+void Jnjvm::setBundleStaleReferenceCorrected(int64_t bundleID, bool corrected)
+{
+	JnjvmClassLoader* loader = this->getBundleClassLoader(bundleID);
+	if (!loader) {
+		this->illegalArgumentException("Invalid bundle ID"); return;}
+
+	loader->setStaleReferencesCorrectionEnabled(corrected);
+}
+
+bool Jnjvm::isBundleStaleReferenceCorrected(int64_t bundleID)
+{
+	JnjvmClassLoader* loader = this->getBundleClassLoader(bundleID);
+	if (!loader) {
+		this->illegalArgumentException("Invalid bundle ID"); return false;}
+
+	return loader->isStaleReferencesCorrectionEnabled();
+}
+
+void Jnjvm::notifyBundleUninstalled(int64_t bundleID)
+{
+	JnjvmClassLoader* loader = this->getBundleClassLoader(bundleID);
+	if (!loader) return;
+
+	if (!loader->isStaleReferencesCorrectionEnabled()) return;
+
+	// Mark this class loader as a zombie.
+	// Strong references to all its loaded classes will be reset in the next garbage collection.
+	loader->markZombie(true);
+
+	scanStaleReferences = true;		// Enable stale references scanning
+	vmkit::Collector::collect();	// Start a garbage collection now
+}
+
+void Jnjvm::notifyServiceUnregistered(int64_t bundleID, JavaObjectClass* classObject)
+{
+	llvm_gcroot(classObject, 0);
+
+	JnjvmClassLoader* loader = this->getBundleClassLoader(bundleID);
+	if (!loader) return;
+
+	if (!loader->isStaleReferencesCorrectionEnabled()) return;
+
+	CommonClass* ccl = JavaObjectClass::getClass(classObject);
+	if (!ccl->isClass() && !ccl->isInterface()) {
+		this->illegalArgumentException("Service class is not a class or an interface"); return;}
+
+	ccl->dump();
+	ccl->asClass()->markZombie(true);
+
+	scanStaleReferences = true;		// Enable stale references scanning
+//	vmkit::Collector::collect();	// Start a garbage collection now
+}
+
 void Jnjvm::dumpClassLoaderBundles()
 {
 	for (bundleClassLoadersType::const_iterator i = bundleClassLoaders.begin(), e = bundleClassLoaders.end(); i != e; ++i) {
@@ -84,18 +137,47 @@ extern "C" void Java_j3_vm_OSGi_associateBundleClass(jlong bundleID, JavaObjectC
 #endif
 }
 
-/*
-	The VM manager bundle calls this method to reset all references to a given bundle. This enables
-	resetting stale references that would otherwise prohibit the bundle from being unloaded from
-	memory due to some stale references.
-*/
-extern "C" void Java_j3_vm_OSGi_resetReferencesToBundle(jlong bundleID)
+extern "C" void Java_j3_vm_OSGi_notifyBundleUninstalled(jlong bundleID)
 {
 #if RESET_STALE_REFERENCES
 
 	Jnjvm* vm = JavaThread::get()->getJVM();
-	vm->resetReferencesToBundle(bundleID);
+	vm->notifyBundleUninstalled(bundleID);
 
+#endif
+}
+
+extern "C" void Java_j3_vm_OSGi_notifyServiceUnregistered(jlong bundleID, JavaObjectClass* classObject)
+{
+	llvm_gcroot(classObject, 0);
+
+#if RESET_STALE_REFERENCES
+
+	Jnjvm* vm = JavaThread::get()->getJVM();
+	vm->notifyServiceUnregistered(bundleID, classObject);
+
+#endif
+}
+
+extern "C" void Java_j3_vm_OSGi_setBundleStaleReferenceCorrected(jlong bundleID, jboolean corrected)
+{
+#if RESET_STALE_REFERENCES
+
+	Jnjvm* vm = JavaThread::get()->getJVM();
+	vm->setBundleStaleReferenceCorrected(bundleID, corrected);
+
+#endif
+}
+
+extern "C" jboolean Java_j3_vm_OSGi_isBundleStaleReferenceCorrected(jlong bundleID)
+{
+#if RESET_STALE_REFERENCES
+
+	Jnjvm* vm = JavaThread::get()->getJVM();
+	return vm->isBundleStaleReferenceCorrected(bundleID);
+
+#else
+	return false;
 #endif
 }
 
