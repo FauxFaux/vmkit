@@ -374,7 +374,6 @@ public:
   void dumpClassLoaderBundles();
 
   void notifyBundleUninstalled(int64_t bundleID);
-  void notifyServiceUnregistered(int64_t bundleID, class JavaObjectClass* classObject);
 
   int64_t getClassLoaderBundleID(JnjvmClassLoader* loader);
   JnjvmClassLoader* getBundleClassLoader(int64_t bundleID);
