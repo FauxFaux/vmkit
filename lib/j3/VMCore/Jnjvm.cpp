@@ -1405,11 +1405,6 @@ void Jnjvm::setType(gc* header, void* type) {
 	src->setVirtualTable((JavaVirtualTable*)type);
 }
 
-void Jnjvm::setType(void* header, void* type)
-{
-	((JavaObject*)header)->setVirtualTable((JavaVirtualTable*)type);
-}
-
 void* Jnjvm::getType(gc* header) {
 	JavaObject* src = 0;
 	llvm_gcroot(src, 0);

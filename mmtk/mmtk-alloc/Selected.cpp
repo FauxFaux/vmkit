@@ -293,11 +293,12 @@ void Collector::initialise(int argc, char** argv) {
 }
 
 extern "C" void* MMTkMutatorAllocate(uint32_t size, void* type) {
+  gc* val = NULL;
   gcHeader* head = NULL;
   size += gcHeader::hiddenHeaderSize();
   size = llvm::RoundUpToAlignment(size, sizeof(void*));
   head = (gcHeader*)MutatorThread::get()->Allocator.Allocate(size);
-  void* val = head->toReference();
+  val = head->toReference();
   vmkit::Thread::get()->MyVM->setType(val, type);
   return val;
 }
