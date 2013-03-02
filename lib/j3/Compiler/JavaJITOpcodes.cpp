@@ -363,15 +363,18 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
   bool wide = false;
   uint32 jsrIndex = 0;
   uint32 start = reader.cursor;
-
-  if (!opcodeInfos[0].isReachable) {
+  // Some compilers like Scala and Kotlin produce unreachable code.
+  // However, it looks as this only occur when exception handlers are presented
+  // I assume this is true, so I only check unreachable code if the method has exception handlers
+  // nbHandlers
+  if (nbHandlers && !opcodeInfos[0].isReachable) {
 	  findUnreachableCode(reader, codeLength);
 	  reader.cursor = start;
   }
 
   vmkit::ThreadAllocator allocator;
   for(uint32 i = 0; i < codeLength; ++i) {
-	if (!opcodeInfos[i].isReachable && !opcodeInfos[i].handler) {
+	if (nbHandlers && !opcodeInfos[i].isReachable && !opcodeInfos[i].handler) {
 		continue;
 	}
 	reader.cursor = start + i;
