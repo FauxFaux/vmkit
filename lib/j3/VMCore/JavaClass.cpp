@@ -1593,8 +1593,11 @@ JavaVirtualTable::JavaVirtualTable(ClassArray* C) {
           // If the base class implements interfaces, we must also add the
           // arrays of these interfaces, of the same dimension than this array
           // class and add them to the secondary types list.
+          // Finally, we must add the list of array of secondary classes from base
           nbSecondaryTypes = base->nbInterfaces + superVT->nbSecondaryTypes +
-                                addSuper;
+                                addSuper
+                                + base->virtualVT->nbSecondaryTypes
+                                ;
           secondaryTypes = (JavaVirtualTable**)
             allocator.Allocate(sizeof(JavaVirtualTable*) * nbSecondaryTypes,
                                "Secondary types");
@@ -1615,6 +1618,19 @@ JavaVirtualTable::JavaVirtualTable(ClassArray* C) {
             JavaVirtualTable* CurVT = interface->virtualVT;
             secondaryTypes[i + superVT->nbSecondaryTypes + addSuper] = CurVT;
           }
+
+          int index = superVT->nbSecondaryTypes + addSuper + base->nbInterfaces;
+          for (uint32 i = 0; i < base->virtualVT->nbSecondaryTypes; ++i) {
+        	  if (base->virtualVT == base->virtualVT->secondaryTypes[i]) continue;
+
+			  const UTF8* name =
+				JCL->constructArrayName(dim, base->virtualVT->secondaryTypes[i]->cl->name);
+			  ClassArray* interface = JCL->constructArray(name);
+			  JavaVirtualTable* CurVT = interface->virtualVT;
+			  secondaryTypes[index++] = CurVT;
+           }
+
+          nbSecondaryTypes = index;
         } else {
           // If the super is not a secondary type and the base class does not
           // implement any interface, we can reuse the list of secondary types
