@@ -372,6 +372,7 @@ public:
   void setBundleStaleReferenceCorrected(int64_t bundleID, bool corrected);
   bool isBundleStaleReferenceCorrected(int64_t bundleID);
   void dumpClassLoaderBundles();
+  class ArrayLong* getReferencesToObject(const JavaObject* obj);
 
   void notifyBundleUninstalled(int64_t bundleID);
 
@@ -392,6 +393,8 @@ protected:
   vmkit::LockRecursive bundleClassLoadersLock;
   bundleClassLoadersType bundleClassLoaders;
   volatile bool scanStaleReferences;
+  const JavaObject* findReferencesToObject;
+  std::vector<const JavaObject*> foundReferencerObjects;
 
 #endif
 };

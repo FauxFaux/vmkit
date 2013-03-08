@@ -45,7 +45,9 @@ void ThinLock::overflowThinLock(gc* object, LockSystem& table) {
  
 /// initialise - Initialise the value of the lock.
 ///
-#if 0
+#if 1
+// Disable fat lock deflation code in ObjectLocks.cpp
+// Fixes occasional assertion failure when running on multi-core machine.
 void ThinLock::removeFatLock(FatLock* fatLock, LockSystem& table) {
   gc* object = fatLock->associatedObject;
   llvm_gcroot(object, 0);
@@ -301,7 +303,9 @@ void FatLock::release(gc* obj, LockSystem& table, vmkit::Thread* ownerThread) {
   llvm_gcroot(obj, 0);
   assert(associatedObject && "No associated object when releasing");
   assert(associatedObject == obj && "Mismatch object in lock");
-#if 0
+#if 1
+  // Disable fat lock deflation code in ObjectLocks.cpp
+  // Fixes occasional assertion failure when running on multi-core machine.
   if (!waitingThreads && !lockingThreads &&
       internalLock.recursionCount() == 1) {
     vmkit::ThinLock::removeFatLock(this, table);
