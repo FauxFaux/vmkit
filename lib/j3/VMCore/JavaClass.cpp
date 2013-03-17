@@ -29,6 +29,7 @@
 #include "Reader.h"
 
 #include <cstring>
+#include <cstdlib>
 
 #if 0
 using namespace vmkit;
@@ -61,6 +62,35 @@ extern "C" void JavaObjectTracer(JavaObject*);
 extern "C" void ArrayObjectTracer(JavaObject*);
 extern "C" void RegularObjectTracer(JavaObject*);
 extern "C" void ReferenceObjectTracer(JavaObject*);
+
+
+extern "C" bool CheckIfObjectIsAssignableToArrayPosition(JavaObject * obj, JavaObject* array) {
+	llvm_gcroot(obj, 0);
+	llvm_gcroot(array, 0);
+	if (obj == 0)
+		return true;
+	bool b = obj->getVirtualTable()->isSubtypeOf(array->getVirtualTable()->baseClassVT);
+	if (!b) {
+		BEGIN_NATIVE_EXCEPTION(0)
+		Jnjvm* vm = JavaThread::get()->getJVM();
+		vm->CreateArrayStoreException(obj->getVirtualTable());
+		END_NATIVE_EXCEPTION
+	}
+	return b;
+}
+
+extern "C" bool IsSubtypeIntrinsic(JavaVirtualTable* obj, JavaVirtualTable* clazz){
+	 //printf("2 + 1 \n");
+	 return obj->isSubtypeOf(clazz);
+}
+
+static int compJavaVirtualTable (const void * elem1, const void * elem2) {
+	void * f = *((void**)elem1);
+	void * s = *((void**)elem2);
+    if (f > s) return  1;
+    if (f < s) return -1;
+    return 0;
+}
 
 JavaAttribute::JavaAttribute(const UTF8* name, uint32 length,
                    uint32 offset) {
@@ -355,7 +385,7 @@ JavaMethod* Class::lookupMethodDontThrow(const UTF8* name, const UTF8* type,
     methods = getVirtualMethods();
     nb = nbVirtualMethods;
   }
-  
+
   for (uint32 i = 0; i < nb; ++i) {
     JavaMethod& res = methods[i];
     if (res.name->equals(name) && res.type->equals(type)) {
@@ -526,6 +556,9 @@ bool JavaVirtualTable::isSubtypeOf(JavaVirtualTable* otherVT) {
         cache = otherVT;
         return true;
       }
+    }
+    if (cl->isArray() && otherVT->cl->isArray()) {
+    	return baseClassVT->isSubtypeOf(otherVT->baseClassVT);
     }
   }
   return false;
@@ -839,7 +872,8 @@ static void computeMirandaMethods(Class* current,
 }
 
 void Class::readMethods(Reader& reader) {
-  uint16 nbMethods = reader.readU2();
+
+  uint32 nbMethods = reader.readU2();
   vmkit::ThreadAllocator allocator;
   if (isAbstract(access)) {
     virtualMethods = (JavaMethod*)
@@ -849,9 +883,10 @@ void Class::readMethods(Reader& reader) {
       new(classLoader->allocator, "Methods") JavaMethod[nbMethods];
   }
   staticMethods = virtualMethods + nbMethods;
-  for (int i = 0; i < nbMethods; i++) {
+  for (uint32 i = 0; i < nbMethods; i++) {
     uint16 access = reader.readU2();
     const UTF8* name = ctpInfo->UTF8At(reader.readU2());
+
     const UTF8* type = ctpInfo->UTF8At(reader.readU2());
     JavaMethod* meth = 0;
     if (isStatic(access)) {
@@ -874,8 +909,13 @@ void Class::readMethods(Reader& reader) {
     nbMethods += size;
     JavaMethod* realMethods =
       new(classLoader->allocator, "Methods") JavaMethod[nbMethods];
+
+    if (nbMethods < size) {
+        	printf("Error in class %s\n", UTF8Buffer(name).cString());
+    }
     memcpy(realMethods + size, virtualMethods,
            sizeof(JavaMethod) * (nbMethods - size));
+
     nbVirtualMethods += size;
     staticMethods = realMethods + nbVirtualMethods;
     if (size != 0) {
@@ -1486,6 +1526,20 @@ JavaVirtualTable::JavaVirtualTable(Class* C) {
       lastIndex += cur->nbSecondaryTypes;
     }
 
+    if (nbSecondaryTypes) {
+    	qsort(secondaryTypes, nbSecondaryTypes, sizeof(JavaVirtualTable*), compJavaVirtualTable);
+    	lastIndex = 1;
+    	JavaVirtualTable* temp = secondaryTypes[0];
+    	for (uint32 i = 1 ; i < nbSecondaryTypes ; i++ )
+    		if (secondaryTypes[i] != temp) {
+    			secondaryTypes[lastIndex++] = secondaryTypes[i];
+    			temp = secondaryTypes[i];
+    		}
+    	nbSecondaryTypes = lastIndex;
+    	//isSortedSecondaryTypes = true;
+    }
+
+
   } else {
     // Set the tracer, destructor and delete.
     tracer = (word_t)JavaObjectTracer;
@@ -1586,8 +1640,11 @@ JavaVirtualTable::JavaVirtualTable(ClassArray* C) {
           // If the base class implements interfaces, we must also add the
           // arrays of these interfaces, of the same dimension than this array
           // class and add them to the secondary types list.
+          // Finally, we must add the list of array of secondary classes from base
           nbSecondaryTypes = base->nbInterfaces + superVT->nbSecondaryTypes +
-                                addSuper;
+                                addSuper
+//                                + base->virtualVT->nbSecondaryTypes
+                                ;
           secondaryTypes = (JavaVirtualTable**)
             allocator.Allocate(sizeof(JavaVirtualTable*) * nbSecondaryTypes,
                                "Secondary types");
@@ -1608,6 +1665,19 @@ JavaVirtualTable::JavaVirtualTable(ClassArray* C) {
             JavaVirtualTable* CurVT = interface->virtualVT;
             secondaryTypes[i + superVT->nbSecondaryTypes + addSuper] = CurVT;
           }
+
+//          int index = superVT->nbSecondaryTypes + addSuper + base->nbInterfaces;
+//          for (uint32 i = 0; i < base->virtualVT->nbSecondaryTypes; ++i) {
+//        	  if (base->virtualVT == base->virtualVT->secondaryTypes[i]) continue;
+//
+//			  const UTF8* name =
+//				JCL->constructArrayName(dim, base->virtualVT->secondaryTypes[i]->cl->name);
+//			  ClassArray* interface = JCL->constructArray(name);
+//			  JavaVirtualTable* CurVT = interface->virtualVT;
+//			  secondaryTypes[index++] = CurVT;
+//           }
+//
+//          nbSecondaryTypes = index;
         } else {
           // If the super is not a secondary type and the base class does not
           // implement any interface, we can reuse the list of secondary types
@@ -1702,6 +1772,18 @@ JavaVirtualTable::JavaVirtualTable(ClassArray* C) {
     // The list of secondary types has not been allocated yet by
     // java.lang.Object[]. The initialiseVT function will update the current
     // array to point to java.lang.Object[]'s secondary list.
+  }
+  if (offset == getCacheIndex() && nbSecondaryTypes) {
+	qsort(secondaryTypes, nbSecondaryTypes, sizeof(JavaVirtualTable*), compJavaVirtualTable);
+	uint32 lastIndex = 1;
+	JavaVirtualTable* temp = secondaryTypes[0];
+	for (uint32 i = 1 ; i < nbSecondaryTypes ; ++i )
+		if (secondaryTypes[i] != temp) {
+			secondaryTypes[lastIndex++] = secondaryTypes[i];
+			temp = secondaryTypes[i];
+		}
+	nbSecondaryTypes = lastIndex;
+	//isSortedSecondaryTypes = true;
   }
 }
 

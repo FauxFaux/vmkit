@@ -47,6 +47,9 @@ class UserClassArray;
 class UserClassPrimitive;
 class UserCommonClass;
 
+template <class T> class TJavaArray;
+typedef TJavaArray<JavaObject*> ArrayObject;
+
 /// ThreadSystem - Thread management of a JVM. Each JVM has one thread
 /// management system to count the number of non-daemon threads it owns.
 /// The initial thread of the JVM is a non-daemon thread. When there are
@@ -124,6 +127,7 @@ private:
   JavaReferenceThread* referenceThread;
 
   virtual void startCollection();
+  virtual void endCollectionBeforeUnlockingWorld();
   virtual void endCollection();
   virtual void scanWeakReferencesQueue(word_t closure);
   virtual void scanSoftReferencesQueue(word_t closure);
@@ -133,6 +137,7 @@ private:
   virtual void finalizeObject(gc* res);
   virtual void traceObject(gc* obj, word_t closure);
   virtual void setType(gc* header, void* type);
+  virtual void setType(void* header, void* type);
   virtual void* getType(gc* obj);
   virtual size_t getObjectSize(gc* obj);
   virtual const char* getObjectTypeName(gc* obj);
@@ -383,6 +388,7 @@ protected:
   // Link between OSGi (bundle ID) and Java (class loaders).
   vmkit::LockRecursive bundleClassLoadersLock;
   bundleClassLoadersType bundleClassLoaders;
+  volatile bool scanStaleReferences;
 
 #endif
 };

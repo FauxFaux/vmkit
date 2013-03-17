@@ -154,7 +154,7 @@ void ThinLock::acquire(gc* object, LockSystem& table) {
         if (obj->acquire(object, table)) {
           assert((object->header() & FatMask) && "Inconsistent lock");
           assert((table.getFatLockFromID(object->header()) == obj) && "Inconsistent lock");
-          assert(owner(object, table) && "Not owner after acquring fat lock!");
+          assert(owner(object, table) && "Not owner after acquiring fat lock!");
           break;
         }
       }
@@ -437,6 +437,7 @@ bool LockingThread::wait(
   }
   
   this->state = LockingThread::StateWaiting;
+
   if (l->firstThread) {
     assert(l->firstThread->prevWaiting && l->firstThread->nextWaiting &&
            "Inconsistent list");
@@ -499,7 +500,7 @@ bool LockingThread::wait(
       this->nextWaiting = NULL;
       this->prevWaiting = NULL;
     } else {
-      assert(!this->prevWaiting && "Inconstitent state");
+      assert(!this->prevWaiting && "Inconsistent state");
       // Notify lost, notify someone else.
       notify(self, table);
     }

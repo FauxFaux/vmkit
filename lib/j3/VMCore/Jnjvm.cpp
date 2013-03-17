@@ -970,7 +970,17 @@ void ClArgumentsInfo::readArgs(Jnjvm* vm) {
         char* path = &cur[16];
         vm->bootstrapLoader->analyseClasspathEnv(path);
       }
-    } else if (!(strcmp(cur, "-enableassertions"))) {
+    }
+    else if (!(strncmp(cur, "-Xbootclasspath/a:", 18))) {
+	  uint32 len = strlen(cur);
+	  if (len == 18) {
+		printInformation();
+	  } else {
+		char* path = &cur[18];
+		vm->bootstrapLoader->analyseClasspathEnv(path);
+	  }
+    }
+    else if (!(strcmp(cur, "-enableassertions"))) {
       nyi();
     } else if (!(strcmp(cur, "-ea"))) {
       nyi();
@@ -1315,7 +1325,11 @@ void Jnjvm::runApplication(int argc, char** argv) {
 Jnjvm::Jnjvm(vmkit::BumpPtrAllocator& Alloc,
              vmkit::CompiledFrames** frames,
              JnjvmBootstrapLoader* loader) : 
-  VirtualMachine(Alloc, frames), lockSystem(Alloc) {
+  VirtualMachine(Alloc, frames), lockSystem(Alloc)
+#if RESET_STALE_REFERENCES
+	, scanStaleReferences(false)
+#endif
+{
 
   classpath = getenv("CLASSPATH");
   if (classpath == NULL) classpath = ".";
@@ -1360,6 +1374,16 @@ void Jnjvm::startCollection() {
   referenceThread->PhantomReferencesQueue.acquire();
 }
   
+void Jnjvm::endCollectionBeforeUnlockingWorld()
+{
+#if RESET_STALE_REFERENCES
+
+	// Stale references can no more exist, until a bundle is uninstalled later.
+	scanStaleReferences = false;
+
+#endif
+}
+
 void Jnjvm::endCollection() {
   finalizerThread->FinalizationQueueLock.release();
   referenceThread->ToEnqueueLock.release();
@@ -1403,6 +1427,11 @@ void Jnjvm::setType(gc* header, void* type) {
 	llvm_gcroot(header, 0);
 	src = (JavaObject*)header;
 	src->setVirtualTable((JavaVirtualTable*)type);
+}
+
+void Jnjvm::setType(void* header, void* type)
+{
+	((JavaObject*)header)->setVirtualTable((JavaVirtualTable*)type);
 }
 
 void* Jnjvm::getType(gc* header) {

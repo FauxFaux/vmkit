@@ -31,6 +31,7 @@ JavaThread::JavaThread(vmkit::VirtualMachine* isolate) : MutatorThread() {
   currentAddedReferences = NULL;
   javaThread = NULL;
   vmThread = NULL;
+  state = vmkit::LockingThread::StateRunning;
 }
 
 void JavaThread::initialise(JavaObject* thread, JavaObject* vmth) {
@@ -202,4 +203,61 @@ void JavaThread::throwNullPointerException(word_t methodIP)
 
 	MyVM->nullPointerException();
 	UNREACHABLE();
+}
+
+ParkLock::ParkLock() {
+	permit = 1;
+}
+
+ParkLock::~ParkLock() {
+
+}
+
+// Implementation of method park, see LockSupport.java
+// time is in nanoseconds if !isAboslute, otherwise it is in milliseconds
+void ParkLock::park(bool isAbsolute, int64_t time) {
+	JavaThread* thread = (JavaThread*)vmkit::Thread::get();
+	lock.lock();
+		if (permit == 0){
+			permit = 1;
+			__sync_synchronize();
+			lock.unlock(thread);
+			return;
+		}
+		if (isAbsolute && time == 0) {
+			lock.unlock(thread);
+			return;
+		}
+		if (time == 0) {
+			thread->setState(vmkit::LockingThread::StateWaiting);
+			permit = 2;
+			__sync_synchronize();
+			cond.wait(&lock);
+			permit = 1;
+		}
+		else {
+			thread->setState(vmkit::LockingThread::StateTimeWaiting);
+			permit = 2;
+			__sync_synchronize();
+			cond.myTimeWait(&lock, isAbsolute, time);
+			permit = 1;
+		}
+		thread->setState(vmkit::LockingThread::StateRunning);
+		__sync_synchronize();
+	lock.unlock(thread);
+}
+
+void ParkLock::unpark() {
+	JavaThread* thread = (JavaThread*)vmkit::Thread::get();
+	bool flag = false;
+	lock.lock();
+		if (permit != 0)
+			flag = !__sync_bool_compare_and_swap(&permit, 1, 0);
+	lock.unlock(thread);
+	if (flag)
+		cond.signal();
+}
+
+void ParkLock::interrupt() {
+	cond.signal();
 }

@@ -126,6 +126,7 @@ JavaObject* vmthread) {
   
   JavaThread* th = (JavaThread*)field->getInstanceObjectField(vmthread);
   th->lockingThread.interruptFlag = 1;
+  th->parkLock.interrupt();
   vmkit::FatLock* lock = th->lockingThread.waitsOn;
 
   // If the thread is blocked on a wait. We also verify nextWaiting in case
@@ -217,5 +218,47 @@ jclass clazz,
 ) {
   vmkit::Thread::yield();
 }
+
+JNIEXPORT JavaObject* JNICALL Java_java_lang_VMThread_getState(
+#ifdef NATIVE_JNI
+JNIEnv *env,
+#endif
+JavaObject* vmthread) {
+  JavaString* obj = NULL;
+  llvm_gcroot(obj, 0);
+  llvm_gcroot(vmthread, 0);  
+
+  BEGIN_NATIVE_EXCEPTION(0)
+
+  Jnjvm* vm = JavaThread::get()->getJVM();
+  JavaField* field = vm->upcalls->vmdataVMThread; 
+  
+  // It's possible that the thread to be interrupted has not finished
+  // its initialization. Wait until the initialization is done.
+  JavaThread* th = (JavaThread*)field->getInstanceObjectField(vmthread);
+  if (th == 0) {
+    obj = vm->asciizToStr("NEW");
+    return obj;
+  }
+  else {
+  	switch (th->state) {
+  		case vmkit::LockingThread::StateWaiting:
+  			obj = vm->asciizToStr("WAITING");
+  			return obj;
+  		case vmkit::LockingThread::StateTimeWaiting:
+  			obj = vm->asciizToStr("TIMED_WAITING");
+  			return obj;
+  		case vmkit::LockingThread::StateBlocked:
+  			obj = vm->asciizToStr("BLOCKED");
+  			return obj;
+  		default: // both RUNNABLE and INTERRUPTED
+  			obj = vm->asciizToStr("RUNNABLE");
+  			return obj;
+  	}
+  }
+  
+  END_NATIVE_EXCEPTION
+}
+
 
 }

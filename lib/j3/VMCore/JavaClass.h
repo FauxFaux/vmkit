@@ -46,6 +46,8 @@ class Reader;
 class Signdef;
 class Typedef;
 
+template <class T> class TJavaArray;
+typedef TJavaArray<JavaObject*> ArrayObject;
 
 /// JavaState - List of states a Java class can have. A class is ready to be
 /// used (i.e allocating instances of the class, calling methods of the class
@@ -59,6 +61,9 @@ class Typedef;
 #define ready 5        /// The class is ready to be used.
 #define erroneous 6    /// The class is in an erroneous state.
 
+
+extern "C" bool IsSubtypeIntrinsic(JavaVirtualTable* obj, JavaVirtualTable* clazz);
+extern "C" bool CheckIfObjectIsAssignableToArrayPosition(JavaObject * obj, JavaObject* array);
 
 class AnnotationReader {
 public:
@@ -462,7 +467,7 @@ public:
 
   /// nbVirtualMethods - The number of virtual methods.
   ///
-  uint16 nbVirtualMethods;
+  uint32 nbVirtualMethods;
   
   /// staticMethods - List of all the static methods defined by this class.
   ///
