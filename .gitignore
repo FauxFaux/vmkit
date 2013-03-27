@@ -3,9 +3,9 @@
 *.class
 *.jar
 
-.autotools
-.cproject
-.project
+/.autotools
+/.cproject
+/.project
 .settings
 .metadata
 .fuse*
