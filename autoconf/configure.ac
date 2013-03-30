@@ -31,12 +31,12 @@ dnl===
 dnl===-----------------------------------------------------------------------===
 dnl Initialize autoconf and define the package name, version number and
 dnl email address for reporting bugs.
-AC_INIT([vmkit],[0.32svn],[nicolas.geoffray@gmail.com])
+AC_INIT([vmkit],[0.32svn],[vmkit2-development@lists.gforge.inria.fr])
 
 dnl Provide a copyright substitution and ensure the copyright notice is included
 dnl in the output of --version option of the generated configure script.
-AC_SUBST(VMKIT_COPYRIGHT,["Copyright (c) 2003-2012 Universite Pierre et Marie Curie."])
-AC_COPYRIGHT([Copyright (c) 2003-2012 Universite Pierre et Marie Curie.])
+AC_SUBST(VMKIT_COPYRIGHT,["Copyright (c) 2003-2013 Universite Pierre et Marie Curie."])
+AC_COPYRIGHT([Copyright (c) 2003-2013 Universite Pierre et Marie Curie.])
 
 dnl Indicate that we require autoconf 2.59 or later. Ths is needed because we
 dnl use some autoconf macros only available in 2.59.
@@ -57,11 +57,7 @@ fi
 
 dnl Place all of the extra autoconf files into the config subdirectory. Tell
 dnl various tools where the m4 autoconf macros are.
-AC_CONFIG_AUX_DIR([$LLVM_SRC_ROOT/autoconf])
-
-dnl Tell autoconf that this is an LLVM project being configured
-dnl This provides the --with-llvmsrc and --with-llvmobj options
-LLVM_CONFIG_PROJECT($LLVM_SRC_ROOT,$LLVM_OBJ_ROOT)
+AC_CONFIG_AUX_DIR([./autoconf])
 
 
 dnl===-----------------------------------------------------------------------===
@@ -95,6 +91,8 @@ AC_CACHE_CHECK([type of operating system we're going to host on],
     vmkit_cv_platform_type="Unix" ;;
   *-*-darwin*)
     DYLIB_EXTENSION="dylib"
+		SHLIBEXT=".dylib"
+    SHOPT="-fno-common -Wl,-flat_namespace -Wl,-undefined,suppress"
     vmkit_cv_os_type="Darwin"
     vmkit_cv_platform_type="Unix" ;;
   *-*-freebsd*)
@@ -119,6 +117,8 @@ AC_CACHE_CHECK([type of operating system we're going to host on],
     vmkit_cv_platform_type="Unix" ;;
   *-*-linux*)
     DYLIB_EXTENSION="so"
+    SHLIBEXT=".so"
+    LDOPT="-Wl,-export-dynamic"
     vmkit_cv_os_type="Linux"
     vmkit_cv_platform_type="Unix" ;;
   *-*-solaris*)
@@ -142,6 +142,10 @@ esac])
 dnl Make sure we aren't attempting to configure for an unknown system
 
 AC_SUBST([DYLIB_EXTENSION])
+AC_SUBST([SHOPT])
+AC_SUBST([LDOPT])
+AC_SUBST([SHLIBEXT])
+AC_SUBST([EXEEXT])
 
 dnl===-----------------------------------------------------------------------===
 dnl===
@@ -162,7 +166,49 @@ case $target_cpu in
     AC_SUBST([WITH_64], [1]);;
 esac
 
+dnl **************************************************************************
+dnl optimization and debug
+dnl **************************************************************************
+AC_ARG_ENABLE(optimized,
+              AS_HELP_STRING([--enable-optimized],
+                             [Build with all optimization flag enable (default is yes)]),,
+                             enableval=yes)
+case "$enableval" in
+  yes) AC_SUBST(OPTIMIZED,[1]) ;;
+  no)  AC_SUBST(OPTIMIZED,[0]) ;;
+  *) AC_MSG_ERROR([Invalid setting for --enable-optimized. Use "yes" or "no"]) ;;
+esac
 
+AC_ARG_ENABLE(debug,
+              AS_HELP_STRING([--enable-debug],
+                             [Build with debug flags (default is no)]),,
+                             enableval=no)
+case "$enableval" in
+  yes) AC_SUBST(DEBUG,[1]) ;;
+  no)  AC_SUBST(DEBUG,[0]) ;;
+  *) AC_MSG_ERROR([Invalid setting for --enable-debug. Use "yes" or "no"]) ;;
+esac
+
+AC_ARG_ENABLE(assert,
+              AS_HELP_STRING([--enable-assert],
+                             [Build with assert flags (default is yes)]),,
+                             enableval=yes)
+
+case "$enableval" in
+  yes) AC_SUBST(ASSERT,[1]) ;;
+  no)  AC_SUBST(ASSERT,[0]) ;;
+  *) AC_MSG_ERROR([Invalid setting for --enable-assert. Use "yes" or "no"]) ;;
+esac
+
+dnl **************************************************************************
+dnl llvm
+dnl **************************************************************************
+AC_ARG_WITH(llvm-config-path,
+       [AS_HELP_STRING(--with-llvm-config-path=path,
+           [llvm-config path (use default path)])],
+       [[LLVM_CONFIG_PATH=$withval]],
+       [[LLVM_CONFIG_PATH="llvm-config"]]
+)
 
 dnl **************************************************************************
 dnl GC type 
@@ -230,7 +276,7 @@ AC_ARG_WITH(classpath-impl,
 
 case "${classpathimpl}" in
   gnuclasspath)
-    AC_MSG_NOTICE(Validing GNU Classpath installation...)
+    AC_MSG_NOTICE(Validating GNU Classpath installation...)
     AC_CHECK_FILES([${classpathlibs}]
                    [${classpathlibs}/libjavaio.$DYLIB_EXTENSION]
                    [${classpathlibs}/libjavalang.$DYLIB_EXTENSION]
@@ -276,34 +322,32 @@ dnl===
 dnl===-----------------------------------------------------------------------===
 
 dnl Check for compilation tools
-AC_PROG_CPP
-AC_PROG_CC(gcc)
-AC_PROG_CXX(g++)
 
 AC_PROG_NM
 AC_SUBST(NM)
 
 dnl Check for the tools that the makefiles require
-AC_PROG_LN_S
-AC_PATH_PROG(CMP, [cmp], [cmp])
-AC_PATH_PROG(CP, [cp], [cp])
-AC_PATH_PROG(DATE, [date], [date])
-AC_PATH_PROG(FIND, [find], [find])
-AC_PATH_PROG(GREP, [grep], [grep])
-AC_PATH_PROG(MKDIR,[mkdir],[mkdir])
-AC_PATH_PROG(MV,   [mv],   [mv])
+AC_PATH_PROG(LD,    [ld],    [ld])
+AC_PATH_PROG(AR,    [ar],    [ar])
+AC_PROG_GREP
+AC_PROG_MKDIR_P
+AC_PATH_PROG(MV,    [mv],    [mv])
+AC_PATH_PROG(RM,    [rm],    [rm])
+AC_PATH_PROG(CP,    [cp],    [cp])
+AC_PATH_PROG(TOUCH, [touch], [touch])
 AC_PROG_RANLIB
-AC_PATH_PROG(RM,   [rm],   [rm])
-AC_PATH_PROG(SED,  [sed],  [sed])
-AC_PATH_PROG(TAR,  [tar],  [gtar])
-AC_PATH_PROG(BINPWD,[pwd],  [pwd])
-AC_PATH_PROG(CAT,[cat],  [cat])
 
-AC_PATH_PROG(LLVMAS, [llvm-as],  [llvm-as])
-AC_PATH_PROG(LLC, [llc],  [llc])
 AC_PATH_PROG(ANT, [ant])
 AC_PATH_PROG(JAVAC, [javac], [javac])
 AC_PATH_PROG(ZIP, [zip], [zip])
+
+AC_PATH_PROG(LLVM_CONFIG, [llvm-config],,[`AS_DIRNAME(["$LLVM_CONFIG_PATH"])`:$PATH])
+
+if test -z ${LLVM_CONFIG}; then
+    AC_MSG_ERROR([Unable to find llvm-config, please specify its path])
+fi
+
+AC_SUBST([LLVM_CONFIG])
 
 dnl Find the install program
 AC_PROG_INSTALL
@@ -329,7 +373,7 @@ AC_CHECK_HEADER([zlib.h], [], \
   AC_MSG_ERROR([You need to install the zlib devel package (zlib.h).])
 )
   
-nl===-----------------------------------------------------------------------===
+dnl===-----------------------------------------------------------------------===
 dnl===
 dnl=== SECTION 7: Check for types and structures
 dnl===
@@ -376,14 +420,12 @@ AC_CONFIG_SRCDIR(["Makefile.common.in"])
 
 dnl Configure a common Makefile
 AC_CONFIG_FILES(Makefile.common)
-AC_CONFIG_FILES(Makefile.config)
 AC_CONFIG_FILES([lib/j3/ClassLib/Classpath.h])
 AC_CONFIG_FILES([tools/llcj/LinkPaths.h])
 AC_CONFIG_FILES([mmtk/java/src/org/j3/config/Selected.java])
 AC_CONFIG_FILES([mmtk/java/build.xml])
 
-dnl Do special configuration of Makefiles
-AC_CONFIG_MAKEFILE(Makefile)
-
+AC_SUBST([ac_config_files])
+AC_SUBST([ac_config_headers])
 
 AC_OUTPUT

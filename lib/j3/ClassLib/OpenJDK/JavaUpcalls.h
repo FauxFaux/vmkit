@@ -86,6 +86,22 @@ public:
   ISOLATE_STATIC JavaField*  constructorSlot;
   ISOLATE_STATIC JavaMethod* initMethod;
   ISOLATE_STATIC JavaMethod* initField;
+  /*
+   * TODO Implement annotation support on openJDK.
+   */
+  ISOLATE_STATIC JavaField* vmThread;
+  ISOLATE_STATIC JavaField* vmdataVMThread;
+  ISOLATE_STATIC UserClass*  newVMConstructor;
+  ISOLATE_STATIC UserClass*  newHashMap;
+  ISOLATE_STATIC JavaMethod* initHashMap;
+  ISOLATE_STATIC JavaMethod* putHashMap;
+  ISOLATE_STATIC UserClass*  newAnnotationHandler;
+  ISOLATE_STATIC UserClass*  newAnnotation;
+  ISOLATE_STATIC JavaMethod* createAnnotation;
+  ISOLATE_STATIC JavaMethod* getInField;
+  ISOLATE_STATIC JavaMethod* getFieldInClass;
+  ISOLATE_STATIC JavaField* threadName;
+  /***********************************************/
   ISOLATE_STATIC UserClassArray* methodArrayClass;
   ISOLATE_STATIC UserClassArray* fieldArrayClass;
   ISOLATE_STATIC UserClass*      newMethod;
@@ -217,6 +233,7 @@ public:
 
   ISOLATE_STATIC JavaMethod* SystemArraycopy;
   ISOLATE_STATIC Class*      SystemClass;
+  ISOLATE_STATIC JavaMethod* SystemExit;
   ISOLATE_STATIC JavaMethod* initSystem;
 
   ISOLATE_STATIC JavaMethod* IntToString;

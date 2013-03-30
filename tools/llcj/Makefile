@@ -8,9 +8,6 @@
 ##===----------------------------------------------------------------------===##
 LEVEL = ../..
 
-include $(LEVEL)/Makefile.config
-
-TOOLNAME = llcj
-LINK_COMPONENTS = support
+TOOL=llcj
 
 include $(LEVEL)/Makefile.common

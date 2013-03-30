@@ -10,9 +10,10 @@
 .metadata
 .fuse*
 
+Debug*
+Release*
+Unoptimized*
 bin
-Debug+Asserts
-Release+Asserts
 scratch
 
 Makefile.common
@@ -29,9 +30,11 @@ mmtk/java/.classpath
 mmtk/inline/*.inc
 
 tools/j3/*.inc
-tools/precompiler/*.inc
-tools/llvm-config
 tools/llcj/LinkPaths.h
+tools/precompiler/FrametablesExterns.inc
+tools/precompiler/FrametablesSymbols.inc
+tools/precompiler/trainer/
+tools/llvm-config
 
 lib/j3/LLVMRuntime/*.inc
 lib/vmkit/Compiler/*.inc

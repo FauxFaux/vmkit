@@ -12,6 +12,7 @@
 #include "vmkit/System.h"
 #include "vmkit/VirtualMachine.h"
 #include "vmkit/Thread.h"
+#include "vmkit/Locks.h"
 
 #include <csignal>
 #include <cstdio>
@@ -93,4 +94,15 @@ void sigsegvHandler(int n, siginfo_t *info, void *context) {
       abort();
     }
   }
+}
+
+void sigsTermHandler(int n, siginfo_t *info, void *context) {
+	//fprintf(stderr, "\nJVM termination because user request\n");
+	finishForCtrl_C = true;
+	condForCtrl_C.signal();
+	//lockForCtrl_C.Lock();
+	//lockForCtrl_C.unlock()
+	//Thread::get()->onVMTermination();
+	//UserClass* cl = vm->upcalls->SystemClass;
+	//vm -> upcalls->SystemExit->invokeIntStatic(vm,Class* cl, 0);
 }

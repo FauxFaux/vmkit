@@ -8,9 +8,7 @@
 ##===----------------------------------------------------------------------===##
 LEVEL = ..
 
-DIRS = magic mmtk-j3 mmtk-alloc java inline
-
-include $(LEVEL)/Makefile.config
+DIRS = magic mmtk-j3 mmtk-alloc java
 
 include $(LEVEL)/Makefile.common
 

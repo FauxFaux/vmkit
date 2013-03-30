@@ -9,21 +9,6 @@
 
 LEVEL := .
 
-include $(LEVEL)/Makefile.config
-
-# Top-Level vmkit Build Stages:
-#
-DIRS := lib/vmkit/StaticGCPass lib/vmkit/StaticGCPrinter lib tools/vmjc mmtk tools/precompiler tools
-
-EXTRA_DIST=include
+DIRS := lib/static-gc-pass lib/static-gc-printer lib tools/vmjc mmtk tools/precompiler tools/trainer tools
 
 include $(LEVEL)/Makefile.common
-
-#------------------------------------------------------------------------
-# Make sure the generated headers are up-to-date. This must be kept in
-# sync with the AC_CONFIG_HEADER invocations in autoconf/configure.ac
-#------------------------------------------------------------------------
-FilesToConfig := \
-  include/llvm/Config/config.h \
-  lib/j3/Classpath/Classpath.h \
-FilesToConfigPATH  := $(addprefix $(LLVM_OBJ_ROOT)/,$(FilesToConfig))

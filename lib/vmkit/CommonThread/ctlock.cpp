@@ -21,6 +21,15 @@
 
 namespace vmkit {
 
+/**
+ * These variables are used to implement some behavior
+ * when the user presses Ctrl_C.
+ */
+LockNormal lockForCtrl_C;
+Cond condForCtrl_C;
+bool finishForCtrl_C = false;
+
+
 Lock::Lock() {
   pthread_mutexattr_t attr;
 
@@ -72,6 +81,17 @@ void LockNormal::lock() {
   owner = th;
 }
 
+int LockNormal::tryLock() {
+  Thread* th = Thread::get();
+  th->enterUncooperativeCode();
+  //pthread_mutex_lock((pthread_mutex_t*)&internalLock);
+  int r = pthread_mutex_trylock((pthread_mutex_t*)&internalLock);
+  th->leaveUncooperativeCode();
+  if (r == 0)
+	  owner = th;
+  return r;
+}
+
 void LockNormal::unlock(vmkit::Thread* ownerThread) {
   assert(selfOwner(ownerThread) && "Not owner when unlocking");
   owner = 0;
@@ -80,22 +100,36 @@ void LockNormal::unlock(vmkit::Thread* ownerThread) {
 
 void LockRecursive::lock() {
   if (!selfOwner()) {
+
+
     Thread* th = Thread::get();
     th->enterUncooperativeCode();
     pthread_mutex_lock((pthread_mutex_t*)&internalLock);
+    assert((n == 0) && "Inconsistent state of recursive lock");
     th->leaveUncooperativeCode();
     owner = th;
+  }
+  else {
+	  assert((n != 0) && "Inconsistent state of recursive lock");
   }
   ++n;
 }
 
 int LockRecursive::tryLock() {
-  int res = 0;
+  int res = -1;
   if (!selfOwner()) {
+	  Thread* th = Thread::get();
+	  th->enterUncooperativeCode();
     res = pthread_mutex_trylock((pthread_mutex_t*)&internalLock);
-    owner = vmkit::Thread::get();
+    if (!res) {
+    	  ++n;
+    	  owner = vmkit::Thread::get();
+    }
+    th->leaveUncooperativeCode();
   }
-  ++n;
+  else
+	  n++;
+
   return res;
 }
 
@@ -163,6 +197,9 @@ void Cond::signal() {
 }
 
 #define BILLION 1000000000
+#define NANOSECS_PER_SEC 1000000000
+#define NANOSECS_PER_MILLISEC 1000000
+#define MAX_SECS 100000000
 int Cond::timedWait(Lock* l, struct timeval *ref) { 
   struct timespec timeout; 
   struct timeval now;
@@ -173,6 +210,10 @@ int Cond::timedWait(Lock* l, struct timeval *ref) {
     timeout.tv_sec++;
     timeout.tv_nsec -= BILLION;
   }
+  if (timeout.tv_sec <= now.tv_sec) {
+	  timeout.tv_sec = now.tv_sec;
+	  timeout.tv_nsec = NANOSECS_PER_SEC >> 1;
+  }
   
   assert(l->selfOwner());
   int n = l->unsafeUnlock();
@@ -182,12 +223,76 @@ int Cond::timedWait(Lock* l, struct timeval *ref) {
   int res = pthread_cond_timedwait((pthread_cond_t*)&internalCond, 
                                    (pthread_mutex_t*)&(l->internalLock),
                                    &timeout);
-  th->leaveUncooperativeCode();
   
+
+  if (res != 0) {
+  		pthread_cond_destroy (&internalCond) ;
+  		pthread_cond_init    (&internalCond, NULL);
+  }
+  th->leaveUncooperativeCode();
+
   assert((!res || res == ETIMEDOUT) && "Error on timed wait");
   l->unsafeLock(n);
 
   return res;
+}
+
+
+
+int Cond::myTimeWait(Lock* l, bool isAbsolute, int64_t nsec) {
+	struct timeval now;
+	struct timespec absTime;
+	int status = gettimeofday(&now, NULL);
+	assert(status == 0 && "gettimeofday");
+
+	time_t max_secs = now.tv_sec + MAX_SECS;
+
+	 if (isAbsolute) {
+	    sint64 secs = nsec / 1000;
+	    if (secs > max_secs) {
+	      absTime.tv_sec = max_secs;
+	    }
+	    else {
+	      absTime.tv_sec = secs;
+	    }
+	    absTime.tv_nsec = (nsec % 1000) * NANOSECS_PER_MILLISEC;
+	}
+	 else {
+		sint64 secs = nsec / NANOSECS_PER_SEC;
+		if (secs >= MAX_SECS) {
+		  absTime.tv_sec = max_secs;
+		  absTime.tv_nsec = 0;
+		}
+		else {
+		  absTime.tv_sec = now.tv_sec + secs + 1100; // 150 / 850 / 1000
+		  absTime.tv_nsec = (nsec % NANOSECS_PER_SEC) + now.tv_usec*1000;
+		  if (absTime.tv_nsec >= NANOSECS_PER_SEC) {
+			absTime.tv_nsec -= NANOSECS_PER_SEC;
+			++absTime.tv_sec; // note: this must be <= max_secs
+		  }
+		}
+	 }
+
+	assert(l->selfOwner());
+	int n = l->unsafeUnlock();
+
+	Thread* th = Thread::get();
+	th->enterUncooperativeCode();
+	int res = pthread_cond_timedwait((pthread_cond_t*)&internalCond,
+								   (pthread_mutex_t*)&(l->internalLock),
+								   &absTime);
+
+
+	if (res != 0) {
+		pthread_cond_destroy (&internalCond) ;
+		pthread_cond_init    (&internalCond, NULL);
+	}
+	th->leaveUncooperativeCode();
+
+	assert((!res || res == ETIMEDOUT) && "Error on timed wait");
+	l->unsafeLock(n);
+
+	return res;
 }
 
 }

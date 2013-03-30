@@ -56,6 +56,22 @@ class Jnjvm;
   th->enterUncooperativeCode(SP); \
   return; } \
 
+/// This is used to implement park/unpark behavior.
+/// The functionalities is the foundation for java.util.concurrency package
+class ParkLock {
+private:
+	vmkit::LockNormal lock;
+	vmkit::Cond cond;
+	int permit;
+
+public:
+	ParkLock();
+	~ParkLock();
+
+	void park(bool isAbsolute, int64_t time, JavaThread* thread);
+	void unpark();
+//	void interrupt();
+};
 
 /// JavaThread - This class is the internal representation of a Java thread.
 /// It maintains thread-specific information such as its state, the current
@@ -94,6 +110,12 @@ public:
   ///
   JNILocalReferences* localJNIRefs;
 
+  // State of this Thread
+  int state;
+
+  // Lock to implement park/unpark
+  ParkLock parkLock;
+
 
   JavaObject** pushJNIRef(JavaObject* obj) {
     llvm_gcroot(obj, 0);
@@ -111,6 +133,7 @@ public:
   /// JavaThread - Empty constructor, used to get the VT.
   ///
   JavaThread() {
+	  state = vmkit::LockingThread::StateRunning;
   }
 
   /// ~JavaThread - Delete any potential malloc'ed objects used by this thread.
@@ -158,6 +181,9 @@ public:
   /// throwFromJNI - Throw an exception after executing JNI code.
   ///
   void throwFromJNI(word_t SP) {
+  	/* DEBUG*/
+  	endKnownFrame();
+  	enterUncooperativeCode(SP);
     // Nothing to do. The RETURN_FROM_JNI will take care of it.
   }
   
@@ -208,7 +234,9 @@ public:
   /// the stack.
   ///
   uint32 getJavaFrameContext(void** buffer);
-  
+
+  inline void setState(int a) { state= a; }
+
 private:
   /// internalClearException - Clear the C++ and Java exceptions
   /// currently pending.

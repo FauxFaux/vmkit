@@ -10,17 +10,20 @@ LEVEL = ../../../..
 
 EXTRA_DIST = OpenJDK.inc
 
-include $(LEVEL)/Makefile.config
-
 MODULE_WITH_GC = Classpath
 
-COMPILE_OPENJDK_ZIP=1
-OPENJDK_JAVA_SOURCES=java/lang/VMString.java
+INCLUDES+=-I$(PROJ_SRC_ROOT)/lib/j3/VMCore -I$(PROJ_SRC_ROOT)/include/j3 -I$(PROJ_SRC_ROOT)/lib/j3/ClassLib -I$(PROJ_SRC_ROOT)/include/j3/openjdk
+COMMON_CFLAGS+= -DVMKitOpenJDKZip=\"$(VMKIT_OPENJDK_ZIP)\"
 
 include $(LEVEL)/Makefile.common
 
-CXX.Flags += -I$(PROJ_SRC_DIR)/../../VMCore
-CXX.Flags += -I$(PROJ_SRC_ROOT)/include/j3
-CXX.Flags += -I$(PROJ_SRC_DIR)/.. -I$(PROJ_OBJ_DIR)/..
-CXX.Flags += -I$(PROJ_SRC_ROOT)/include/j3/openjdk
-CXX.Flags += -DVMKitOpenJDKZip=\"$(VMKIT_OPENJDK_ZIP)\"
+INCLUDES+=-I$(PROJ_SRC_ROOT)/lib/j3/VMCore -I$(PROJ_SRC_ROOT)/include/j3 -I$(PROJ_SRC_ROOT)/lib/j3/ClassLib -I$(PROJ_SRC_ROOT)/include/j3/openjdk
+COMMON_CFLAGS+= -DVMKitOpenJDKZip=\"$(VMKIT_OPENJDK_ZIP)\"
+
+$(VMKIT_OPENJDK_ZIP): $(OPENJDK_JAVA_SOURCES)
+	$(Echo) "**[13] Building OpenJDK java sources into zip"
+	-$(Verb) $(RM) -rf $@ $(CLASSES_DIR)
+	$(Verb) $(MKDIR) $(CLASSES_DIR)
+	$(Verb) $(JAVAC) $^ -d $(CLASSES_DIR)
+	cd $(CLASSES_DIR) && $(ZIP) -qr $(VMKIT_OPENJDK_ZIP) .
+

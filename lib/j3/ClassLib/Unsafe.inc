@@ -484,13 +484,12 @@ JavaObject* unsafe, jlong ptr, jlong val) {
 //===--- Park/Unpark thread support ---------------------------------------===//
 JNIEXPORT void JNICALL Java_sun_misc_Unsafe_park(
 JavaObject* unsafe, jboolean isAbsolute, jlong time) {
-  // Nothing, for now.
+//return;
+  llvm_gcroot(unsafe, 0);
+  JavaThread* thread = (JavaThread*)JavaThread::get();
+  thread->parkLock.park(isAbsolute, time, thread);
 }
 
-JNIEXPORT void JNICALL Java_sun_misc_Unsafe_unpark(
-JavaObject* unsafe, JavaObject* thread) {
-  // Nothing, for now.
-}
 
 //===--- Monitor support --------------------------------------------------===//
 JNIEXPORT void JNICALL Java_sun_misc_Unsafe_tryMonitorEnter(

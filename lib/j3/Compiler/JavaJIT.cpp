@@ -686,7 +686,7 @@ void JavaJIT::monitorEnter(Value* obj) {
 
   BranchInst::Create(OK, NotOK, cmp, currentBlock);
 
-  // The atomic cas did not work.
+  // The atomic CAS did not work.
   currentBlock = NotOK;
   CallInst::Create(intrinsics->AquireObjectFunction, obj, "", currentBlock);
   BranchInst::Create(OK, currentBlock);
@@ -1179,7 +1179,7 @@ llvm::Function* JavaJIT::javaCompile() {
 
   reader.cursor = start;
   compileOpcodes(reader, codeLen);
-  
+
   // This isn't a real requirement, although javac-produced bytcode does
   // seem to adhere to it.  However jython and similar (clojure, etc) don't
   // always create bytecode that matches this, and AFAICT rejecting the
@@ -1811,7 +1811,7 @@ Value* JavaJIT::getResolvedCommonClass(uint16 index, bool doThrow,
     if (alreadyResolved) *alreadyResolved = cl;
     node = TheCompiler->getNativeClass(cl);
     // Since we only allocate for array classes that we own and
-    // ony primitive arrays are already allocated, verify that the class
+    // only primitive arrays are already allocated, verify that the class
     // array is not external.
     if (TheCompiler->isStaticCompiling() && cl->isArray() && 
         node->getType() != intrinsics->JavaClassArrayType) {
@@ -2490,6 +2490,8 @@ unsigned JavaJIT::readExceptionTable(Reader& reader, uint32 codeLen) {
     ex->endpc     = reader.readU2();
     ex->handlerpc = reader.readU2();
 
+    opcodeInfos[ex->handlerpc].isReachable = true;
+
     ex->catche = reader.readU2();
 
     if (ex->catche) {
@@ -2512,6 +2514,7 @@ unsigned JavaJIT::readExceptionTable(Reader& reader, uint32 codeLen) {
     for (uint16 i = ex->startpc; i < ex->endpc; ++i) {
       if (opcodeInfos[i].exceptionBlock == endExceptionBlock) {
         opcodeInfos[i].exceptionBlock = ex->tester;
+        //opcodeInfos[i].handlerPC = ex->handlerpc;
       }
     }
 
@@ -2568,9 +2571,13 @@ unsigned JavaJIT::readExceptionTable(Reader& reader, uint32 codeLen) {
 
     if (depth >= JavaVirtualTable::getDisplayLength()) {
       Value* classArgs[2] = { objVT, VTVar };
-          
-      cmp = CallInst::Create(intrinsics->IsSecondaryClassFunction,
+
+      if (TheCompiler->isStaticCompiling())
+    	  cmp = CallInst::Create(intrinsics->IsSecondaryClassFunction,
                              classArgs, "isSecondaryClass", currentBlock);
+      else
+    	  cmp = CallInst::Create(intrinsics->IsSecondaryClassFunctionInner,
+    	                               classArgs, "isSecondaryClass", currentBlock);
 
     } else {
      

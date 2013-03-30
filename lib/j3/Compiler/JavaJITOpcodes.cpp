@@ -12,6 +12,7 @@
 
 
 #include <cstring>
+#include <queue>
 
 #include <llvm/Constants.h>
 #include <llvm/DerivedTypes.h>
@@ -98,13 +99,240 @@ static inline uint32 WCALC(uint32 n, bool& wide) {
   }
 }
 
+/**
+ * Used in JavaJIT::findUnreachableCode to find the next instruction in the array of bytecode.
+ */
+static uint8 sum [] = {
+		2,
+		3,
+		2,
+		3,
+		3,
+		2,
+		2,
+		2,
+		2,
+		2
+};
+static uint8 sum2 [] = {
+		3,
+		3,
+		3,
+		3,
+		3,
+		3,
+		3,
+		5,
+		5,
+		3,
+		2,
+		3,
+		1,
+		1,
+		3,
+		3,
+		1,
+		1
+};
+
+void JavaJIT::findUnreachableCode(Reader& reader, uint32 codeLen) {
+	std::queue<uint32> queue;
+	queue.push(0);
+	opcodeInfos[0].isReachable = true;
+
+	for (unsigned i = 0; i < codeLen; ++i) {
+		if (opcodeInfos[i].isReachable)
+			queue.push(i);
+	}
+
+	uint32 start = reader.cursor;
+	while (queue.size()) {
+		// pick one index from the queue
+		uint32 i_opcode = queue.front();
+		queue.pop();
+		// read the opcode at this position
+		reader.cursor = start + i_opcode;
+		uint8 bytecode = reader.readU1();
+		// if the opcode is a section which has a handle other than the endBlockHandler then we must add the initial instruction of that handler to the queue
+		if (opcodeInfos[i_opcode].handlerPC) {
+			uint16 pc = opcodeInfos[i_opcode].handlerPC;
+			if (pc < codeLen && !opcodeInfos[pc].isReachable) {
+				opcodeInfos[pc].isReachable = true;
+				queue.push(pc);
+			}
+		}
+		//
+		// if the opcode does not involve a branch then mark the next instruction as reachable (DONE)
+		// if the opcode is an unconditional branch then mark the target as reachable (DONE)
+		// if the opcode is a conditional branch then mark the target and the next instruction as reachable (DONE)
+		// if it is a ret instruction then I don't know what to do.
+		// if it is a jsr instruction then mark the target as reachable (DONE)
+		// if it is tableswitch instruction then mark all cases as reachable (DONE)
+		// if it is lookupswitch instruction then mark all cases as reachable (DONE)
+		// wide instruction (DONE)
+		if (bytecode < IFEQ) {
+			uint32 next_index = 1;
+			if (bytecode >= BIPUSH && bytecode <= ALOAD)
+				next_index = sum[bytecode - BIPUSH];
+			else if (bytecode >= ISTORE && bytecode <= ASTORE)
+				next_index = 2;
+			else if (bytecode == IINC)
+				next_index = 3;
+			next_index += i_opcode;
+			if (next_index < codeLen && !opcodeInfos[next_index].isReachable) {
+				opcodeInfos[next_index].isReachable = true;
+				queue.push(next_index);
+			}
+		}
+		else if (bytecode >= IFEQ && bytecode <= IF_ACMPNE) {
+			uint32 next_index = 3 + i_opcode;
+			if (next_index < codeLen && !opcodeInfos[next_index].isReachable) {
+				opcodeInfos[next_index].isReachable = true;
+				queue.push(next_index);
+			}
+			uint16 b1 = reader.readU1();
+			uint8 b2 = reader.readU1();
+			sint16 step = (b1 << 8) | b2;
+			next_index = i_opcode + step;
+			if (next_index < codeLen && !opcodeInfos[next_index].isReachable) {
+				opcodeInfos[next_index].isReachable = true;
+				queue.push(next_index);
+			}
+		}
+		else if (bytecode >= GETSTATIC && bytecode <= MONITOREXIT && bytecode != ATHROW) {
+			uint32 next_index = sum2[bytecode - GETSTATIC] + i_opcode;
+			if (next_index < codeLen && !opcodeInfos[next_index].isReachable) {
+				opcodeInfos[next_index].isReachable = true;
+				queue.push(next_index);
+			}
+		}
+		else {
+			uint32 x;
+			sint32 defaultIndex,lowIndex, highIndex;
+			uint32 next_index = codeLen;
+			sint16 step;
+			sint32 step32;
+			uint16 b1;
+			uint8 b2,b3,b4;
+			switch (bytecode) {
+				case GOTO:
+					step = reader.readS2();
+					next_index = i_opcode + step;
+					break;
+				case GOTO_W:
+					step32 =  reader.readS4();
+					next_index = step32 + i_opcode;
+					break;
+				case MULTIANEWARRAY:
+					next_index = i_opcode + 4;
+					break;
+				case IFNULL:
+				case IFNONNULL:
+				case JSR:
+					next_index = i_opcode + 3;
+					if (next_index < codeLen && !opcodeInfos[next_index].isReachable) {
+						opcodeInfos[next_index].isReachable = true;
+						queue.push(next_index);
+					}
+					step = reader.readS2();
+					next_index = i_opcode + step;
+					break;
+				case JSR_W:
+					next_index = i_opcode + 5;
+					if (next_index < codeLen && !opcodeInfos[next_index].isReachable) {
+						opcodeInfos[next_index].isReachable = true;
+						queue.push(next_index);
+					}
+					step32 =  reader.readS4();
+					next_index = step32 + i_opcode;
+					break;
+				case WIDE:
+					if (i_opcode + 1 < codeLen && !opcodeInfos[i_opcode + 1].isReachable) {
+						opcodeInfos[i_opcode + 1].isReachable = true;
+						queue.push(i_opcode + 1);
+					}
+					b2 = reader.readU1();
+					next_index = i_opcode + ((b2 == IINC)?6:4);
+					break;
+				case TABLESWITCH:
+					//break;
+					x = i_opcode & 0x03; // remainder of division by 4
+					reader.cursor = start + 4 - x + i_opcode;
+					// default
+					step32 =  reader.readS4();
+					defaultIndex = step32 + i_opcode;
+					if (defaultIndex < codeLen && !opcodeInfos[defaultIndex].isReachable) {
+						opcodeInfos[defaultIndex].isReachable = true;
+						queue.push(defaultIndex);
+					}
+					// low
+					lowIndex = reader.readS4();
+					// high
+					highIndex = reader.readS4();
+					// all options
+					for (int i = 0 ; i < highIndex - lowIndex + 1 ; i++) {
+						step32 =  reader.readS4();
+						next_index = step32 + i_opcode;
+						if (next_index < codeLen && !opcodeInfos[next_index].isReachable) {
+							opcodeInfos[next_index].isReachable = true;
+							queue.push(next_index);
+						}
+					}
+					next_index = codeLen;
+					break;
+				case LOOKUPSWITCH:
+					//break;
+					x = i_opcode & 0x03; // remainder of division by 4
+					reader.cursor = start + 4 - x + i_opcode;
+					// default
+					step32 =  reader.readS4();//(defaultIndex << 24) | (b2 << 16) | (b3 << 8) | b4;
+					defaultIndex = step32 + i_opcode;
+					if (defaultIndex < codeLen && !opcodeInfos[defaultIndex].isReachable) {
+						opcodeInfos[defaultIndex].isReachable = true;
+						queue.push(defaultIndex);
+					}
+					// npairs
+					lowIndex = reader.readS4();
+					// all options
+					for (int i = 0 ; i < lowIndex ; i++) {
+						reader.cursor += 4; // skipping match
+						// offset
+						step32 =  reader.readS4();
+						next_index = step32 + i_opcode;
+						if (next_index < codeLen && !opcodeInfos[next_index].isReachable) {
+							opcodeInfos[next_index].isReachable = true;
+							queue.push(next_index);
+						}
+					}
+					next_index = codeLen;
+					break;
+				default:
+					break;
+			}
+			if (next_index < codeLen && !opcodeInfos[next_index].isReachable) {
+				opcodeInfos[next_index].isReachable = true;
+				queue.push(next_index);
+			}
+		}
+	} // end while
+}
+
 void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
   bool wide = false;
   uint32 jsrIndex = 0;
   uint32 start = reader.cursor;
+  // Some compilers like Scala and Kotlin produce unreachable code.
+  if (!opcodeInfos[0].isReachable) {
+	  findUnreachableCode(reader, codeLength);
+	  reader.cursor = start;
+  }
+
   vmkit::ThreadAllocator allocator;
   for(uint32 i = 0; i < codeLength; ++i) {
-    reader.cursor = start + i;
+	if (!opcodeInfos[i].isReachable && !opcodeInfos[i].handler) {
+		continue;
+	}
+	reader.cursor = start + i;
     uint8 bytecode = reader.readU1();
     
     PRINT_DEBUG(JNJVM_COMPILE, 1, DARK_BLUE, "\t[at %5d] %-5d ", i,
@@ -707,35 +935,49 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
                                     false,
                                     currentBlock);
           JITVerifyNull(obj);
-          Value* cmp = new ICmpInst(*currentBlock, ICmpInst::ICMP_EQ, val,
+
+
+
+          Value* res = 0;
+          if (TheCompiler->isStaticCompiling()) {
+        	  BasicBlock* endBlock = createBasicBlock("end array store check");
+        	  BasicBlock* checkBlock = createBasicBlock("array store check");
+        	  BasicBlock* exceptionBlock =
+        	          		  createBasicBlock("array store exception");
+        	  Value* cmp = new ICmpInst(*currentBlock, ICmpInst::ICMP_EQ, val,
                                     intrinsics->JavaObjectNullConstant, "");
 
-          BasicBlock* endBlock = createBasicBlock("end array store check");
-          BasicBlock* checkBlock = createBasicBlock("array store check");
-          BasicBlock* exceptionBlock = 
-            createBasicBlock("array store exception");
-          BranchInst::Create(endBlock, checkBlock, cmp, currentBlock);
-          currentBlock = checkBlock;
+
+          	  BranchInst::Create(endBlock, checkBlock, cmp, currentBlock);
+          	  	  	  currentBlock = checkBlock;
         
-          Value* valVT = CallInst::Create(intrinsics->GetVTFunction, val, "",
+          	  Value* valVT = CallInst::Create(intrinsics->GetVTFunction, val, "",
                                           currentBlock);
          
-          Value* objVT = CallInst::Create(intrinsics->GetVTFunction, obj, "",
+          	  Value* objVT = CallInst::Create(intrinsics->GetVTFunction, obj, "",
                                           currentBlock);
-          objVT = CallInst::Create(intrinsics->GetBaseClassVTFromVTFunction, objVT,
+          	  objVT = CallInst::Create(intrinsics->GetBaseClassVTFromVTFunction, objVT,
                                    "", currentBlock);
           
-          Value* VTArgs[2] = { valVT, objVT };
+          	  Value* VTArgs[2] = { valVT, objVT };
           
-          Value* res = CallInst::Create(intrinsics->IsSubclassOfFunction,
+          	  res = CallInst::Create(
+        		  (TheCompiler->isStaticCompiling())?
+        				  intrinsics->IsSubclassOfFunction:
+        				  intrinsics->IsSubclassOfFunctionInner,
                                         VTArgs, "", currentBlock);
+          	BranchInst::Create(endBlock, exceptionBlock, res, currentBlock);
 
-          BranchInst::Create(endBlock, exceptionBlock, res, currentBlock);
+          	currentBlock = exceptionBlock;
+          	throwRuntimeException(intrinsics->ArrayStoreExceptionFunction, VTArgs, 2);
+          	currentBlock = endBlock;
+          }
+          else {
+        	  Value* objects[2] = {val, obj};
+        	  res = CallInst::Create(intrinsics->CheckIfAssignable, objects, "", currentBlock);
+          }
+
           
-          currentBlock = exceptionBlock;
-          throwRuntimeException(intrinsics->ArrayStoreExceptionFunction, VTArgs, 2);
-
-          currentBlock = endBlock;
         }
         Value* val = pop();
         Value* index = pop();
@@ -905,7 +1147,7 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
         Value* val2 = popAsInt();
         Value* val1 = popAsInt();
         push(BinaryOperator::CreateAdd(val1, val2, "", currentBlock),
-             false);
+        			false);
         break;
       }
 
@@ -2269,8 +2511,12 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
         Value* res = 0;
         if (cl) {
           if (cl->isSecondaryClass()) {
-            res = CallInst::Create(intrinsics->IsSecondaryClassFunction,
+        	  if (TheCompiler->isStaticCompiling())
+        		  res = CallInst::Create(intrinsics->IsSecondaryClassFunction,
                                    classArgs, "", currentBlock);
+        	  else
+        		  res = CallInst::Create(intrinsics->IsSecondaryClassFunctionInner,
+        		                                     classArgs, "", currentBlock);
           } else {
             Value* inDisplay = CallInst::Create(intrinsics->GetDisplayFunction,
                                                 objVT, "", currentBlock);
@@ -2286,8 +2532,12 @@ void JavaJIT::compileOpcodes(Reader& reader, uint32 codeLength) {
                                TheVT, "");
           }
         } else {
-          res = CallInst::Create(intrinsics->IsSubclassOfFunction,
+        	if (TheCompiler->isStaticCompiling())
+        		res = CallInst::Create(intrinsics->IsSubclassOfFunction,
                                  classArgs, "", currentBlock);
+        	else
+        		res = CallInst::Create(intrinsics->IsSubclassOfFunctionInner,
+        		                                 classArgs, "", currentBlock);
         }
 
         node->addIncoming(res, currentBlock);
