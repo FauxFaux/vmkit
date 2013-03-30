@@ -25,7 +25,6 @@
 #include "JnjvmConfig.h"
 #include "JNIReferences.h"
 #include "LockedMap.h"
-#include "JavaArray.h"
 
 namespace j3 {
 
@@ -370,15 +369,20 @@ public:
 #if RESET_STALE_REFERENCES
 
 public:
-  void resetReferencesToBundle(int64_t bundleID);
-  virtual void resetReferenceIfStale(const void* source, void** ref);
+  void setBundleStaleReferenceCorrected(int64_t bundleID, bool corrected);
+  bool isBundleStaleReferenceCorrected(int64_t bundleID);
   void dumpClassLoaderBundles();
+  class ArrayLong* getReferencesToObject(const JavaObject* obj);
+
+  void notifyBundleUninstalled(int64_t bundleID);
 
   int64_t getClassLoaderBundleID(JnjvmClassLoader* loader);
   JnjvmClassLoader* getBundleClassLoader(int64_t bundleID);
   void setBundleClassLoader(int64_t bundleID, JnjvmClassLoader* loader);
 
   typedef std::map<int64_t, JnjvmClassLoader*>	bundleClassLoadersType;
+
+  virtual void resetReferenceIfStale(const void* source, void** ref);
 
 protected:
   void resetReferenceIfStale(const JavaObject *source, class VMClassLoader** ref);
@@ -389,6 +393,8 @@ protected:
   vmkit::LockRecursive bundleClassLoadersLock;
   bundleClassLoadersType bundleClassLoaders;
   volatile bool scanStaleReferences;
+  const JavaObject* findReferencesToObject;
+  std::vector<const JavaObject*> foundReferencerObjects;
 
 #endif
 };
