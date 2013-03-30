@@ -15,7 +15,6 @@ ifeq ($(OPTIMIZED),1)
     BUILD_NAME:=$(BUILD_NAME)+Debug
   endif
 else
-	$(warning "Non-optimized mode compile but the executable is broken")
   ifeq ($(DEBUG),1)
     BUILD_NAME:=Debug
   else
@@ -30,7 +29,7 @@ else
 endif
 
 ifeq ($(DEBUG),1)
-  COMMON_CFLAGS+=-g
+  COMMON_CFLAGS+=-g3 -fno-limit-debug-info
 endif
 
 ifeq ($(OPTIMIZED),1)
@@ -38,9 +37,10 @@ ifeq ($(OPTIMIZED),1)
   OPT_FLAGS+= -disable-opt
   COMMON_CFLAGS+= -O3
 else
-  LLC_FLAGS+= -O=0 
-  OPT_FLAGS+= -inline # unable to find which function I have to mark as always_inline... We have to investigate...
-  COMMON_CFLAGS+= -O0
+  LLC_FLAGS+=-O=0 -asm-verbose
+  OPT_FLAGS+=-disable-opt
+  COMMON_CFLAGS+=-O0
+  PRECOMPILER_OPT+=-disable-opt
 endif
 
 LLC_FLAGS+=-disable-cfi -disable-fp-elim -relocation-model=pic 
@@ -56,7 +56,8 @@ COMMON_CFLAGS+= $(INCLUDES) -ansi -pedantic $(WARN_CFLAGS) -fPIC \
 
 CFLAGS+=$(COMMON_CFLAGS) 
 CXXFLAGS+=$(COMMON_CFLAGS) -Woverloaded-virtual -Wcast-qual -fno-rtti -fno-exceptions
-LDFLAGS+=$(shell $(LLVM_CONFIG) --ldflags) $(LDOPT)
+LDFLAGS+=$(COMMON_CFLAGS) $(shell $(LLVM_CONFIG) --ldflags) $(LDOPT)
+SHOPT+=$(COMMON_CFLAGS)
 LIBS+=$(shell $(LLVM_CONFIG) --libs) -lz
 
 DEPEND_OPTIONS=-MMD -MP -MF "$(BUILD_DIR)/$$*.d.tmp" -MT "$(BUILD_DIR)/$$*.bc" -MT "$(BUILD_DIR)/$$*.d"
@@ -174,7 +175,7 @@ GC_ID=-gc
 
 %$(GC_ID).bc: %.bc
 	$(Echo) "Preparing GC '$(notdir $<)'"
-	$(Verb) $(LOPT) -load=$(STATIC_GC_PASS_LIB) -StaticGCPass $(OPT_FLAGS) $< -o $@
+	$(Verb) $(LOPT) -load=$(STATIC_GC_PASS_LIB) $(OPT_FLAGS) -inline -StaticGCPass $< -o $@
 
 endif
 
@@ -247,14 +248,13 @@ endif
 #   Inliner
 ###############################################################################
 $(BUILD_DIR)/$(MODULE)-inliner.cc: $(BUILD_DIR)/$(MODULE)$(GC_ID).bc $(SELF)
-  # cppgen doesn't like debug info
 	$(Echo) "Generating inliner $(notdir $@)"
 	$(Verb) doit() { \
 						echo '#include "vmkit/InlineCommon.h"'; \
 			    	echo 'using namespace llvm;'; \
 						echo 'namespace vmkit {'; \
 						for F in $(EXTRACT_FUNCTIONS); do \
-							$(LOPT) -strip-debug $< -o - | $(LLC) $(LLC_FLAGS) -march=cpp -cppgen=function -cppfor=$$F -o - \
+							$(LOPT) $(OPT_FLAGS) $< -o - | $(LLC) $(LLC_FLAGS) -march=cpp -cppgen=function -cppfor=$$F -o - \
 									| sed -e "s/makeLLVMFunction/makeLLVMFunction_$(MODULE)_$$F/"; [ $$? -ne 0 ] && exit 1; \
 						done; \
 						echo "void makeLLVMFunctions_$(MODULE)(Module *mod) {"; \
@@ -277,7 +277,7 @@ $(BIN_DIR)/$(TOOL)$(EXEEXT): $(MODULE_A) $(DEP_LIBS) $(BUILD_DIR)/frametables.o 
 
 $(LIB_DIR)/$(LIBRARY)$(SHLIBEXT): $(MODULE_A) $(DEP_LIBS) $(SELF) $(LIB_DIR)/.dir
 	$(Echo) "Linking shared library '$(notdir $@)'"
-	$(Verb) $(CLANGXX) -O0 -o $@ $(SHOPT) -shared -Wl,--whole-archive $(MODULE_A) -Wl,--no-whole-archive $(DEP_LIBS)
+	$(Verb) $(CLANGXX) -o $@ $(SHOPT) -shared -Wl,--whole-archive $(MODULE_A) -Wl,--no-whole-archive $(DEP_LIBS)
 
 ###############################################################################
 #   Frametables
