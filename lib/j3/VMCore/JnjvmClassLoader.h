@@ -49,6 +49,9 @@ class TypeMap;
 class VMClassLoader;
 class ZipArchive;
 
+template <class T> class TJavaArray;
+typedef TJavaArray<JavaObject*> ArrayObject;
+
 /// JnjvmClassLoader - Runtime representation of a class loader. It contains
 /// its own tables (signatures, UTF8, types) which are mapped to a single
 /// table for non-isolate environments.
@@ -335,13 +338,14 @@ public:
 #if RESET_STALE_REFERENCES
 
 protected:
-  // A zombie class loader is one whose defining bundle was uninstalled, but it is
-  // still loaded because some references to it still exist in memory.
+  bool staleRefCorrected;
   bool zombie;
 
 public:
   bool isZombie() const {return zombie;}
   void markZombie(bool becomeZombie = true) {zombie = becomeZombie;}
+  bool isStaleReferencesCorrectionEnabled() {return staleRefCorrected;}
+  void setStaleReferencesCorrectionEnabled(bool enable) {staleRefCorrected = enable;}
 
   // This bridges the OSGi world (bundles) to the Java world (class loaders).
   int64_t getAssociatedBundleID();

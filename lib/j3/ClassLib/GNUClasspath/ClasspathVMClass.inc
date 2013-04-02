@@ -532,16 +532,8 @@ JavaObjectClass* Cl) {
   return res;
 }
 
-/**
-   * Returns the class which immediately encloses the specified class.If
-   * the class is a top-level class, this method returns null
-   *
-   * @param klass the class whose enclosing class should be returned.
-   * @return the immediate enclosing class, or nul if this is
-   *  a top-level class.
-   * @since 1.5
-   * static native Class getEnclosingClass(Class klass);
-   */
+// Returns the class which immediately encloses the specified class.
+// If the class is a top-level class, this method returns null.
 JNIEXPORT JavaObject* JNICALL Java_java_lang_VMClass_getEnclosingClass(
 #ifdef NATIVE_JNI
 JNIEnv *env,

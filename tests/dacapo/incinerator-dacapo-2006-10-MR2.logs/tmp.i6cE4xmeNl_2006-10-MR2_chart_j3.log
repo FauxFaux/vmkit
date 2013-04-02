@@ -1,0 +1,16 @@
+===== DaCapo chart starting =====
+Done plotting: ./scratch/javac-tgt-ptr-prf-time.pdf
+Done plotting: ./scratch/javac-src-ptr-prf-time.pdf
+Done plotting: ./scratch/javac-dst-ptr-prf-time.pdf
+Done plotting: ./scratch/javac-tgt-mut-prf-time.pdf
+Done plotting: ./scratch/javac-src-mut-prf-time.pdf
+Done plotting: ./scratch/javac-dst-mut-prf-time.pdf
+Done plotting: ./scratch/javac-heap-comp-b.pdf
+Done plotting: ./scratch/javac-heap-comp-a.pdf
+Done plotting: ./scratch/javac-tgt-ptr-inf-time.pdf
+Done plotting: ./scratch/javac-src-ptr-inf-time.pdf
+Done plotting: ./scratch/javac-dst-ptr-inf-time.pdf
+Done plotting: ./scratch/javac-tgt-mut-inf-time.pdf
+Done plotting: ./scratch/javac-src-mut-inf-time.pdf
+Done plotting: ./scratch/javac-dst-mut-inf-time.pdf
+===== DaCapo chart PASSED in 125449 msec =====
