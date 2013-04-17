@@ -1,6 +1,0 @@
-===== DaCapo eclipse starting =====
-<setting up workspace...>
-<creating projects..............................................................>
-<running tests at level 0...>
-<performing build tests...>
-j3: ctlock.cpp:187: int vmkit::Cond::timedWait(vmkit::Lock *, struct timeval *): Assertion `(!res || res == 110) && "Error on timed wait"' failed.
